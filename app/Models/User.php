@@ -12,12 +12,10 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
-        'phone',
-        'avatar_url',
-        'role',
-        'is_active',
+        'ms_group_id',
     ];
 
     protected $hidden = [
@@ -30,56 +28,11 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_active' => 'boolean',
         ];
     }
 
-    // Role checks
-    public function isSuperAdmin(): bool
+    public function group()
     {
-        return $this->role === 'admin';
-    }
-
-    public function isAdmin(): bool
-    {
-        return in_array($this->role, ['admin', 'officer']);
-    }
-
-    public function canManageSites(): bool
-    {
-        return in_array($this->role, ['admin', 'officer']);
-    }
-
-    // Scopes
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
-
-    public function scopeByRole($query, $role)
-    {
-        return $query->where('role', $role);
-    }
-
-    // Accessors
-    public function getRoleNameAttribute(): string
-    {
-        $roles = [
-            'admin' => 'Administrator',
-            'officer' => 'Petugas Lapangan',
-            'community' => 'Komunitas',
-            'user' => 'Pengguna',
-        ];
-
-        return $roles[$this->role] ?? 'Pengguna';
-    }
-
-    public function getAvatarAttribute(): string
-    {
-        if ($this->avatar_url) {
-            return $this->avatar_url;
-        }
-
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=009966&color=fff&size=128';
+        return $this->belongsTo(\App\Models\Master\Group::class, 'ms_group_id', 'MsGroupId');
     }
 }

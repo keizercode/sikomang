@@ -24,21 +24,6 @@ Route::prefix('monitoring')->group(function () {
     Route::get('/export/{category}', [ExcelExportController::class, 'exportMangroveData'])->name('monitoring.export');
 });
 
-// Marketplace
-Route::get('/marketplace', function () {
-    return view('pages.marketplace');
-})->name('marketplace');
-
-// Komunitas
-Route::get('/komunitas', function () {
-    return view('pages.komunitas');
-})->name('komunitas');
-
-// Edukasi
-Route::get('/edukasi', function () {
-    return view('pages.edukasi');
-})->name('edukasi');
-
 // Articles
 Route::prefix('artikel')->group(function () {
     Route::get('/', function () {
