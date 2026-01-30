@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\MangroveLocation;
+use App\Models\LocationDetail;
+use App\Models\LocationImage;
+use App\Models\LocationDamage;
 
 class SiteController extends Controller
 {
@@ -26,37 +30,26 @@ class SiteController extends Controller
 
     public function grid(Request $request)
     {
-        // Dummy data - replace with actual database query
-        $data = [
-            [
-                'id' => encode_id(1),
-                'no' => 1,
-                'name' => 'Rawa Hutan Lindung',
-                'region' => 'Penjaringan, Jakarta Utara',
-                'area' => '44.7 ha',
-                'density' => 'Jarang',
-                'health' => '98%',
-                'type' => 'Pengkayaan',
+        $locations = MangroveLocation::with(['damages'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $data = $locations->map(function ($location, $index) {
+            return [
+                'id' => encode_id($location->id),
+                'no' => $index + 1,
+                'name' => $location->name,
+                'region' => $location->region ?? '-',
+                'area' => $location->area_formatted,
+                'density' => ucfirst($location->density),
+                'health' => $location->health_formatted,
+                'type' => ucfirst($location->type),
                 'action' => '<div class="d-flex gap-1">
-                    <a href="' . route('admin.monitoring.edit', encode_id(1)) . '" class="btn btn-sm btn-success"><i class="mdi mdi-pencil"></i></a>
-                    <a href="#" data-href="' . route('admin.monitoring.delete', encode_id(1)) . '" class="btn btn-sm btn-danger remove_data"><i class="mdi mdi-delete"></i></a>
+                    <a href="' . route('admin.monitoring.edit', encode_id($location->id)) . '" class="btn btn-sm btn-success"><i class="mdi mdi-pencil"></i></a>
+                    <a href="#" data-href="' . route('admin.monitoring.delete', encode_id($location->id)) . '" class="btn btn-sm btn-danger remove_data"><i class="mdi mdi-delete"></i></a>
                 </div>'
-            ],
-            [
-                'id' => encode_id(2),
-                'no' => 2,
-                'name' => 'TWA Angke Kapuk',
-                'region' => 'Penjaringan, Jakarta Utara',
-                'area' => '99.82 ha',
-                'density' => 'Sedang',
-                'health' => '95%',
-                'type' => 'Pengkayaan',
-                'action' => '<div class="d-flex gap-1">
-                    <a href="' . route('admin.monitoring.edit', encode_id(2)) . '" class="btn btn-sm btn-success"><i class="mdi mdi-pencil"></i></a>
-                    <a href="#" data-href="' . route('admin.monitoring.delete', encode_id(2)) . '" class="btn btn-sm btn-danger remove_data"><i class="mdi mdi-delete"></i></a>
-                </div>'
-            ],
-        ];
+            ];
+        })->toArray();
 
         return response()->json($data);
     }
@@ -78,6 +71,7 @@ class SiteController extends Controller
     public function edit($id)
     {
         $keyId = decode_id($id);
+        $location = MangroveLocation::with(['details', 'images', 'damages'])->findOrFail($keyId);
 
         $data['breadcrumbs'] = [
             ['name' => 'Dashboard', 'url' => route('admin.dashboard')],
@@ -87,46 +81,56 @@ class SiteController extends Controller
         $data['title'] = 'Edit Lokasi Mangrove';
         $data['route'] = $this->route;
         $data['keyId'] = $id;
-
-        // Dummy data - replace with actual database query
-        $data['item'] = (object)[
-            'id' => $keyId,
-            'name' => 'Rawa Hutan Lindung',
-            'slug' => 'rawa-hutan-lindung',
-            'latitude' => -6.1023,
-            'longitude' => 106.7655,
-            'area' => 44.7,
-            'density' => 'jarang',
-            'type' => 'pengkayaan',
-            'health' => 98,
-            'description' => 'Kawasan hutan mangrove lindung'
-        ];
+        $data['item'] = $location;
 
         return view('admin.monitoring.form', $data);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $keyId = decode_id($request->secure_id);
+
+        $validated = $request->validate([
             'name' => 'required|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'area' => 'required|numeric',
-            'density' => 'required',
-            'type' => 'required',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'area' => 'required|numeric|min:0',
+            'density' => 'required|in:jarang,sedang,lebat',
+            'type' => 'required|in:pengkayaan,rehabilitasi,dilindungi,restorasi',
+            'region' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'health' => 'nullable|numeric|between:0,100',
+            'manager' => 'nullable|string|max:255',
+            'year_established' => 'nullable|integer|min:1900|max:' . date('Y'),
         ]);
 
-        // Save to database (implementation needed)
+        if ($keyId) {
+            // Update existing
+            $location = MangroveLocation::findOrFail($keyId);
+            $location->update($validated);
+        } else {
+            // Create new
+            $location = MangroveLocation::create($validated);
 
-        return redirect()->route('admin.monitoring.index')->with([
-            'message' => 'Data lokasi berhasil disimpan',
-            'type' => 'success'
-        ]);
+            // Create details record
+            LocationDetail::create([
+                'mangrove_location_id' => $location->id,
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.monitoring.index')
+            ->with([
+                'message' => 'Data lokasi berhasil disimpan',
+                'type' => 'success'
+            ]);
     }
 
     public function destroy($id)
     {
-        // Delete from database (implementation needed)
+        $keyId = decode_id($id);
+        $location = MangroveLocation::findOrFail($keyId);
+        $location->delete();
 
         return response()->json([
             'success' => true,
@@ -138,12 +142,20 @@ class SiteController extends Controller
     public function damages()
     {
         $data['title'] = 'Data Kerusakan';
+        $data['damages'] = LocationDamage::with(['location'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
         return view('admin.monitoring.damages', $data);
     }
 
     public function reports()
     {
         $data['title'] = 'Laporan Monitoring';
+        $data['locations'] = MangroveLocation::with(['damages', 'images'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('admin.monitoring.reports', $data);
     }
 }
