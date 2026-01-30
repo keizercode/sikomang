@@ -11,11 +11,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'username',
         'name',
         'email',
         'password',
-        'ms_group_id',
+        'phone',
+        'avatar_url',
+        'role',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -28,33 +30,56 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
-    public function group()
-    {
-        return $this->belongsTo(Group::class, 'ms_group_id', 'MsGroupId');
-    }
-
+    // Role checks
     public function isSuperAdmin(): bool
     {
-        return $this->group && $this->group->alias === 'superadmin';
+        return $this->role === 'admin';
     }
 
     public function isAdmin(): bool
     {
-        return $this->group && in_array($this->group->alias, ['superadmin', 'admin']);
+        return in_array($this->role, ['admin', 'officer']);
     }
 
-    public function hasAccess(string $module, string $permission = 'is_read'): bool
+    public function canManageSites(): bool
     {
-        if ($this->isSuperAdmin()) {
-            return true;
+        return in_array($this->role, ['admin', 'officer']);
+    }
+
+    // Scopes
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeByRole($query, $role)
+    {
+        return $query->where('role', $role);
+    }
+
+    // Accessors
+    public function getRoleNameAttribute(): string
+    {
+        $roles = [
+            'admin' => 'Administrator',
+            'officer' => 'Petugas Lapangan',
+            'community' => 'Komunitas',
+            'user' => 'Pengguna',
+        ];
+
+        return $roles[$this->role] ?? 'Pengguna';
+    }
+
+    public function getAvatarAttribute(): string
+    {
+        if ($this->avatar_url) {
+            return $this->avatar_url;
         }
 
-        return AccessMenu::where('ms_group_id', $this->ms_group_id)
-            ->where('module', 'LIKE', $module . '%')
-            ->where($permission, true)
-            ->exists();
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=009966&color=fff&size=128';
     }
 }
