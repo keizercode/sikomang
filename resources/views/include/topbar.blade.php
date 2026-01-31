@@ -4,9 +4,7 @@
             <!-- LOGO -->
             <div class="navbar-brand-box">
                 <a href="{{ route('admin.dashboard') }}" class="logo logo-dark">
-                    <span class="logo-sm">
-                        <img src="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png" alt="" height="26">
-                    </span>
+
                     <span class="logo-lg">
                         <img src="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png" alt="" height="26">
                     </span>
@@ -43,7 +41,7 @@
                         <i class="mdi mdi-account-circle text-muted font-size-16 align-middle me-2"></i>
                         <span class="align-middle">Profile</span>
                     </a>
-                    <a class="dropdown-item" href="{{ route('admin.settings') ?? '#' }}">
+                   <a class="dropdown-item" href="{{ route('admin.settings.index') }}">
                         <i class="mdi mdi-cog text-muted font-size-16 align-middle me-2"></i>
                         <span class="align-middle">Pengaturan</span>
                     </a>

@@ -25,6 +25,8 @@
     <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom Admin CSS -->
+{{-- @vite(['resources/css/admin/dashboard.css']) --}}
+    <!-- Custom Admin CSS -->
     <style>
         :root {
             --primary-color: #009966;

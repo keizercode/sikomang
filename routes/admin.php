@@ -67,10 +67,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Settings
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', fn() => view('admin.placeholder'))->name('index');
+        Route::get('/', fn() => view('admin.placeholder', ['title' => 'Pengaturan']))->name('index');
         Route::post('/update', fn() => redirect()->back())->name('update');
     });
 
     // Profile
-    Route::get('profile', fn() => view('admin.placeholder'))->name('profile');
+    Route::get('profile', fn() => view('admin.placeholder', ['title' => 'Profile']))->name('profile');
 });

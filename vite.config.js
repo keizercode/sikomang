@@ -15,6 +15,7 @@ export default defineConfig({
                 "resources/js/detail-lokasi.js",
                 "resources/css/detail-lokasi.css",
                 "resources/css/accordion.css",
+                "resources/css/admin/dashboard.css",
             ],
             refresh: true,
         }),

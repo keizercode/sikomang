@@ -2,16 +2,10 @@
     <!-- LOGO -->
     <div class="navbar-brand-box">
         <a href="{{ route('admin.dashboard') }}" class="logo logo-dark">
-            <span class="logo-sm">
-                <img src="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png" alt="" height="26">
-            </span>
             <span class="logo-lg">
-                <div class="d-flex align-items-center gap-3">
-                    <div><img src="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png" alt="" height="28"></div>
-                    <div><h3 class="mb-0 logo-md">SIKOMANG</h3></div>
-                    <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect vertical-menu-btn">
-                        <i class="bx bx-menu align-middle"></i>
-                    </button>
+                <div class="d-flex align-items-center gap-2">
+                    <img src="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png" alt="SIKOMANG Logo" height="32">
+                    <h3 class="mb-0 logo-md text-white">SIKOMANG</h3>
                 </div>
             </span>
         </a>
