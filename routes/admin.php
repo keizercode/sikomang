@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Auth\CustomLoginController;
 
 /*
@@ -45,22 +48,29 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/forcelogin/{id}', [UserController::class, 'forcelogin'])->name('forcelogin');
     });
 
-    // Placeholder routes for menu items
-    Route::get('articles/index', fn() => view('admin.placeholder'))->name('articles.index');
-    Route::get('gallery/index', fn() => view('admin.placeholder'))->name('gallery.index');
-    Route::get('pages/index', fn() => view('admin.placeholder'))->name('pages.index');
-    Route::get('community/index', fn() => view('admin.placeholder'))->name('community.index');
-    Route::get('products/index', fn() => view('admin.placeholder'))->name('products.index');
-    Route::get('orders/index', fn() => view('admin.placeholder'))->name('orders.index');
-    Route::get('sellers/index', fn() => view('admin.placeholder'))->name('sellers.index');
-    Route::get('education/courses', fn() => view('admin.placeholder'))->name('education.courses');
-    Route::get('education/materials', fn() => view('admin.placeholder'))->name('education.materials');
-    Route::get('education/quizzes', fn() => view('admin.placeholder'))->name('education.quizzes');
-    Route::get('reports/monitoring', fn() => view('admin.placeholder'))->name('reports.monitoring');
-    Route::get('reports/conservation', fn() => view('admin.placeholder'))->name('reports.conservation');
-    Route::get('reports/visitors', fn() => view('admin.placeholder'))->name('reports.visitors');
-    Route::get('roles/index', fn() => view('admin.placeholder'))->name('roles.index');
-    Route::get('settings/index', fn() => view('admin.placeholder'))->name('settings.index');
+    // Article Management
+    Route::prefix('articles')->name('articles.')->group(function () {
+        Route::get('/', fn() => view('admin.placeholder'))->name('index');
+        Route::get('/create', fn() => view('admin.placeholder'))->name('create');
+        Route::post('/store', fn() => redirect()->back())->name('store');
+        Route::get('/edit/{id}', fn() => view('admin.placeholder'))->name('edit');
+        Route::get('/delete/{id}', fn() => redirect()->back())->name('delete');
+    });
+
+    // Gallery Management
+    Route::prefix('gallery')->name('gallery.')->group(function () {
+        Route::get('/', fn() => view('admin.placeholder'))->name('index');
+        Route::get('/upload', fn() => view('admin.placeholder'))->name('upload');
+        Route::post('/store', fn() => redirect()->back())->name('store');
+        Route::get('/delete/{id}', fn() => redirect()->back())->name('delete');
+    });
+
+    // Settings
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', fn() => view('admin.placeholder'))->name('index');
+        Route::post('/update', fn() => redirect()->back())->name('update');
+    });
+
+    // Profile
     Route::get('profile', fn() => view('admin.placeholder'))->name('profile');
-    Route::get('settings', fn() => view('admin.placeholder'))->name('settings');
 });

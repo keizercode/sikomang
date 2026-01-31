@@ -33,6 +33,6 @@ class User extends Authenticatable
 
     public function group()
     {
-        return $this->belongsTo(\App\Models\Master\Group::class, 'ms_group_id', 'MsGroupId');
+        return $this->belongsTo(Group::class, 'ms_group_id', 'MsGroupId');
     }
 }

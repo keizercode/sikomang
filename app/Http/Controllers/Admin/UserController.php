@@ -29,24 +29,26 @@ class UserController extends Controller
 
     public function grid(Request $request)
     {
-        // Dummy data - will be replaced with actual database query
-        $_data = [
-            [
-                'no' => 1,
-                'id' => encode_id(2),
-                'name' => 'Admin Site',
-                'role' => 'Administrator',
-                'username' => 'adminsite',
-                'email' => 'admin@sikomang.id',
-                'created_at' => dateTime(now()),
-                'action' => '<div class="d-flex gap-1">
-                    <a href="' . route('admin.users.update', encode_id(2)) . '" class="btn btn-sm btn-primary"><i class="mdi mdi-pencil"></i></a>
-                    <a href="#" data-href="' . route('admin.users.delete', encode_id(2)) . '" class="btn btn-sm btn-danger remove_data"><i class="mdi mdi-delete"></i></a>
-                </div>'
-            ]
-        ];
+        // Get all users with their groups
+        $users = User::with('group')->get();
 
-        return response()->json($_data);
+        $data = $users->map(function ($user, $index) {
+            return [
+                'no' => $index + 1,
+                'id' => encode_id($user->id),
+                'name' => $user->name,
+                'role' => $user->group->name ?? 'N/A',
+                'username' => $user->username,
+                'email' => $user->email,
+                'created_at' => dateTime($user->created_at),
+                'action' => '<div class="d-flex gap-1">
+                    <a href="' . route('admin.users.update', encode_id($user->id)) . '" class="btn btn-sm btn-primary"><i class="mdi mdi-pencil"></i></a>
+                    <a href="#" data-href="' . route('admin.users.delete', encode_id($user->id)) . '" class="btn btn-sm btn-danger remove_data"><i class="mdi mdi-delete"></i></a>
+                </div>'
+            ];
+        })->toArray();
+
+        return response()->json($data);
     }
 
     public function update($id = null)
