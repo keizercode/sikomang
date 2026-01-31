@@ -34,3 +34,6 @@ Route::prefix('artikel')->group(function () {
         return view('pages.articles.show', compact('slug'));
     })->name('articles.show');
 });
+
+// Admin Routes
+require __DIR__ . '/admin.php';
