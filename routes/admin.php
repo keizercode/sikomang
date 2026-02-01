@@ -16,9 +16,10 @@ use App\Http\Controllers\Auth\CustomLoginController;
 */
 
 // Authentication Routes
-Route::get('login', [CustomLoginController::class, 'index'])->name('login');
-Route::post('login', [CustomLoginController::class, 'post_login'])->name('post_login');
-Route::get('logout', [CustomLoginController::class, 'logout'])->name('admin.logout');
+Route::get('login', [CustomLoginController::class, 'index'])->name('admin.login');
+Route::post('login', [CustomLoginController::class, 'post_login'])->name('admin.login.submit');
+Route::post('logout', [CustomLoginController::class, 'logout'])->name('admin.logout');
+
 
 // Protected Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -33,7 +34,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/create', [SiteController::class, 'create'])->name('create');
         Route::get('/edit/{id}', [SiteController::class, 'edit'])->name('edit');
         Route::post('/store', [SiteController::class, 'store'])->name('store');
-        Route::get('/delete/{id}', [SiteController::class, 'destroy'])->name('delete');
+        Route::delete('/{id}', [SiteController::class, 'destroy'])->name('destroy');
         Route::get('/damages', [SiteController::class, 'damages'])->name('damages');
         Route::get('/reports', [SiteController::class, 'reports'])->name('reports');
     });
@@ -57,7 +58,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/grid', [UserController::class, 'grid'])->name('grid');
         Route::get('/update/{id?}', [UserController::class, 'update'])->name('update');
         Route::post('/store', [UserController::class, 'store'])->name('store');
-        Route::get('/delete/{id}', [UserController::class, 'delete'])->name('delete');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
         Route::get('/forcelogin/{id}', [UserController::class, 'forcelogin'])->name('forcelogin');
     });
 
@@ -69,6 +70,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('settings/clear-cache', [SettingController::class, 'clearCache'])->name('settings.clear-cache');
     Route::get('settings/export', [SettingController::class, 'export'])->name('settings.export');
     Route::post('settings/import', [SettingController::class, 'import'])->name('settings.import');
+
+    Route::get('settings/general', [SettingController::class, 'general'])->name('settings.general');
+    Route::get('settings/contact', [SettingController::class, 'contact'])->name('settings.contact');
+    Route::get('settings/social', [SettingController::class, 'social'])->name('settings.social');
+    Route::get('settings/seo', [SettingController::class, 'seo'])->name('settings.seo');
+    Route::get('settings/mail', [SettingController::class, 'mail'])->name('settings.mail');
+
+    Route::post('settings/reset', [SettingController::class, 'reset'])->name('settings.reset');
 
     // Profile
     Route::get('profile', fn() => view('admin.placeholder', ['title' => 'Profile']))->name('profile');

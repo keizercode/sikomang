@@ -37,4 +37,3 @@ Route::prefix('artikel')->group(function () {
 
 // Admin Routes
 require __DIR__ . '/admin.php';
-require __DIR__ . '/admin_routes.php';

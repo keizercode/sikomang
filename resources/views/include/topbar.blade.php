@@ -48,10 +48,14 @@
                         <span class="align-middle">Pengaturan</span>
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('admin.logout') }}">
-                        <i class="mdi mdi-logout text-muted font-size-16 align-middle me-2"></i>
-                        <span class="align-middle">Logout</span>
-                    </a>
+                    <form method="POST" action="{{ route('admin.logout') }}">
+                    @csrf
+                    <button type="submit" class="dropdown-item">
+                    <i class="mdi mdi-logout text-muted font-size-16 align-middle me-2"></i>
+                    <span class="align-middle">Logout</span>
+                    </button>
+                    </form>
+
                 </div>
             </div>
         </div>
