@@ -11,7 +11,7 @@ use App\Http\Controllers\Auth\CustomLoginController;
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes
+| Admin Routes - FIXED VERSION
 |--------------------------------------------------------------------------
 */
 
@@ -26,7 +26,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Monitoring Management
+    // Monitoring Management (Semua Lokasi)
     Route::prefix('monitoring')->name('monitoring.')->group(function () {
         Route::get('/', [SiteController::class, 'index'])->name('index');
         Route::get('/grid', [SiteController::class, 'grid'])->name('grid');
@@ -38,7 +38,20 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/reports', [SiteController::class, 'reports'])->name('reports');
     });
 
-    // User Management
+    // Article Management (Konten - Artikel)
+    Route::resource('articles', ArticleController::class);
+    Route::post('articles/{article}/toggle-featured', [ArticleController::class, 'toggleFeatured'])->name('articles.toggle-featured');
+    Route::patch('articles/{article}/publish', [ArticleController::class, 'publish'])->name('articles.publish');
+    Route::patch('articles/{article}/unpublish', [ArticleController::class, 'unpublish'])->name('articles.unpublish');
+
+    // Gallery Management (Konten - Galeri)
+    Route::resource('galleries', GalleryController::class);
+    Route::post('galleries/{gallery}/toggle-featured', [GalleryController::class, 'toggleFeatured'])->name('galleries.toggle-featured');
+    Route::post('galleries/{gallery}/toggle-active', [GalleryController::class, 'toggleActive'])->name('galleries.toggle-active');
+    Route::post('galleries/update-order', [GalleryController::class, 'updateOrder'])->name('galleries.update-order');
+    Route::post('galleries/bulk-upload', [GalleryController::class, 'bulkUpload'])->name('galleries.bulk-upload');
+
+    // User Management (Manajemen User)
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('/grid', [UserController::class, 'grid'])->name('grid');
@@ -48,28 +61,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/forcelogin/{id}', [UserController::class, 'forcelogin'])->name('forcelogin');
     });
 
-    // Article Management
-    Route::prefix('articles')->name('articles.')->group(function () {
-        Route::get('/', fn() => view('admin.placeholder'))->name('index');
-        Route::get('/create', fn() => view('admin.placeholder'))->name('create');
-        Route::post('/store', fn() => redirect()->back())->name('store');
-        Route::get('/edit/{id}', fn() => view('admin.placeholder'))->name('edit');
-        Route::get('/delete/{id}', fn() => redirect()->back())->name('delete');
-    });
-
-    // Gallery Management
-    Route::prefix('gallery')->name('gallery.')->group(function () {
-        Route::get('/', fn() => view('admin.placeholder'))->name('index');
-        Route::get('/upload', fn() => view('admin.placeholder'))->name('upload');
-        Route::post('/store', fn() => redirect()->back())->name('store');
-        Route::get('/delete/{id}', fn() => redirect()->back())->name('delete');
-    });
-
-    // Settings
-    Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', fn() => view('admin.placeholder', ['title' => 'Pengaturan']))->name('index');
-        Route::post('/update', fn() => redirect()->back())->name('update');
-    });
+    // Settings Management (Pengaturan)
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('settings', [SettingController::class, 'store'])->name('settings.store');
+    Route::delete('settings/{setting}', [SettingController::class, 'destroy'])->name('settings.destroy');
+    Route::get('settings/clear-cache', [SettingController::class, 'clearCache'])->name('settings.clear-cache');
+    Route::get('settings/export', [SettingController::class, 'export'])->name('settings.export');
+    Route::post('settings/import', [SettingController::class, 'import'])->name('settings.import');
 
     // Profile
     Route::get('profile', fn() => view('admin.placeholder', ['title' => 'Profile']))->name('profile');

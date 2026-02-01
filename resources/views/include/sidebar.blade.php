@@ -45,7 +45,7 @@
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="{{ route('admin.articles.index') }}">Artikel</a></li>
-                        <li><a href="{{ route('admin.gallery.index') }}">Galeri</a></li>
+                        <li><a href="{{ route('admin.galleries.index') }}">Galeri</a></li>
                     </ul>
                 </li>
 
