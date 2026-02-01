@@ -67,7 +67,7 @@ class UserController extends Controller
         $data['item'] = $keyId ? User::find($keyId) : null;
         $data['group'] = Group::where('MsGroupId', '!=', 1)->get();
 
-        return view('admin.users.form', $data);
+        return view('admin.users.create', $data);
     }
 
     public function store(Request $request)
