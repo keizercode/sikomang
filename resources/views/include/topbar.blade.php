@@ -26,8 +26,10 @@
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item user text-start d-flex align-items-center"
                         id="page-header-user-dropdown-v" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="rounded-circle header-profile-user"
-                         src="{{ asset('assets/images/users/avatar-3.jpg') }}" alt="Header Avatar">
+                    <img
+                    src="https://res.cloudinary.com/dmcvht1vr/image/upload/v1769914005/user_xq4ytt.png"
+                    class="rounded-circle header-profile-user"
+                    alt="Header Avatar">
                     <span class="d-none d-xl-inline-block ms-2 fw-medium font-size-15">
                         {{ session('name') ?? 'Admin' }}
                     </span>
