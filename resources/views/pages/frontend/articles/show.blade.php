@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend.app')
 
 @section('title', 'Peran Vital Mangrove dalam Pertahanan Pesisir Jakarta - SIKOMANG')
 
@@ -160,7 +160,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <x-article-card
+                <x-shared.article-card
                     image="https://ext.same-assets.com/1105228812/2230853859.png"
                     date="20 November 2024"
                     author="Admin, DLH Jakarta"
@@ -169,7 +169,7 @@
                     link="#"
                 />
 
-                <x-article-card
+                <x-shared.article-card
                     image="https://ext.same-assets.com/1105228812/3696522300.png"
                     date="28 November 2024"
                     author="Admin, DLH Jakarta"
@@ -178,7 +178,7 @@
                     link="#"
                 />
 
-                <x-article-card
+                <x-shared.article-card
                     image="https://ext.same-assets.com/1105228812/3198143648.jpeg"
                     date="1 Desember 2024"
                     author="Admin, DLH Jakarta"

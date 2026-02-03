@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend.app')
 
 @section('title', $location['name'] . ' - Detail Lokasi - SIKOMANG')
 
@@ -69,7 +69,7 @@
             {{-- Informasi Lokasi --}}
             <div class="card">
                 <h2 class="card-title">Informasi Lokasi Kawasan</h2>
-                <x-info-grid :items="[
+                <x-components.info-grid :items="[
                     'Koordinat' => $location['coords'],
                     'Luas Area' => $location['area'],
                     'Kerapatan' => $location['density'],
@@ -120,7 +120,7 @@
 
             {{-- Accordion Sections --}}
             @if(isset($location['species_detail']))
-                <x-accordion-card id="species" title="Spesies (Vegetasi dan Fauna)">
+                <x-components.accordion-card id="species" title="Spesies (Vegetasi dan Fauna)">
                     @foreach(['vegetasi' => 'Vegetasi', 'fauna' => 'Fauna'] as $key => $label)
                         @if(isset($location['species_detail'][$key]))
                         <div class="species-section">
@@ -133,7 +133,7 @@
                         </div>
                         @endif
                     @endforeach
-                </x-accordion-card>
+                </x-components.accordion-card>
             @endif
 
             @foreach([
@@ -143,7 +143,7 @@
                 ['key' => 'stakeholders', 'id' => 'stakeholders', 'title' => 'Pihak Terkait', 'listClass' => 'stakeholder-list']
             ] as $acc)
                 @if(isset($location[$acc['key']]))
-                <x-accordion-card :id="$acc['id']" :title="$acc['title']">
+                <x-components.accordion-card :id="$acc['id']" :title="$acc['title']">
                     @if($acc['key'] === 'activities')
                         <p class="activity-description">{{ $location['activities']['description'] }}</p>
                         <ul class="{{ $acc['listClass'] }}">
@@ -158,7 +158,7 @@
                             @endforeach
                         </ul>
                     @endif
-                </x-accordion-card>
+                </x-components.accordion-card>
                 @endif
             @endforeach
 
@@ -178,13 +178,13 @@
 
         {{-- Sidebar --}}
         <div class="sidebar">
-            <x-stat-card
+            <x-shared.stat-card
                 label="Kesehatan Mangrove"
                 :value="$location['health']"
                 :subtitle="$location['health_score']"
             />
 
-            <x-stat-card
+            <x-shared.stat-card
                 label="Total Luas Area"
                 :value="$location['area']"
             />
@@ -203,7 +203,7 @@
             </div>
             @endif
 
-            <a href="{{ route('hasil-pemantauan') }}" class="btn btn-secondary" style="justify-content: center;">
+            <a href="{{ route('monitoring.hasil-pemantauan') }}" class="btn btn-secondary" style="justify-content: center;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -215,7 +215,7 @@
 
 {{-- Image Modal with Navigation & Thumbnails --}}
 
-<x-gallery-modal />
+<x-components.gallery-modal />
 
 @endsection
 

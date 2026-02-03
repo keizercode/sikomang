@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend.app')
 
 @section('title', 'Profil Sebaran Mangrove DKI Jakarta 2025 - SIKOMANG')
 
@@ -23,7 +23,7 @@
                 upaya konservasi untuk mendukung kelestarian lingkungan pesisir Jakarta.
             </p>
 
-            <a href="{{ route('hasil-pemantauan') }}" class="cta-button">
+            <a href="{{ route('monitoring.hasil-pemantauan') }}" class="cta-button">
                 <span>Hasil Pemantauan</span>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7V17"/>

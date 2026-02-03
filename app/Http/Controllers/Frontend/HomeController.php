@@ -28,6 +28,6 @@ class HomeController extends Controller
             'total_articles' => Article::published()->count(),
         ];
 
-        return view('pages.home', compact('articles', 'stats'));
+        return view('pages.frontend.home', compact('articles', 'stats'));
     }
 }

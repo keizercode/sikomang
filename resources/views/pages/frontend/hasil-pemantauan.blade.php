@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend.app')
 
 @section('title', 'Pemanfaatan Mangrove - SIKOMANG')
 
@@ -97,7 +97,7 @@
             {{-- Cards Grid --}}
             <div class="cards-grid">
                 @foreach($locations as $location)
-                    <x-location-card :location="$location" />
+                    <x-shared.location-card :location="$location" />
                 @endforeach
             </div>
         </main>

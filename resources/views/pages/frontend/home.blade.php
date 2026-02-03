@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend.app')
 
 @section('title', 'SIKOMANG - Sistem Informasi dan Komunikasi Mangrove DKI Jakarta')
 
@@ -29,7 +29,7 @@
                             onmouseout="this.style.backgroundColor='#009966'"
                         >
                             <span>SIKOMANG</span>
-                            <x-frontend.icons.globe-home />
+                            <x-icons.globe-home />
                         </a>
 
                         <button
@@ -116,7 +116,7 @@
             @if($articles->count() > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     @foreach($articles as $article)
-                        <x-article-card
+                        <x-shared.article-card :article="$article"
                             :image="$article->featured_image ? asset('storage/' . $article->featured_image) : 'https://ext.same-assets.com/1105228812/2230853859.png'"
                             :date="$article->published_at ? $article->published_at->format('d F Y') : ''"
                             :author="$article->user->name ?? 'Admin, DLH Jakarta'"
@@ -129,7 +129,7 @@
             @else
                 {{-- Fallback jika belum ada artikel --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                    <x-article-card
+                    <x-shared.article-card
                         image="https://ext.same-assets.com/1105228812/2230853859.png"
                         date="6 Januari 2026"
                         author="Admin, DLH Jakarta"
@@ -137,7 +137,7 @@
                         excerpt="Temukan bagaimana hutan mangrove di Jakarta menjaga wilayah pesisir dari erosi dan gelombang besar."
                         link="#"
                     />
-                    <x-article-card
+                    <x-shared.article-card
                         image="https://ext.same-assets.com/1105228812/2230853859.png"
                         date="5 Januari 2026"
                         author="Admin, DLH Jakarta"
@@ -145,7 +145,7 @@
                         excerpt="Jelajahi bagaimana energi terbarukan dapat mengubah lanskap energi global."
                         link="#"
                     />
-                    <x-article-card
+                    <x-shared.article-card
                         image="https://ext.same-assets.com/1105228812/2708995451.jpeg"
                         date="5 Januari 2026"
                         author="Admin, DLH Jakarta"

@@ -53,13 +53,13 @@
     @stack('styles')
 </head>
 <body class="bg-background text-secondary antialiased">
-    @include('frontend.components.navbar')
+    @include('components.frontend.navbar')
 
     <main>
         @yield('content')
     </main>
 
-    @include('frontend.components.footer')
+    @include('components.frontend.footer')
     @stack('scripts')
 </body>
 </html>

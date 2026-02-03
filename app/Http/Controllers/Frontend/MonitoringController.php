@@ -13,7 +13,7 @@ class MonitoringController extends FrontendController
     {
         $locations = $this->getLocations();
 
-        return view('pages.monitoring', [
+        return view('pages.frontend.monitoring', [
             'title' => 'Profil Sebaran Mangrove DKI Jakarta 2025',
             'total_sites' => $this->getTotalSites(),
             'total_area' => $this->getTotalArea(),
@@ -29,7 +29,7 @@ class MonitoringController extends FrontendController
     {
         $locations = $this->getLocations();
 
-        return view('pages.hasil-pemantauan', compact('locations'));
+        return view('pages.frontend.hasil-pemantauan', compact('locations'));
     }
 
     /**

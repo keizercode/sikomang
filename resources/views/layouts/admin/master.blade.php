@@ -325,10 +325,10 @@
     <div id="layout-wrapper">
 
         <!-- Sidebar -->
-        @include('include.sidebar')
+        @include('components.sidebar')
 
         <!-- Topbar -->
-        @include('include.topbar')
+        @include('components.topbar')
 
         <!-- Main Content -->
         <div class="main-content">

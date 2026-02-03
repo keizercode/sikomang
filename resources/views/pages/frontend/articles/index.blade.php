@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend.app')
 
 @section('title', 'Artikel - SIKOMANG')
 
@@ -46,7 +46,7 @@
             @if($articles->count() > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     @foreach($articles as $article)
-                        <x-article-card
+                        <x-shared.article-card
                             :image="$article->featured_image ? asset('storage/' . $article->featured_image) : 'https://via.placeholder.com/400x300'"
                             :date="$article->published_at ? $article->published_at->format('d M Y') : ''"
                             :author="$article->user->name ?? 'Admin'"

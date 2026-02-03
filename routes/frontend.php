@@ -18,12 +18,8 @@ use App\Http\Controllers\Frontend\ExcelExportController;
 |
 */
 
-// ========================================
-// HOME & ABOUT
-// ========================================
+// home
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/tentang', [FrontendController::class, 'about'])->name('about');
-Route::get('/kontak', [FrontendController::class, 'contact'])->name('contact');
 
 // ========================================
 // MONITORING MANGROVE
@@ -38,7 +34,7 @@ Route::prefix('monitoring')->name('monitoring.')->group(function () {
 
     // Detail lokasi berdasarkan slug
     Route::get('/lokasi/{slug}', [MonitoringController::class, 'detailLokasi'])
-        ->name('detail-lokasi');
+        ->name('monitoring.detail-lokasi');
 
     // Export data mangrove berdasarkan kategori (jarang/sedang/lebat)
     Route::get('/export/{category}', [ExcelExportController::class, 'exportMangroveData'])

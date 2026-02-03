@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('layouts.admin.master')
 
 @section('content')
 <div class="page-content">
@@ -393,15 +393,15 @@
 </div>
 
 <!-- Modals -->
-@include('admin.monitoring.modals.species', ['location' => $location, 'keyId' => $keyId])
-@include('admin.monitoring.modals.activities', ['location' => $location, 'keyId' => $keyId])
-@include('admin.monitoring.modals.programs', ['location' => $location, 'keyId' => $keyId])
-@include('admin.monitoring.modals.upload-images', ['location' => $location, 'keyId' => $keyId])
-@include('admin.monitoring.modals.damage', ['location' => $location, 'keyId' => $keyId])
+@include('pages.admin.monitoring.modals.species', ['location' => $location, 'keyId' => $keyId])
+@include('pages.admin.monitoring.modals.activities', ['location' => $location, 'keyId' => $keyId])
+@include('pages.admin.monitoring.modals.programs', ['location' => $location, 'keyId' => $keyId])
+@include('pages.admin.monitoring.modals.upload-images', ['location' => $location, 'keyId' => $keyId])
+@include('pages.admin.monitoring.modals.damage', ['location' => $location, 'keyId' => $keyId])
 
 <!-- Action Modals for each damage -->
 @foreach($location->damages as $damage)
-@include('admin.monitoring.modals.action', ['damage' => $damage, 'keyId' => $keyId])
+@include('pages.admin.monitoring.modals.action', ['damage' => $damage, 'keyId' => $keyId])
 @endforeach
 
 @endsection

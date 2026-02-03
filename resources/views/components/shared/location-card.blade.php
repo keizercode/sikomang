@@ -2,7 +2,7 @@
     'location'
 ])
 
-<a href="{{ route('detail-lokasi', $location['slug']) }}"
+<a href="{{ route('monitoring.monitoring.detail-lokasi', $location['slug']) }}"
    class="card location-card"
    data-group="{{ $location['group'] ?? 'all' }}"
    style="text-decoration: none; color: inherit; display: block;">
