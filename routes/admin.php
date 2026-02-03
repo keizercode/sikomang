@@ -12,7 +12,7 @@ use App\Http\Controllers\Auth\CustomLoginController;
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes - FIXED VERSION
+| Admin Routes
 |--------------------------------------------------------------------------
 */
 
@@ -58,7 +58,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{id}/damages/{damageId}/actions', [LocationDetailController::class, 'addAction'])->name('add-action');
     });
 
-    // Article Management - FIXED
+    // Article Management
     Route::prefix('articles')->name('articles.')->group(function () {
         // Standard CRUD routes
         Route::get('/', [ArticleController::class, 'index'])->name('index');
@@ -74,7 +74,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::patch('/{article}/publish', [ArticleController::class, 'publish'])->name('publish');
         Route::patch('/{article}/unpublish', [ArticleController::class, 'unpublish'])->name('unpublish');
 
-        // 🆕 NEW: Soft delete management routes
+        // Soft delete management routes
         Route::get('/trashed/list', [ArticleController::class, 'trashed'])->name('trashed');
         Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [ArticleController::class, 'forceDelete'])->name('force-delete');
@@ -125,4 +125,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Profile
     Route::get('profile', fn() => view('admin.placeholder', ['title' => 'Profile']))->name('profile');
+
+    // Quick Stats API
+    Route::get('api/stats', [DashboardController::class, 'getStats'])->name('api.stats');
 });

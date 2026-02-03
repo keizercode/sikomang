@@ -1,10 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\MonitoringController;
 use App\Http\Controllers\Frontend\ExcelExportController;
-use App\Http\Controllers\Frontend\FrontendController;
 
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -30,7 +29,8 @@ Route::prefix('artikel')->group(function () {
     })->name('articles.show');
 });
 
-// Frontend Routes
-require __DIR__ . '/frontend.php';
 // Admin Routes
 require __DIR__ . '/admin.php';
+
+// Frontend Routes
+require __DIR__ . '/frontend.php';
