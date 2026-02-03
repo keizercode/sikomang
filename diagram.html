@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Flow Diagram - SIKOMANG</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                padding: 40px 20px;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            }
+
+            h1 {
+                text-align: center;
+                color: #009966;
+                margin-bottom: 10px;
+                font-size: 2.5em;
+            }
+
+            .subtitle {
+                text-align: center;
+                color: #666;
+                margin-bottom: 40px;
+                font-size: 1.2em;
+            }
+
+            .diagram-section {
+                margin-bottom: 60px;
+            }
+
+            .section-title {
+                background: linear-gradient(135deg, #009966, #007a52);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                margin-bottom: 30px;
+                font-size: 1.5em;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .flow-container {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .flow-row {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .box {
+                padding: 20px 30px;
+                border-radius: 10px;
+                min-width: 200px;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+
+            .box:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            }
+
+            .box-start {
+                background: linear-gradient(135deg, #009966 0%, #009966 100%);
+                color: white;
+                font-weight: bold;
+            }
+
+            .box-process {
+                background: linear-gradient(135deg, #009966 0%, #009966 100%);
+                color: white;
+            }
+
+            .box-decision {
+                background: linear-gradient(135deg, #009966 0%, #009966 100%);
+                color: white;
+                clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+                padding: 30px;
+            }
+
+            .box-action {
+                background: linear-gradient(135deg, #009966 0%, #009966 100%);
+                color: white;
+            }
+
+            .box-end {
+                background: linear-gradient(135deg, #009966 0%, #009966 100%);
+                color: white;
+                font-weight: bold;
+            }
+
+            .box-database {
+                background: linear-gradient(135deg, #009966 0%, #009966 100%);
+                color: white;
+                border-left: 5px solid #009966;
+            }
+
+            .box-user {
+                background: linear-gradient(135deg, #009966 0%, #009966 100%);
+                color: white;
+                border-left: 5px solid #009966;
+            }
+
+            .arrow {
+                width: 0;
+                height: 0;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 20px solid #666;
+                margin: 10px auto;
+            }
+
+            .arrow-right {
+                width: 0;
+                height: 0;
+                border-top: 15px solid transparent;
+                border-bottom: 15px solid transparent;
+                border-left: 20px solid #666;
+            }
+
+            .label {
+                font-size: 0.9em;
+                color: #666;
+                margin: 5px 0;
+                font-style: italic;
+            }
+
+            .grid-3 {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin: 20px 0;
+            }
+
+            .feature-box {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 10px;
+                text-align: center;
+            }
+
+            .feature-box h3 {
+                margin-bottom: 10px;
+                font-size: 1.2em;
+            }
+
+            .feature-box p {
+                font-size: 0.95em;
+                opacity: 0.9;
+            }
+
+            .legend {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 10px;
+                margin-top: 40px;
+            }
+
+            .legend-title {
+                font-weight: bold;
+                margin-bottom: 15px;
+                color: #333;
+                font-size: 1.2em;
+            }
+
+            .legend-items {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .legend-color {
+                width: 40px;
+                height: 40px;
+                border-radius: 5px;
+            }
+
+            @media (max-width: 768px) {
+                .container {
+                    padding: 20px;
+                }
+
+                h1 {
+                    font-size: 1.8em;
+                }
+
+                .box {
+                    min-width: 150px;
+                    padding: 15px 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📊 Flow Diagram SIKOMANG</h1>
+            <p class="subtitle">
+                Sistem Informasi dan Komunikasi Mangrove DKI Jakarta
+            </p>
+
+            <!-- 1. SISTEM OVERVIEW -->
+            <div class="diagram-section">
+                <div class="section-title">🎯 1. Arsitektur Sistem</div>
+
+                <div class="flow-container">
+                    <div class="box box-start">Sistem SIKOMANG</div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-user">Frontend (User)</div>
+                        <div class="box box-process">Backend (Admin)</div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-database">Database PostgreSQL</div>
+                </div>
+            </div>
+
+            <!-- 2. USER FLOW -->
+            <div class="diagram-section">
+                <div class="section-title">👥 2. Alur Pengguna Publik</div>
+
+                <div class="flow-container">
+                    <div class="box box-start">Pengunjung Membuka Website</div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-action">Halaman Home</div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-action">
+                            Lihat Monitoring<br />(Peta Sebaran)
+                        </div>
+                        <div class="box box-action">
+                            Hasil Pemantauan<br />(23 Lokasi)
+                        </div>
+                        <div class="box box-action">Baca Artikel</div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-action">Detail Lokasi Mangrove</div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-end">Lihat Peta</div>
+                        <div class="box box-end">Download Data</div>
+                        <div class="box box-end">Lihat Galeri</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ADMIN FLOW -->
+            <div class="diagram-section">
+                <div class="section-title">🔐 3. Alur Administrator</div>
+
+                <div class="flow-container">
+                    <div class="box box-start">Admin Login</div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-decision">Autentikasi</div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-action">Dashboard Admin</div>
+                    <div class="arrow"></div>
+
+                    <div class="grid-3">
+                        <div class="box box-process">
+                            Monitoring Mangrove<br />• Tambah Lokasi<br />• Edit
+                            Data<br />• Hapus Data
+                        </div>
+                        <div class="box box-process">
+                            Konten<br />• Kelola Artikel<br />• Kelola Galeri<br />•
+                            Upload Foto
+                        </div>
+                        <div class="box box-process">
+                            Manajemen<br />• User Management<br />• Pengaturan
+                            Sistem
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-database">Simpan ke Database</div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-end">Tampil di Frontend</div>
+                </div>
+            </div>
+
+            <!-- 4. DATA FLOW -->
+            <div class="diagram-section">
+                <div class="section-title">💾 4. Alur Data Lokasi Mangrove</div>
+
+                <div class="flow-container">
+                    <div class="box box-start">Input Data Lokasi</div>
+                    <p class="label">Admin memasukkan data lokasi baru</p>
+                    <div class="arrow"></div>
+
+                    <div class="grid-3">
+                        <div class="box box-action">
+                            Data Umum<br />• Nama<br />• Koordinat<br />• Luas
+                            Area
+                        </div>
+                        <div class="box box-action">
+                            Klasifikasi<br />• Kerapatan<br />• Tipe<br />•
+                            Kesehatan
+                        </div>
+                        <div class="box box-action">
+                            Detail<br />• Species<br />• Kerusakan<br />• Foto
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-database">
+                        Tabel: mangrove_locations<br />location_details<br />location_images<br />location_damages
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-end">Peta Monitoring</div>
+                        <div class="box box-end">Hasil Pemantauan</div>
+                        <div class="box box-end">Detail Lokasi</div>
+                        <div class="box box-end">Export Excel</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. MONITORING FLOW -->
+            <div class="diagram-section">
+                <div class="section-title">🗺️ 5. Fitur Monitoring & Peta</div>
+
+                <div class="flow-container">
+                    <div class="box box-start">
+                        User Buka Halaman Monitoring
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-action">Tampil Peta Leaflet</div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-process">
+                            Layer Mangrove Jarang<br />(Warna Cyan)
+                        </div>
+                        <div class="box box-process">
+                            Layer Mangrove Sedang<br />(Warna Kuning)
+                        </div>
+                        <div class="box box-process">
+                            Layer Mangrove Lebat<br />(Warna Ungu)
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-action">Klik Marker Lokasi</div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-end">Lihat Popup Info</div>
+                        <div class="box box-end">Ke Detail Lokasi</div>
+                        <div class="box box-end">Download Data Excel</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. EXPORT FLOW -->
+            <div class="diagram-section">
+                <div class="section-title">📥 6. Alur Export Data ke Excel</div>
+
+                <div class="flow-container">
+                    <div class="box box-start">User Klik "Map Data"</div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-action">
+                        Pilih Kategori<br />(Jarang/Sedang/Lebat)
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-process">
+                        ExcelExportController<br />Load Template Excel
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-process">
+                        Python Script<br />Generate Excel dengan openpyxl
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-database">
+                        Data dari Database<br />+ Template Excel
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-end">
+                        Download File Excel<br />Mangrove_Jakarta_{kategori}.xlsx
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. ARTIKEL FLOW -->
+            <div class="diagram-section">
+                <div class="section-title">📰 7. Alur Manajemen Artikel</div>
+
+                <div class="flow-container">
+                    <div class="box box-start">Admin Buat Artikel</div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-action">
+                            Input Konten<br />• Judul<br />• Isi<br />• Gambar
+                        </div>
+                        <div class="box box-action">
+                            SEO Meta<br />• Title<br />• Description<br />•
+                            Keywords
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-decision">Status Artikel?</div>
+                    <div class="arrow"></div>
+
+                    <div class="flow-row">
+                        <div class="box box-process">
+                            Draft<br />(Belum Publish)
+                        </div>
+                        <div class="box box-process">
+                            Published<br />(Tampil di Website)
+                        </div>
+                        <div class="box box-process">
+                            Archived<br />(Disimpan)
+                        </div>
+                    </div>
+                    <div class="arrow"></div>
+
+                    <div class="box box-end">Tampil di Halaman Artikel</div>
+                </div>
+            </div>
+
+            <!-- LEGEND -->
+            <div class="legend">
+                <div class="legend-title">📌 Keterangan Warna</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div
+                            class="legend-color"
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #667eea 0%,
+                                    #764ba2 100%
+                                );
+                            "
+                        ></div>
+                        <span>Start/End Point</span>
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-color"
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #f093fb 0%,
+                                    #f5576c 100%
+                                );
+                            "
+                        ></div>
+                        <span>Process/Function</span>
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-color"
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #4facfe 0%,
+                                    #00f2fe 100%
+                                );
+                            "
+                        ></div>
+                        <span>Decision/Condition</span>
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-color"
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #009966 0%,
+                                    #009966 100%
+                                );
+                            "
+                        ></div>
+                        <span>Action/Step</span>
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-color"
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #009966 0%,
+                                    #009966 100%
+                                );
+                            "
+                        ></div>
+                        <span>Database</span>
+                    </div>
+                    <div class="legend-item">
+                        <div
+                            class="legend-color"
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #a8edea 0%,
+                                    #fed6e3 100%
+                                );
+                            "
+                        ></div>
+                        <span>User Interface</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FITUR UTAMA -->
+            <div class="diagram-section" style="margin-top: 40px">
+                <div class="section-title">⭐ Fitur Utama SIKOMANG</div>
+
+                <div class="grid-3">
+                    <div class="feature-box">
+                        <h3>🗺️ Peta Interaktif</h3>
+                        <p>
+                            Visualisasi sebaran 23 lokasi mangrove dengan
+                            Leaflet Maps, filter berdasarkan kerapatan
+                        </p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>📊 Data Monitoring</h3>
+                        <p>
+                            Informasi detail lokasi, kesehatan mangrove, luas
+                            area, koordinat GPS
+                        </p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>📥 Export Excel</h3>
+                        <p>
+                            Download data dalam format Excel menggunakan Python
+                            openpyxl
+                        </p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>📰 Artikel & Berita</h3>
+                        <p>
+                            CMS untuk mengelola artikel, berita, dan informasi
+                            seputar mangrove
+                        </p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>🖼️ Galeri Foto</h3>
+                        <p>
+                            Upload dan kelola foto-foto dokumentasi lokasi
+                            mangrove
+                        </p>
+                    </div>
+                    <div class="feature-box">
+                        <h3>⚠️ Laporan Kerusakan</h3>
+                        <p>
+                            Tracking kerusakan dan aksi penanganan di setiap
+                            lokasi
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

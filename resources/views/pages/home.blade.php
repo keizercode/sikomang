@@ -31,10 +31,7 @@
                         >
                             <span>SIKOMANG</span>
                             {{-- Globe Icon --}}
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3 12h18M12 3c3 4 3 14 0 18M12 3c-3 4-3 14 0 18"/>
-                            </svg>
+                            <x-icons.globe-home />
                         </a>
 
                         {{-- Button Pelajari Lebih Lanjut --}}
@@ -45,10 +42,7 @@
                     >
                         <span>Pelajari lebih lanjut</span>
                         {{-- Info Icon --}}
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/>
-                        </svg>
+                        <x-icons.info-home />
                     </button>
                     </div>
                 </div>
@@ -78,10 +72,7 @@
                 <div class="hero-gradient relative rounded-2xl p-6 md:p-8 h-64 md:h-80 flex flex-col justify-between">
                     {{-- Quote Icon --}}
                     <div class="absolute top-6 left-8 w-6 h-4">
-                        <svg class="w-full h-full" fill="none" viewBox="0 0 24 15" preserveAspectRatio="xMidYMid meet">
-                            <path d="M3.47266 8.14844L1.66797 14.6016H7.4375L10.2266 7.90234V0H0V8.14844H3.47266Z" fill="#EAFF00"/>
-                            <path d="M14.8945 14.6016L16.6992 8.14844H13.2266V0H23.4531V7.90234L20.6641 14.6016H14.8945Z" fill="white"/>
-                        </svg>
+                        <x-icons.quote-home />
                     </div>
 
                     <div class="pt-6">
@@ -92,7 +83,7 @@
 
                     {{-- Mangrove Icon --}}
                     <div class="flex justify-start">
-                    <svg class="w-16 h-16 text-white/30" viewBox="0 0 80 80" fill="none" preserveAspectRatio="none" viewBox="0 0 92 92"><g id="lucide/sprout"><path d="M53.6667 36.5547V26.8333C53.6667 22.7667 55.2821 18.8666 58.1577 15.991C61.0333 13.1155 64.9333 11.5 69 11.5H74.75C75.2583 11.5 75.7458 11.7019 76.1053 12.0614C76.4647 12.4208 76.6667 12.9083 76.6667 13.4167V19.1667C76.6667 23.2333 75.0512 27.1334 72.1756 30.009C69.3001 32.8845 65.4 34.5 61.3333 34.5C57.2667 34.5 53.3666 36.1155 50.491 38.991C47.6155 41.8666 46 45.7667 46 49.8333M46 49.8333C46 57.5 49.8333 61.3333 49.8333 69C49.8333 73.1471 48.4883 77.1823 46 80.5M46 49.8333C46 46.2739 45.0088 42.7847 43.1375 39.7568C41.2661 36.7289 38.5886 34.282 35.4049 32.6901C32.2212 31.0983 28.6572 30.4245 25.1121 30.7441C21.567 31.0638 18.1809 32.3643 15.3333 34.5C15.3333 38.0595 16.3245 41.5486 18.1959 44.5765C20.0672 47.6044 22.7447 50.0513 25.9284 51.6432C29.1121 53.235 32.6762 53.9089 36.2213 53.5892C39.7664 53.2696 43.1524 51.969 46 49.8333ZM19.1667 80.5H72.8333" id="Vector" stroke="var(--stroke-0, white)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></g></svg>
+                    <x-icons.mangrove-home />
                     </div>
                 </div>
             </div>

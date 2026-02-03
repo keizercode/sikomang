@@ -60,10 +60,11 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('admin.settings.index') }}" class="waves-effect">
+                    {{-- <a href=
+                    "{{ route('admin.settings.index') }}" class="waves-effect">
                         <i class="bx bx-cog"></i>
                         <span>Pengaturan</span>
-                    </a>
+                    </a> --}}
                 </li>
             </ul>
         </div>

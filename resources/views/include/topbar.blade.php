@@ -43,10 +43,14 @@
                         <i class="mdi mdi-account-circle text-muted font-size-16 align-middle me-2"></i>
                         <span class="align-middle">Profile</span>
                     </a>
-                   <a class="dropdown-item" href="{{ route('admin.settings.index') }}">
+                   <a class="dropdown-item" href="{{ ''}}">
                         <i class="mdi mdi-cog text-muted font-size-16 align-middle me-2"></i>
                         <span class="align-middle">Pengaturan</span>
                     </a>
+                   {{-- <a class="dropdown-item" href="{{ route('admin.settings.index') }}">
+                        <i class="mdi mdi-cog text-muted font-size-16 align-middle me-2"></i>
+                        <span class="align-middle">Pengaturan</span>
+                    </a> --}}
                     <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf

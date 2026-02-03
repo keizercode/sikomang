@@ -12,7 +12,7 @@
                             <div class="text-center mt-2">
                                 <div class="mb-4 pb-2">
                                     <a href="{{ url('/') }}" class="d-block auth-logo">
-                                        <img src="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png" alt="" height="80" class="auth-logo-dark me-start">
+                                        <img src="https://pencil-matter-70015947.figma.site/_assets/v11/e6fb723ab1735b08498a0a60cab1e81508afa7e6.png" alt="" height="80" class="auth-logo-dark me-start">
                                     </a>
                                 </div>
                                 <h5>Selamat Datang!</h5>
@@ -41,7 +41,7 @@
                                             <span class="bx bx-lock-alt"></span>
                                             <input type="password" class="form-control @error('password') is-invalid @enderror"
                                                    id="password" name="password" placeholder="Masukan Password" required>
-                                            <button type="button" class="btn btn-link position-absolute h-100 end-0 top-0" id="togglePassword">
+                                            <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-3" id="togglePassword">
                                                 <i class="mdi mdi-eye-outline font-size-18 text-muted"></i>
                                             </button>
                                         </div>
