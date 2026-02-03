@@ -7,11 +7,12 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\LocationDetailController;
 use App\Http\Controllers\Auth\CustomLoginController;
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes - FIXED VERSION
+| Admin Routes - WITH LOCATION DETAIL CRUD
 |--------------------------------------------------------------------------
 */
 
@@ -37,6 +38,24 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/{id}', [SiteController::class, 'destroy'])->name('destroy');
         Route::get('/damages', [SiteController::class, 'damages'])->name('damages');
         Route::get('/reports', [SiteController::class, 'reports'])->name('reports');
+
+        // Location Detail Management
+        Route::get('/{id}/detail', [LocationDetailController::class, 'show'])->name('detail');
+        Route::put('/{id}/species', [LocationDetailController::class, 'updateSpecies'])->name('update-species');
+        Route::put('/{id}/activities', [LocationDetailController::class, 'updateActivities'])->name('update-activities');
+        Route::put('/{id}/programs', [LocationDetailController::class, 'updateOtherDetails'])->name('update-programs');
+
+        // Images
+        Route::post('/{id}/images', [LocationDetailController::class, 'uploadImages'])->name('upload-images');
+        Route::delete('/{locationId}/images/{imageId}', [LocationDetailController::class, 'deleteImage'])->name('delete-image');
+
+        // Damages
+        Route::post('/{id}/damages', [LocationDetailController::class, 'addDamage'])->name('add-damage');
+        Route::put('/{id}/damages/{damageId}', [LocationDetailController::class, 'updateDamage'])->name('update-damage');
+        Route::delete('/{id}/damages/{damageId}', [LocationDetailController::class, 'deleteDamage'])->name('delete-damage');
+
+        // Actions
+        Route::post('/{id}/damages/{damageId}/actions', [LocationDetailController::class, 'addAction'])->name('add-action');
     });
 
     // Article Management (Konten - Artikel)

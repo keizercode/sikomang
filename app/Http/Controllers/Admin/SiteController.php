@@ -45,8 +45,9 @@ class SiteController extends Controller
                 'health' => $location->health_formatted,
                 'type' => ucfirst($location->type),
                 'action' => '<div class="d-flex gap-1">
-                    <a href="' . route('admin.monitoring.edit', encode_id($location->id)) . '" class="btn btn-sm btn-success"><i class="mdi mdi-pencil"></i></a>
-                    <a href="#" data-href="' . route('admin.monitoring.delete', encode_id($location->id)) . '" class="btn btn-sm btn-danger remove_data"><i class="mdi mdi-delete"></i></a>
+                    <a href="' . route('admin.monitoring.detail', encode_id($location->id)) . '" class="btn btn-sm btn-info" title="Detail"><i class="mdi mdi-eye"></i></a>
+                    <a href="' . route('admin.monitoring.edit', encode_id($location->id)) . '" class="btn btn-sm btn-success" title="Edit"><i class="mdi mdi-pencil"></i></a>
+                    <a href="#" data-href="' . route('admin.monitoring.delete', encode_id($location->id)) . '" class="btn btn-sm btn-danger remove_data" title="Hapus"><i class="mdi mdi-delete"></i></a>
                 </div>'
             ];
         })->toArray();
@@ -108,6 +109,8 @@ class SiteController extends Controller
             // Update existing
             $location = MangroveLocation::findOrFail($keyId);
             $location->update($validated);
+
+            $message = 'Data lokasi berhasil diperbarui';
         } else {
             // Create new
             $location = MangroveLocation::create($validated);
@@ -116,12 +119,14 @@ class SiteController extends Controller
             LocationDetail::create([
                 'mangrove_location_id' => $location->id,
             ]);
+
+            $message = 'Data lokasi berhasil ditambahkan';
         }
 
         return redirect()
             ->route('admin.monitoring.index')
             ->with([
-                'message' => 'Data lokasi berhasil disimpan',
+                'message' => $message,
                 'type' => 'success'
             ]);
     }
@@ -130,6 +135,15 @@ class SiteController extends Controller
     {
         $keyId = decode_id($id);
         $location = MangroveLocation::findOrFail($keyId);
+
+        // Delete related images
+        foreach ($location->images as $image) {
+            if (str_contains($image->image_url, 'storage/')) {
+                $path = str_replace(asset('storage/'), '', $image->image_url);
+                \Storage::disk('public')->delete($path);
+            }
+        }
+
         $location->delete();
 
         return response()->json([
