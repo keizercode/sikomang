@@ -21,36 +21,31 @@
 
                     {{-- Button Group --}}
                     <div class="flex flex-wrap gap-3">
-                        {{-- Button SIKOMANG --}}
                         <a
-                            href="{{ route('monitoring') }}"
+                            href="{{ route('monitoring.index') }}"
                             class="inline-flex items-center space-x-2 text-white px-6 py-3 rounded-lg font-semibold transition-all"
                             style="background-color: #009966;"
                             onmouseover="this.style.backgroundColor='#2d5c54'"
                             onmouseout="this.style.backgroundColor='#009966'"
                         >
                             <span>SIKOMANG</span>
-                            {{-- Globe Icon --}}
-                            <x-icons.globe-home />
+                            <x-frontend.icons.globe-home />
                         </a>
 
-                        {{-- Button Pelajari Lebih Lanjut --}}
                         <button
-                        type="button"
-                        onclick="openModal()"
-                        class="cursor-pointer inline-flex items-center space-x-2 border border-gray-300 text-secondary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all"
-                    >
-                        <span>Pelajari lebih lanjut</span>
-                        {{-- Info Icon --}}
-                        <x-icons.info-home />
-                    </button>
+                            type="button"
+                            onclick="openModal()"
+                            class="cursor-pointer inline-flex items-center space-x-2 border border-gray-300 text-secondary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all"
+                        >
+                            <span>Pelajari lebih lanjut</span>
+                            <x-icons.info-home />
+                        </button>
                     </div>
                 </div>
             </div>
 
             {{-- Hero Images Grid --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-                {{-- Image 1 --}}
                 <div class="rounded-2xl overflow-hidden h-64 md:h-80">
                     <img
                         src="https://ext.same-assets.com/1105228812/3696522300.png"
@@ -59,7 +54,6 @@
                     >
                 </div>
 
-                {{-- Image 2 --}}
                 <div class="rounded-2xl overflow-hidden h-64 md:h-80">
                     <img
                         src="https://ext.same-assets.com/1105228812/3198143648.jpeg"
@@ -68,9 +62,7 @@
                     >
                 </div>
 
-                {{-- Quote Card --}}
                 <div class="hero-gradient relative rounded-2xl p-6 md:p-8 h-64 md:h-80 flex flex-col justify-between">
-                    {{-- Quote Icon --}}
                     <div class="absolute top-6 left-8 w-6 h-4">
                         <x-icons.quote-home />
                     </div>
@@ -81,14 +73,35 @@
                         </p>
                     </div>
 
-                    {{-- Mangrove Icon --}}
                     <div class="flex justify-start">
-                    <x-icons.mangrove-home />
+                        <x-icons.mangrove-home />
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    {{-- Statistics Section --}}
+    @if(isset($stats))
+    <section class="py-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <div class="text-3xl font-bold text-primary mb-2">{{ $stats['total_locations'] }}</div>
+                    <div class="text-sm text-muted">Lokasi Pemantauan</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <div class="text-3xl font-bold text-primary mb-2">{{ number_format($stats['total_area'], 2) }} ha</div>
+                    <div class="text-sm text-muted">Total Luas Area</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <div class="text-3xl font-bold text-primary mb-2">{{ $stats['total_articles'] }}</div>
+                    <div class="text-sm text-muted">Artikel Terpublikasi</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
 
     {{-- Articles Section --}}
     <section class="py-12 md:py-16 bg-white">
@@ -100,42 +113,53 @@
             </div>
 
             {{-- Articles Grid --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {{-- Article 1 --}}
-                <x-article-card
-                    image="https://ext.same-assets.com/1105228812/2230853859.png"
-                    date="6 Januari 2026"
-                    author="Admin, DLH Jakarta"
-                    title="Peran Vital Mangrove dalam Pertahanan Pesisir Jakarta"
-                    excerpt="Temukan bagaimana hutan mangrove di Jakarta menjaga wilayah pesisir dari erosi dan gelombang besar, mendukung keanekaragaman hayati, dan menopang kehidupan masyarakat lokal."
-                    link="#"
-                />
-
-                {{-- Article 2 --}}
-                <x-article-card
-                    image="https://ext.same-assets.com/1105228812/2230853859.png"
-                    date="5 Januari 2026"
-                    author="Admin, DLH Jakarta"
-                    title="Revolusi Energi Terbarukan: Solusi untuk Masa Depan"
-                    excerpt="Jelajahi bagaimana energi terbarukan dapat mengubah lanskap energi global dan mengurangi ketergantungan pada bahan bakar fosil, serta dampaknya terhadap perubahan iklim."
-                    link="#"
-                />
-
-                {{-- Article 3 --}}
-                <x-article-card
-                    image="https://ext.same-assets.com/1105228812/2708995451.jpeg"
-                    date="5 Januari 2026"
-                    author="Admin, DLH Jakarta"
-                    title="Menghidupkan Tradisi: Festival Budaya Betawi"
-                    excerpt="Saksikan keindahan dan kekayaan budaya Betawi melalui festival tahunan yang menampilkan seni, kuliner, dan tradisi yang telah diwariskan dari generasi ke generasi."
-                    link="#"
-                />
-            </div>
+            @if($articles->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    @foreach($articles as $article)
+                        <x-article-card
+                            :image="$article->featured_image ? asset('storage/' . $article->featured_image) : 'https://ext.same-assets.com/1105228812/2230853859.png'"
+                            :date="$article->published_at ? $article->published_at->format('d F Y') : ''"
+                            :author="$article->user->name ?? 'Admin, DLH Jakarta'"
+                            :title="$article->title"
+                            :excerpt="$article->excerpt"
+                            :link="route('articles.show', $article->slug)"
+                        />
+                    @endforeach
+                </div>
+            @else
+                {{-- Fallback jika belum ada artikel --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    <x-article-card
+                        image="https://ext.same-assets.com/1105228812/2230853859.png"
+                        date="6 Januari 2026"
+                        author="Admin, DLH Jakarta"
+                        title="Peran Vital Mangrove dalam Pertahanan Pesisir Jakarta"
+                        excerpt="Temukan bagaimana hutan mangrove di Jakarta menjaga wilayah pesisir dari erosi dan gelombang besar."
+                        link="#"
+                    />
+                    <x-article-card
+                        image="https://ext.same-assets.com/1105228812/2230853859.png"
+                        date="5 Januari 2026"
+                        author="Admin, DLH Jakarta"
+                        title="Revolusi Energi Terbarukan: Solusi untuk Masa Depan"
+                        excerpt="Jelajahi bagaimana energi terbarukan dapat mengubah lanskap energi global."
+                        link="#"
+                    />
+                    <x-article-card
+                        image="https://ext.same-assets.com/1105228812/2708995451.jpeg"
+                        date="5 Januari 2026"
+                        author="Admin, DLH Jakarta"
+                        title="Menghidupkan Tradisi: Festival Budaya Betawi"
+                        excerpt="Saksikan keindahan dan kekayaan budaya Betawi melalui festival tahunan."
+                        link="#"
+                    />
+                </div>
+            @endif
 
             {{-- View All Button --}}
             <div class="text-center mt-10">
                 <a
-                    href="{{ route('articles.index') ?? '#' }}"
+                    href="{{ route('articles.index') }}"
                     class="inline-flex items-center space-x-2 border-2 px-6 py-3 rounded-lg font-semibold transition-all"
                     style="border-color: #009966; color: #009966;"
                     onmouseover="this.style.backgroundColor='#009966'; this.style.color='white';"
@@ -152,13 +176,9 @@
 
     {{-- Modal Tentang Sikomang --}}
     <div id="aboutModal" class="fixed inset-0 z-50 hidden">
-        {{-- Backdrop --}}
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal()"></div>
-
-        {{-- Modal Content --}}
         <div class="fixed inset-0 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative animate-modal">
-                {{-- Modal Header --}}
                 <div class="flex items-center justify-between p-6 pb-4">
                     <h2 class="text-2xl md:text-3xl font-bold" style="color: #242621;">Tentang Sikomang</h2>
                     <button
@@ -172,7 +192,6 @@
                     </button>
                 </div>
 
-                {{-- Modal Body --}}
                 <div class="px-6 pb-6">
                     <p class="text-gray-700 leading-relaxed mb-6">
                         Sikomang (Sistem Informasi dan Komunikasi Mangrove DKI Jakarta) adalah platform resmi dari Dinas Lingkungan Hidup DKI Jakarta yang dikembangkan untuk:
@@ -239,7 +258,6 @@
         document.body.style.overflow = 'auto';
     }
 
-    // Close modal on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeModal();
