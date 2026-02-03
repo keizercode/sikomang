@@ -5,12 +5,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\ExcelExportController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
 

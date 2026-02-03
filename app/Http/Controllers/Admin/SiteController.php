@@ -40,9 +40,9 @@ class SiteController extends Controller
                 'no' => $index + 1,
                 'name' => $location->name,
                 'region' => $location->region ?? '-',
-                'area' => $location->area_formatted,
+                'area' => $location->area ? $location->area . ' ha' : 'Belum diidentifikasi',
                 'density' => ucfirst($location->density),
-                'health' => $location->health_formatted,
+                'health' => $location->health_percentage ? $location->health_percentage . '%' : 'N/A',
                 'type' => ucfirst($location->type),
                 'action' => '<div class="d-flex gap-1">
                     <a href="' . route('admin.monitoring.detail', encode_id($location->id)) . '" class="btn btn-sm btn-info" title="Detail"><i class="mdi mdi-eye"></i></a>
@@ -91,19 +91,47 @@ class SiteController extends Controller
     {
         $keyId = decode_id($request->secure_id);
 
+        // Validation rules - area dan health_percentage tidak wajib diisi
         $validated = $request->validate([
             'name' => 'required|max:255',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'area' => 'required|numeric|min:0',
+            'area' => 'nullable|numeric|min:0', // NULLABLE - tidak wajib
             'density' => 'required|in:jarang,sedang,lebat',
             'type' => 'required|in:pengkayaan,rehabilitasi,dilindungi,restorasi',
             'region' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'health' => 'nullable|numeric|between:0,100',
+            'health_percentage' => 'nullable|numeric|between:0,100', // NULLABLE - tidak wajib
+            'health_score' => 'nullable|string|max:255',
             'manager' => 'nullable|string|max:255',
             'year_established' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'location_address' => 'nullable|string',
+            'species' => 'nullable|string',
+            'carbon_data' => 'nullable|string',
+            'is_active' => 'boolean',
         ]);
+
+        // Generate slug jika kosong
+        if (empty($validated['slug']) || !isset($validated['slug'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+
+            // Pastikan slug unik
+            $originalSlug = $validated['slug'];
+            $count = 1;
+            while (MangroveLocation::where('slug', $validated['slug'])
+                ->when($keyId, function ($query) use ($keyId) {
+                    return $query->where('id', '!=', $keyId);
+                })
+                ->exists()
+            ) {
+                $validated['slug'] = $originalSlug . '-' . $count++;
+            }
+        }
+
+        // Set is_active default to true if not provided
+        if (!isset($validated['is_active'])) {
+            $validated['is_active'] = true;
+        }
 
         if ($keyId) {
             // Update existing
