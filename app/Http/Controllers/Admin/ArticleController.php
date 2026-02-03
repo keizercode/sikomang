@@ -65,9 +65,40 @@ class ArticleController extends Controller
      */
     public function create()
     {
+        $statuses = ['draft', 'published', 'archived'];
+
         return view('admin.articles.create', [
-            'title' => 'Tambah Artikel Baru'
+            'title' => 'Tambah Artikel Baru',
+            'statuses' => $statuses
         ]);
+    }
+
+    /**
+     * Generate unique slug including soft deleted records
+     */
+    private function generateUniqueSlug($title, $excludeId = null)
+    {
+        $slug = Str::slug($title);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        // Check with soft deleted records using withTrashed()
+        while (true) {
+            $query = Article::withTrashed()->where('slug', $slug);
+
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+
+            if (!$query->exists()) {
+                break;
+            }
+
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     /**
@@ -88,16 +119,8 @@ class ArticleController extends Controller
             'meta_keywords' => 'nullable|max:255',
         ]);
 
-        // Auto-generate slug from title
-        $validated['slug'] = Str::slug($validated['title']);
-
-        // Check if slug exists, make it unique
-        $originalSlug = $validated['slug'];
-        $counter = 1;
-        while (Article::where('slug', $validated['slug'])->exists()) {
-            $validated['slug'] = $originalSlug . '-' . $counter;
-            $counter++;
-        }
+        // Generate unique slug (including soft deleted)
+        $validated['slug'] = $this->generateUniqueSlug($validated['title']);
 
         // Handle featured image upload
         if ($request->hasFile('featured_image')) {
@@ -144,9 +167,12 @@ class ArticleController extends Controller
      */
     public function edit(Article $article)
     {
+        $statuses = ['draft', 'published', 'archived'];
+
         return view('admin.articles.edit', [
             'title' => 'Edit Artikel',
-            'article' => $article
+            'article' => $article,
+            'statuses' => $statuses
         ]);
     }
 
@@ -168,17 +194,9 @@ class ArticleController extends Controller
             'meta_keywords' => 'nullable|max:255',
         ]);
 
-        // Update slug if title changed
+        // Update slug if title changed (including soft deleted check)
         if ($validated['title'] !== $article->title) {
-            $validated['slug'] = Str::slug($validated['title']);
-
-            // Check if slug exists (excluding current article)
-            $originalSlug = $validated['slug'];
-            $counter = 1;
-            while (Article::where('slug', $validated['slug'])->where('id', '!=', $article->id)->exists()) {
-                $validated['slug'] = $originalSlug . '-' . $counter;
-                $counter++;
-            }
+            $validated['slug'] = $this->generateUniqueSlug($validated['title'], $article->id);
         }
 
         // Handle featured image upload
@@ -292,5 +310,61 @@ class ArticleController extends Controller
         return redirect()
             ->route('admin.articles.index')
             ->with('success', 'Artikel berhasil di-unpublish');
+    }
+
+    /**
+     * Permanently delete article (force delete)
+     */
+    public function forceDelete($id)
+    {
+        $article = Article::withTrashed()->findOrFail($id);
+
+        // Delete featured image if exists
+        if ($article->featured_image && Storage::disk('public')->exists($article->featured_image)) {
+            Storage::disk('public')->delete($article->featured_image);
+        }
+
+        // Force delete (permanent)
+        $article->forceDelete();
+
+        return redirect()
+            ->route('admin.articles.index')
+            ->with('success', 'Artikel berhasil dihapus permanen');
+    }
+
+    /**
+     * Restore soft deleted article
+     */
+    public function restore($id)
+    {
+        $article = Article::withTrashed()->findOrFail($id);
+
+        if (!$article->trashed()) {
+            return redirect()
+                ->back()
+                ->with('error', 'Artikel tidak dalam status terhapus');
+        }
+
+        $article->restore();
+
+        return redirect()
+            ->route('admin.articles.index')
+            ->with('success', 'Artikel berhasil dipulihkan');
+    }
+
+    /**
+     * Show trashed articles
+     */
+    public function trashed()
+    {
+        $articles = Article::onlyTrashed()
+            ->with('user')
+            ->latest('deleted_at')
+            ->paginate(10);
+
+        return view('admin.articles.trashed', [
+            'title' => 'Artikel Terhapus',
+            'articles' => $articles
+        ]);
     }
 }

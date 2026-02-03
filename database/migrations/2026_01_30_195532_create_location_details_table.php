@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('location_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mangrove_location_id')->constrained()->onDelete('cascade');
-            $table->json('species_detail')->nullable(); // vegetasi & fauna
+            $table->json('vegetation')->nullable();
+            $table->json('fauna')->nullable();
             $table->json('activities')->nullable();
             $table->json('forest_utilization')->nullable();
             $table->json('programs')->nullable();
