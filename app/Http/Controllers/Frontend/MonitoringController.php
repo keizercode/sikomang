@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Frontend;
 
 use Illuminate\Http\Request;
 
-class MonitoringController extends Controller
+class MonitoringController extends FrontendController
 {
     /**
      * Menampilkan halaman profil sebaran mangrove

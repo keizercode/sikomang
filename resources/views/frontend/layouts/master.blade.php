@@ -1,542 +1,396 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
+    <title>@yield('title', 'SIKOMANG Admin')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="@yield('meta_description', 'SIKOMANG - Sistem Informasi Kawasan Mangrove - Platform monitoring dan pengelolaan ekosistem mangrove')">
-    <meta name="keywords" content="mangrove, ekosistem, monitoring, konservasi, lingkungan">
-    <meta name="author" content="SIKOMANG">
-    <title>@yield('title', 'SIKOMANG - Sistem Informasi Kawasan Mangrove')</title>
+    <meta name="description" content="SIKOMANG - Sistem Informasi dan Komunikasi Mangrove DKI Jakarta" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css" rel="stylesheet">
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Table -->
+    <link href="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.css" rel="stylesheet">
 
-    <!-- Leaflet CSS (for maps) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Alertify -->
+    <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css" rel="stylesheet">
 
-    <!-- AOS Animation -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
+    <!-- Custom Admin CSS -->
+{{-- @vite(['resources/css/admin/dashboard.css']) --}}
+    <!-- Custom Admin CSS -->
     <style>
         :root {
-            --primary-color: #2d7a5e;
-            --secondary-color: #4a9d7a;
-            --accent-color: #ffa726;
-            --dark-color: #1a1a1a;
-            --light-color: #f8f9fa;
-            --text-color: #333;
-            --border-color: #dee2e6;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --primary-color: #009966;
+            --sidebar-width: 250px;
+            --topbar-height: 70px;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            color: var(--text-color);
-            overflow-x: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
         }
 
-        /* Navbar Styles */
-        .navbar-custom {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 15px 0;
+        /* Sidebar */
+        .vertical-menu {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #2a3042;
+            box-shadow: 0 2px 4px rgba(15,34,58,.12);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            overflow-y: auto;
         }
 
-        .navbar-brand {
+        .vertical-menu .navbar-brand-box {
+            padding: 1.5rem 1rem;
+            background: #2a3042;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .vertical-menu .logo-md {
+            color: white;
             font-weight: 700;
-            font-size: 1.5rem;
-            color: white !important;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 1.25rem;
         }
 
-        .navbar-brand i {
-            font-size: 2rem;
+        .sidebar-menu-scroll {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
         }
 
-        .nav-link {
-            color: rgba(255,255,255,0.9) !important;
-            font-weight: 500;
-            margin: 0 10px;
-            transition: all 0.3s;
-            position: relative;
+        .sidebar-menu-scroll::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .nav-link:hover,
-        .nav-link.active {
-            color: white !important;
+        .sidebar-menu-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 2px;
-            background: var(--accent-color);
-            transition: width 0.3s;
+        #sidebar-menu {
+            padding: 1rem 0;
         }
 
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 80%;
-        }
-
-        /* Search Bar */
-        .search-form {
-            position: relative;
-        }
-
-        .search-form input {
-            border-radius: 25px;
-            padding: 8px 40px 8px 20px;
-            border: none;
-            width: 250px;
-        }
-
-        .search-form button {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            position: relative;
-            height: 70vh;
-            background: linear-gradient(135deg, rgba(45, 122, 94, 0.9) 0%, rgba(74, 157, 122, 0.9) 100%),
-                        url('{{ asset("assets/images/mangrove-hero.jpg") }}') center/cover;
-            color: white;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-section h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .hero-section p {
-            font-size: 1.3rem;
-            margin-bottom: 30px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .btn-hero {
-            background: var(--accent-color);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .btn-hero:hover {
-            background: #ff9100;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            color: white;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            background: white;
-            padding: 60px 0;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            transition: transform 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .stat-card i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.9;
-        }
-
-        .stat-card h3 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .stat-card p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .metismenu {
+            list-style: none;
+            padding: 0;
             margin: 0;
         }
 
-        /* Card Styles */
-        .location-card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            height: 100%;
+        .metismenu li {
+            position: relative;
         }
 
-        .location-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-
-        .location-card img {
-            height: 220px;
-            object-fit: cover;
-            width: 100%;
-        }
-
-        .location-card .card-body {
-            padding: 20px;
-        }
-
-        .location-card .card-title {
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .location-card .badge {
-            font-size: 0.75rem;
-            padding: 5px 10px;
-            font-weight: 500;
-        }
-
-        /* Footer */
-        .footer {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: white;
-            padding: 60px 0 20px;
-        }
-
-        .footer h5 {
-            color: var(--accent-color);
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .footer a {
-            color: rgba(255,255,255,0.8);
+        .metismenu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #a6b0cf;
             text-decoration: none;
-            transition: color 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .footer a:hover {
-            color: var(--accent-color);
+        .metismenu a:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
         }
 
-        .footer .social-links a {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            margin-right: 10px;
-            transition: all 0.3s;
+        .metismenu a.active {
+            color: #fff;
+            background: rgba(0,153,102,0.2);
+            border-left: 3px solid var(--primary-color);
         }
 
-        .footer .social-links a:hover {
-            background: var(--accent-color);
-            transform: translateY(-3px);
+        .metismenu a i {
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+            min-width: 24px;
         }
 
-        /* Section Title */
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
+        .metismenu .sub-menu {
+            list-style: none;
+            padding-left: 0;
+            background: rgba(0,0,0,0.1);
+            display: none;
         }
 
-        .section-title h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-
-        .section-title p {
-            font-size: 1.1rem;
-            color: #666;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .section-title::after {
-            content: '';
+        .metismenu .sub-menu.mm-show {
             display: block;
-            width: 80px;
-            height: 4px;
-            background: var(--accent-color);
-            margin: 20px auto;
-            border-radius: 2px;
         }
 
-        /* Pagination */
-        .pagination {
-            margin-top: 40px;
+        .metismenu .sub-menu a {
+            padding-left: 3.5rem;
+            font-size: 0.9rem;
         }
 
-        .pagination .page-link {
-            color: var(--primary-color);
-            border: 1px solid var(--border-color);
+        .metismenu .has-arrow::after {
+            content: "\F0142";
+            font-family: "Material Design Icons";
+            position: absolute;
+            right: 1.5rem;
+            transition: transform 0.3s ease;
         }
 
-        .pagination .page-item.active .page-link {
+        .metismenu .has-arrow.mm-active::after {
+            transform: rotate(90deg);
+        }
+
+        .menu-title {
+            padding: 1rem 1.5rem 0.5rem;
+            color: #6c757d;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Topbar */
+        .isvertical-topbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: var(--topbar-height);
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(15,34,58,.12);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            height: var(--topbar-height);
+        }
+
+        .page-title-box {
+            padding: 0 1rem;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .header-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .header-item:hover {
+            background: #f8f9fa;
+        }
+
+        .header-profile-user {
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+        }
+
+        .vertical-menu-btn {
+            display: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--topbar-height);
+            transition: all 0.3s ease;
+        }
+
+        .page-content {
+            padding: 1.5rem;
+            min-height: calc(100vh - var(--topbar-height));
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* Badges */
+        .badge-soft-primary { background: rgba(0,153,102,0.1); color: var(--primary-color); }
+        .badge-soft-success { background: rgba(25,135,84,0.1); color: #198754; }
+        .badge-soft-danger { background: rgba(220,53,69,0.1); color: #dc3545; }
+        .badge-soft-warning { background: rgba(255,193,7,0.1); color: #ffc107; }
+        .badge-soft-info { background: rgba(13,202,240,0.1); color: #0dcaf0; }
+
+        /* Avatar */
+        .avatar {
+            width: 48px;
+            height: 48px;
+        }
+
+        .avatar-title {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
             background: var(--primary-color);
             border-color: var(--primary-color);
         }
 
+        .btn-primary:hover {
+            background: #007a52;
+            border-color: #007a52;
+        }
+
+        /* Table */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table-centered th,
+        .table-centered td {
+            vertical-align: middle;
+        }
+
+        /* Dropdown */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+
         /* Responsive */
-        @media (max-width: 768px) {
-            .hero-section h1 {
-                font-size: 2rem;
+        @media (max-width: 991.98px) {
+            .vertical-menu {
+                left: -var(--sidebar-width);
             }
 
-            .hero-section p {
-                font-size: 1rem;
+            .vertical-menu.show {
+                left: 0;
             }
 
-            .search-form input {
-                width: 150px;
+            .isvertical-topbar {
+                left: 0;
             }
 
-            .section-title h2 {
-                font-size: 1.8rem;
+            .main-content {
+                margin-left: 0;
             }
-        }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-color);
+            .vertical-menu-btn {
+                display: block;
+            }
         }
     </style>
 
-    @yield('styles')
+    @yield('css')
 </head>
+
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('frontend.home') }}">
-                <i class="fas fa-leaf"></i>
-                <span>SIKOMANG</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('frontend.home') ? 'active' : '' }}" href="{{ route('frontend.home') }}">
-                            <i class="fas fa-home me-1"></i> Beranda
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('frontend.locations') ? 'active' : '' }}" href="{{ route('frontend.locations') }}">
-                            <i class="fas fa-map-marked-alt me-1"></i> Lokasi
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('frontend.gallery') ? 'active' : '' }}" href="{{ route('frontend.gallery') }}">
-                            <i class="fas fa-images me-1"></i> Galeri
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('frontend.monitoring') ? 'active' : '' }}" href="{{ route('frontend.monitoring') }}">
-                            <i class="fas fa-chart-line me-1"></i> Monitoring
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('frontend.about') ? 'active' : '' }}" href="{{ route('frontend.about') }}">
-                            <i class="fas fa-info-circle me-1"></i> Tentang
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('frontend.contact') ? 'active' : '' }}" href="{{ route('frontend.contact') }}">
-                            <i class="fas fa-envelope me-1"></i> Kontak
-                        </a>
-                    </li>
-                    <li class="nav-item ms-3">
-                        <form class="search-form" action="{{ route('frontend.search') }}" method="GET">
-                            <input type="text" name="q" class="form-control" placeholder="Cari lokasi..." value="{{ request('q') }}">
-                            <button type="submit"><i class="fas fa-search"></i></button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!-- Sidebar -->
+        @include('include.sidebar')
+
+        <!-- Topbar -->
+        @include('include.topbar')
+
+        <!-- Main Content -->
+        <div class="main-content">
+            @yield('content')
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main>
-        @yield('content')
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5><i class="fas fa-leaf me-2"></i> SIKOMANG</h5>
-                    <p>Sistem Informasi Kawasan Mangrove untuk monitoring dan pengelolaan ekosistem mangrove di Indonesia.</p>
-                    <div class="social-links mt-3">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h5>Menu</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('frontend.home') }}"><i class="fas fa-chevron-right me-2"></i> Beranda</a></li>
-                        <li class="mb-2"><a href="{{ route('frontend.locations') }}"><i class="fas fa-chevron-right me-2"></i> Lokasi</a></li>
-                        <li class="mb-2"><a href="{{ route('frontend.gallery') }}"><i class="fas fa-chevron-right me-2"></i> Galeri</a></li>
-                        <li class="mb-2"><a href="{{ route('frontend.monitoring') }}"><i class="fas fa-chevron-right me-2"></i> Monitoring</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>Informasi</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('frontend.about') }}"><i class="fas fa-chevron-right me-2"></i> Tentang Kami</a></li>
-                        <li class="mb-2"><a href="{{ route('frontend.contact') }}"><i class="fas fa-chevron-right me-2"></i> Hubungi Kami</a></li>
-                        <li class="mb-2"><a href="#"><i class="fas fa-chevron-right me-2"></i> Kebijakan Privasi</a></li>
-                        <li class="mb-2"><a href="#"><i class="fas fa-chevron-right me-2"></i> Syarat & Ketentuan</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>Kontak</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Jl. Mangrove No. 123, Jakarta</li>
-                        <li class="mb-2"><i class="fas fa-phone me-2"></i> +62 21 1234 5678</li>
-                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@sikomang.id</li>
-                        <li class="mb-2"><i class="fas fa-clock me-2"></i> Senin - Jumat, 08:00 - 17:00</li>
-                    </ul>
-                </div>
-            </div>
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 40px 0 20px;">
-            <div class="text-center">
-                <p class="mb-0">&copy; {{ date('Y') }} SIKOMANG. All rights reserved. | Developed with <i class="fas fa-heart text-danger"></i> for Indonesian Mangroves</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Back to Top Button -->
-    <button id="backToTop" class="btn btn-primary rounded-circle" style="position: fixed; bottom: 30px; right: 30px; display: none; z-index: 999; width: 50px; height: 50px;">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+    </div>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Bootstrap Table -->
+    <script src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
 
-    <!-- AOS Animation -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Alertify -->
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 
-    <!-- Custom JS -->
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Metismenu -->
     <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 1000,
-            once: true,
-            offset: 100
-        });
+        $(document).ready(function() {
+            // Toggle submenu
+            $('.has-arrow').on('click', function(e) {
+                e.preventDefault();
+                $(this).toggleClass('mm-active');
+                $(this).next('.sub-menu').slideToggle(200).toggleClass('mm-show');
+            });
 
-        // Back to Top Button
-        $(window).scroll(function() {
-            if ($(this).scrollTop() > 300) {
-                $('#backToTop').fadeIn();
-            } else {
-                $('#backToTop').fadeOut();
-            }
-        });
+            // Mobile menu toggle
+            $('.vertical-menu-btn').on('click', function() {
+                $('.vertical-menu').toggleClass('show');
+            });
 
-        $('#backToTop').click(function() {
-            $('html, body').animate({scrollTop: 0}, 600);
-            return false;
-        });
-
-        // Smooth scroll for anchor links
-        $('a[href^="#"]').on('click', function(e) {
-            e.preventDefault();
-            var target = $(this.hash);
-            if (target.length) {
-                $('html, body').animate({
-                    scrollTop: target.offset().top - 80
-                }, 600);
-            }
+            // Set active menu
+            var currentUrl = window.location.href;
+            $('.metismenu a').each(function() {
+                if ($(this).attr('href') === currentUrl) {
+                    $(this).addClass('active');
+                    $(this).parents('.sub-menu').addClass('mm-show');
+                    $(this).parents('.sub-menu').prev('.has-arrow').addClass('mm-active');
+                }
+            });
         });
     </script>
 
-    @yield('scripts')
+    <!-- Show flash messages -->
+    @if(session('message'))
+    <script>
+        @if(session('type') == 'success')
+            alertify.success('{{ session("message") }}');
+        @elseif(session('type') == 'error')
+            alertify.error('{{ session("message") }}');
+        @else
+            alertify.message('{{ session("message") }}');
+        @endif
+    </script>
+    @endif
+
+    @yield('js')
 </body>
 </html>
