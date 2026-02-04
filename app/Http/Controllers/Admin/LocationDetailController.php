@@ -16,23 +16,24 @@ class LocationDetailController extends Controller
 {
     /**
      * Display location details
+     * FIXED: Hapus semua json_decode karena model sudah otomatis decode via $casts
      */
     public function show($id)
     {
         $keyId = decode_id($id);
         $location = MangroveLocation::with(['details', 'images', 'damages.actions'])->findOrFail($keyId);
 
-        // Parse JSON fields in details
+        // LANGSUNG pakai tanpa json_decode karena sudah array dari model casting
         if ($location->details) {
             $location->details->species_detail = [
-                'vegetasi' => json_decode($location->details->vegetasi, true) ?? [],
-                'fauna' => json_decode($location->details->fauna, true) ?? []
+                'vegetasi' => $location->details->vegetasi ?? [],
+                'fauna' => $location->details->fauna ?? []
             ];
 
-            $location->details->activities = json_decode($location->details->activities, true) ?? [];
-            $location->details->forest_utilization = json_decode($location->details->forest_utilization, true) ?? [];
-            $location->details->programs = json_decode($location->details->programs, true) ?? [];
-            $location->details->stakeholders = json_decode($location->details->stakeholders, true) ?? [];
+            $location->details->activities = $location->details->activities ?? [];
+            $location->details->forest_utilization = $location->details->forest_utilization ?? [];
+            $location->details->programs = $location->details->programs ?? [];
+            $location->details->stakeholders = $location->details->stakeholders ?? [];
         }
 
         $data['breadcrumbs'] = [
@@ -57,22 +58,28 @@ class LocationDetailController extends Controller
 
         $validated = $request->validate([
             'vegetasi' => 'nullable|array',
-            'vegetasi.*' => 'string|max:255',
+            'vegetasi.*' => 'nullable|string|max:255',
             'fauna' => 'nullable|array',
-            'fauna.*' => 'string|max:255',
+            'fauna.*' => 'nullable|string|max:255',
         ]);
 
-        // Filter empty values and re-index array
-        $vegetasiData = array_values(array_filter($validated['vegetasi'] ?? []));
-        $faunaData = array_values(array_filter($validated['fauna'] ?? []));
+        // Filter empty values properly
+        $vegetasiData = array_values(array_filter($validated['vegetasi'] ?? [], function ($value) {
+            return !empty(trim($value));
+        }));
 
-        // Prepare update data with JSON encoding
+        $faunaData = array_values(array_filter($validated['fauna'] ?? [], function ($value) {
+            return !empty(trim($value));
+        }));
+
+        // PENTING: Karena model pakai $casts array, langsung assign array
+        // Laravel otomatis convert ke JSON saat save
         $updateData = [
-            'vegetasi' => json_encode($vegetasiData),
-            'fauna' => json_encode($faunaData),
+            'vegetasi' => $vegetasiData,
+            'fauna' => $faunaData,
         ];
 
-        // Update or create location details
+        // Update or create
         if ($location->details) {
             $location->details->update($updateData);
         } else {
@@ -106,8 +113,9 @@ class LocationDetailController extends Controller
             'items' => array_values(array_filter($validated['items'] ?? [])),
         ];
 
+        // LANGSUNG assign array, Laravel otomatis convert ke JSON
         $updateData = [
-            'activities' => json_encode($activities)
+            'activities' => $activities
         ];
 
         if ($location->details) {
@@ -141,10 +149,11 @@ class LocationDetailController extends Controller
             'stakeholders.*' => 'string|max:255',
         ]);
 
+        // LANGSUNG assign array, Laravel otomatis convert ke JSON
         $updateData = [
-            'forest_utilization' => json_encode(array_values(array_filter($validated['forest_utilization'] ?? []))),
-            'programs' => json_encode(array_values(array_filter($validated['programs'] ?? []))),
-            'stakeholders' => json_encode(array_values(array_filter($validated['stakeholders'] ?? []))),
+            'forest_utilization' => array_values(array_filter($validated['forest_utilization'] ?? [])),
+            'programs' => array_values(array_filter($validated['programs'] ?? [])),
+            'stakeholders' => array_values(array_filter($validated['stakeholders'] ?? [])),
         ];
 
         if ($location->details) {

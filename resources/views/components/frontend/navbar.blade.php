@@ -4,7 +4,7 @@
             {{-- Logo --}}
             <a href="{{ route('home') }}" class="flex items-center gap-3">
                 <img
-                    src="https://pencil-matter-70015947.figma.site/_assets/v11/e6fb723ab1735b08498a0a60cab1e81508afa7e6.png"
+                    src="https://res.cloudinary.com/dmcvht1vr/image/upload/v1770193394/logo_sikomang_ao9jdj.png"
                     alt="SIKOMANG Logo"
                     class="h-10 w-10 md:h-12 md:w-12"
                 >
@@ -14,7 +14,7 @@
 
                 {{-- Text --}}
                 <div class="hidden sm:block">
-                    <h1 class="text-base md:text-lg font-bold text-navbar">SIKOMANG</h1>
+                    <h1 class="text-base md:text-lg font-bold" style="color:#147C45">SIKOMANG</h1>
                     <p class="text-[10px] md:text-xs leading-tight text-muted">
                         Sistem Informasi dan Komunikasi<br>Mangrove DKI Jakarta
                     </p>

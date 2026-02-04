@@ -14,7 +14,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Get published articles (latest 3)
+
         $articles = Article::published()
             ->with('user')
             ->latest('published_at')

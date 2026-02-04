@@ -13,26 +13,49 @@ class MonitoringController extends Controller
      */
     public function index()
     {
-        // Get all active locations
-        $locations = MangroveLocation::where('is_active', true)
-            ->with(['details', 'images', 'damages.actions'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        try {
+            // Get all active locations
+            $locations = MangroveLocation::where('is_active', true)
+                ->with(['details', 'images', 'damages.actions'])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        // Calculate total sites and area
-        $total_sites = $locations->count();
-        $total_area = $locations->sum('area');
+            // Calculate total sites and area
+            $total_sites = $locations->count();
+            $total_area = $locations->sum('area');
 
-        // Calculate monitoring data by density and conservation type
-        $monitoring_data = $this->calculateMonitoringData($locations);
+            // Calculate monitoring data by density and conservation type
+            $monitoring_data = $this->calculateMonitoringData($locations);
 
-        return view('pages.frontend.monitoring', [
-            'title' => 'Profil Sebaran Mangrove DKI Jakarta 2025',
-            'total_sites' => $total_sites,
-            'total_area' => number_format($total_area, 2),
-            'monitoring_data' => $monitoring_data,
-            'locations' => $locations
-        ]);
+            // Format locations for map display
+            $formattedLocations = $locations->map(function ($location) {
+                return [
+                    'name' => $location->name,
+                    'coords' => $location->latitude . ', ' . $location->longitude,
+                    'area' => $location->area ? $location->area . ' ha' : 'N/A',
+                    'density' => strtolower($location->density),
+                    'slug' => $location->slug,
+                ];
+            })->toArray();
+
+            return view('pages.frontend.monitoring', [
+                'title' => 'Profil Sebaran Mangrove DKI Jakarta 2025',
+                'total_sites' => $total_sites,
+                'total_area' => number_format($total_area, 2),
+                'monitoring_data' => $monitoring_data,
+                'locations' => $formattedLocations
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in MonitoringController@index: ' . $e->getMessage());
+
+            return view('pages.frontend.monitoring', [
+                'title' => 'Profil Sebaran Mangrove DKI Jakarta 2025',
+                'total_sites' => 0,
+                'total_area' => '0.00',
+                'monitoring_data' => ['luar_kawasan' => [], 'dalam_kawasan' => []],
+                'locations' => []
+            ]);
+        }
     }
 
     /**
@@ -40,19 +63,27 @@ class MonitoringController extends Controller
      */
     public function hasilPemantauan()
     {
-        $locations = MangroveLocation::where('is_active', true)
-            ->with(['details', 'images', 'damages.actions'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        try {
+            $locations = MangroveLocation::where('is_active', true)
+                ->with(['details', 'images', 'damages.actions'])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        // Format locations for frontend
-        $formattedLocations = $locations->map(function ($location) {
-            return $this->formatLocationForFrontend($location);
-        })->toArray();
+            // Format locations for frontend
+            $formattedLocations = $locations->map(function ($location) {
+                return $this->formatLocationForFrontend($location);
+            })->toArray();
 
-        return view('pages.frontend.hasil-pemantauan', [
-            'locations' => $formattedLocations
-        ]);
+            return view('pages.frontend.hasil-pemantauan', [
+                'locations' => $formattedLocations
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in MonitoringController@hasilPemantauan: ' . $e->getMessage());
+
+            return view('pages.frontend.hasil-pemantauan', [
+                'locations' => []
+            ]);
+        }
     }
 
     /**
@@ -60,16 +91,23 @@ class MonitoringController extends Controller
      */
     public function detailLokasi($slug)
     {
-        $location = MangroveLocation::where('slug', $slug)
-            ->where('is_active', true)
-            ->with(['details', 'images', 'damages.actions'])
-            ->firstOrFail();
+        try {
+            $location = MangroveLocation::where('slug', $slug)
+                ->where('is_active', true)
+                ->with(['details', 'images', 'damages.actions'])
+                ->firstOrFail();
 
-        $formattedLocation = $this->formatLocationForFrontend($location);
+            $formattedLocation = $this->formatLocationForFrontend($location);
 
-        return view('pages.frontend.detail-lokasi', [
-            'location' => $formattedLocation
-        ]);
+            return view('pages.frontend.detail-lokasi', [
+                'location' => $formattedLocation
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            abort(404, 'Lokasi tidak ditemukan');
+        } catch (\Exception $e) {
+            \Log::error('Error in MonitoringController@detailLokasi: ' . $e->getMessage());
+            abort(500, 'Terjadi kesalahan saat memuat data lokasi');
+        }
     }
 
     /**
@@ -82,12 +120,9 @@ class MonitoringController extends Controller
             'dalam_kawasan' => []
         ];
 
-        // Group by kawasan type (you may need to add this field to database)
-        // For now, using simplified logic
-
         // APL (Luar Kawasan)
         $apl = $locations->filter(function ($loc) {
-            return $loc->type === 'pengkayaan' || $loc->type === 'rehabilitasi';
+            return in_array($loc->type, ['pengkayaan', 'rehabilitasi']);
         });
 
         if ($apl->count() > 0) {
@@ -102,7 +137,8 @@ class MonitoringController extends Controller
         }
 
         // HL, HP, TN, SM, TWA (Dalam Kawasan)
-        $hl = $locations->filter(fn($loc) => $loc->type === 'dilindungi');
+        $hl = $locations->filter(fn($loc) => in_array($loc->type, ['dilindungi', 'restorasi']));
+
         if ($hl->count() > 0) {
             $data['dalam_kawasan'][] = [
                 'fungsi' => 'HL (Hutan Lindung)',
@@ -129,7 +165,7 @@ class MonitoringController extends Controller
             'name' => $location->name,
             'type' => ucfirst($location->type),
             'year' => $location->year_established ?? date('Y'),
-            'area' => $location->area ? $location->area . ' ha' : 'Belum diidentifikasi',
+            'area' => $location->area ? number_format($location->area, 2) . ' ha' : 'Belum diidentifikasi',
             'density' => ucfirst($location->density),
             'health' => $location->health_percentage ? $location->health_percentage . '% Sehat' : 'N/A',
             'health_score' => $location->health_score ?? 'N/A',
@@ -146,13 +182,13 @@ class MonitoringController extends Controller
             'damages' => $location->damages->pluck('title')->toArray(),
             'actions' => $location->damages->flatMap(fn($d) => $d->actions->pluck('action_description'))->toArray(),
             'species_detail' => $details ? [
-                'vegetasi' => json_decode($details->vegetasi, true) ?? [],
-                'fauna' => json_decode($details->fauna, true) ?? []
+                'vegetasi' => is_array($details->vegetasi) ? $details->vegetasi : json_decode($details->vegetasi, true) ?? [],
+                'fauna' => is_array($details->fauna) ? $details->fauna : json_decode($details->fauna, true) ?? []
             ] : null,
-            'activities' => $details ? json_decode($details->activities, true) : null,
-            'forest_utilization' => $details ? json_decode($details->forest_utilization, true) : null,
-            'programs' => $details ? json_decode($details->programs, true) : null,
-            'stakeholders' => $details ? json_decode($details->stakeholders, true) : null,
+            'activities' => $details ? (is_array($details->activities) ? $details->activities : json_decode($details->activities, true)) : null,
+            'forest_utilization' => $details ? (is_array($details->forest_utilization) ? $details->forest_utilization : json_decode($details->forest_utilization, true)) : null,
+            'programs' => $details ? (is_array($details->programs) ? $details->programs : json_decode($details->programs, true)) : null,
+            'stakeholders' => $details ? (is_array($details->stakeholders) ? $details->stakeholders : json_decode($details->stakeholders, true)) : null,
         ];
     }
 

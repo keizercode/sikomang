@@ -27,19 +27,11 @@ class ArticleController extends Controller
             });
         }
 
-        // Filter by category (if you add category later)
-        if ($request->filled('category')) {
-            // Add category filter when implemented
-        }
-
         $articles = $query->paginate(9);
 
-        return view('pages.articles.index', compact('articles'));
+        return view('pages.frontend.articles.index', compact('articles'));
     }
 
-    /**
-     * Display the specified article
-     */
     public function show($slug)
     {
         $article = Article::where('slug', $slug)
@@ -60,6 +52,6 @@ class ArticleController extends Controller
             ->limit(3)
             ->get();
 
-        return view('pages.articles.show', compact('article', 'relatedArticles'));
+        return view('pages.frontend.articles.show', compact('article', 'relatedArticles'));
     }
 }
