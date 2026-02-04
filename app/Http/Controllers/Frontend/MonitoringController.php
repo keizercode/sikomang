@@ -2,22 +2,35 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Http\Controllers\Controller;
+use App\Models\MangroveLocation;
 use Illuminate\Http\Request;
 
-class MonitoringController extends FrontendController
+class MonitoringController extends Controller
 {
     /**
-     * Menampilkan halaman profil sebaran mangrove
+     * Menampilkan halaman profil sebaran mangrove dengan data dinamis
      */
     public function index()
     {
-        $locations = $this->getLocations();
+        // Get all active locations
+        $locations = MangroveLocation::where('is_active', true)
+            ->with(['details', 'images', 'damages.actions'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate total sites and area
+        $total_sites = $locations->count();
+        $total_area = $locations->sum('area');
+
+        // Calculate monitoring data by density and conservation type
+        $monitoring_data = $this->calculateMonitoringData($locations);
 
         return view('pages.frontend.monitoring', [
             'title' => 'Profil Sebaran Mangrove DKI Jakarta 2025',
-            'total_sites' => $this->getTotalSites(),
-            'total_area' => $this->getTotalArea(),
-            'monitoring_data' => $this->getMonitoringData(),
+            'total_sites' => $total_sites,
+            'total_area' => number_format($total_area, 2),
+            'monitoring_data' => $monitoring_data,
             'locations' => $locations
         ]);
     }
@@ -27,9 +40,19 @@ class MonitoringController extends FrontendController
      */
     public function hasilPemantauan()
     {
-        $locations = $this->getLocations();
+        $locations = MangroveLocation::where('is_active', true)
+            ->with(['details', 'images', 'damages.actions'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('pages.frontend.hasil-pemantauan', compact('locations'));
+        // Format locations for frontend
+        $formattedLocations = $locations->map(function ($location) {
+            return $this->formatLocationForFrontend($location);
+        })->toArray();
+
+        return view('pages.frontend.hasil-pemantauan', [
+            'locations' => $formattedLocations
+        ]);
     }
 
     /**
@@ -37,240 +60,119 @@ class MonitoringController extends FrontendController
      */
     public function detailLokasi($slug)
     {
-        $location = $this->getLocationBySlug($slug);
+        $location = MangroveLocation::where('slug', $slug)
+            ->where('is_active', true)
+            ->with(['details', 'images', 'damages.actions'])
+            ->firstOrFail();
 
-        if (!$location) {
-            abort(404, 'Lokasi tidak ditemukan');
+        $formattedLocation = $this->formatLocationForFrontend($location);
+
+        return view('pages.frontend.detail-lokasi', [
+            'location' => $formattedLocation
+        ]);
+    }
+
+    /**
+     * Calculate monitoring data dari database
+     */
+    private function calculateMonitoringData($locations)
+    {
+        $data = [
+            'luar_kawasan' => [],
+            'dalam_kawasan' => []
+        ];
+
+        // Group by kawasan type (you may need to add this field to database)
+        // For now, using simplified logic
+
+        // APL (Luar Kawasan)
+        $apl = $locations->filter(function ($loc) {
+            return $loc->type === 'pengkayaan' || $loc->type === 'rehabilitasi';
+        });
+
+        if ($apl->count() > 0) {
+            $data['luar_kawasan'][] = [
+                'fungsi' => 'APL (Areal Penggunaan Lain)',
+                'jarang' => number_format($apl->where('density', 'jarang')->sum('area'), 2),
+                'sedang' => number_format($apl->where('density', 'sedang')->sum('area'), 2),
+                'lebat' => number_format($apl->where('density', 'lebat')->sum('area'), 2),
+                'total' => number_format($apl->sum('area'), 2),
+                'status' => 'Bukan Kawasan Konservasi'
+            ];
         }
 
-        return view('pages.frontend.detail-lokasi', compact('location'));
+        // HL, HP, TN, SM, TWA (Dalam Kawasan)
+        $hl = $locations->filter(fn($loc) => $loc->type === 'dilindungi');
+        if ($hl->count() > 0) {
+            $data['dalam_kawasan'][] = [
+                'fungsi' => 'HL (Hutan Lindung)',
+                'jarang' => number_format($hl->where('density', 'jarang')->sum('area'), 2),
+                'sedang' => number_format($hl->where('density', 'sedang')->sum('area'), 2),
+                'lebat' => number_format($hl->where('density', 'lebat')->sum('area'), 2),
+                'total' => number_format($hl->sum('area'), 2),
+                'status' => 'Kawasan Konservasi'
+            ];
+        }
+
+        return $data;
     }
 
     /**
-     * Get total monitoring sites
+     * Format location data untuk frontend
      */
-    private function getTotalSites(): int
+    private function formatLocationForFrontend($location)
     {
-        return 23;
-    }
+        $details = $location->details;
 
-    /**
-     * Get total area coverage
-     */
-    private function getTotalArea(): int
-    {
-        return 297;
-    }
-
-    /**
-     * Get monitoring data untuk tabel
-     */
-    private function getMonitoringData(): array
-    {
         return [
-            'luar_kawasan' => [
-                [
-                    'fungsi' => 'APL (Areal Penggunaan Lain)',
-                    'jarang' => 36.54,
-                    'sedang' => 56.38,
-                    'lebat' => 171.28,
-                    'total' => 264.21,
-                    'status' => 'Bukan Kawasan Konservasi'
-                ]
-            ],
-            'dalam_kawasan' => [
-                [
-                    'fungsi' => 'HL (Hutan Lindung)',
-                    'jarang' => 3.03,
-                    'sedang' => 39.06,
-                    'lebat' => 19.59,
-                    'total' => 61.67,
-                    'status' => 'Kawasan Konservasi'
-                ],
-                [
-                    'fungsi' => 'HP (Hutan Produksi)',
-                    'jarang' => 2.20,
-                    'sedang' => 6.53,
-                    'lebat' => 71.84,
-                    'total' => 80.57,
-                    'status' => 'Bukan Kawasan Konservasi'
-                ],
-                [
-                    'fungsi' => 'TN (Taman Nasional)',
-                    'jarang' => 29.72,
-                    'sedang' => 5.01,
-                    'lebat' => 21.65,
-                    'total' => 56.39,
-                    'status' => 'Kawasan Konservasi'
-                ],
-                [
-                    'fungsi' => 'SM (Suaka Margasatwa)',
-                    'jarang' => 8.31,
-                    'sedang' => 11.96,
-                    'lebat' => 26.83,
-                    'total' => 47.10,
-                    'status' => 'Kawasan Konservasi'
-                ],
-                [
-                    'fungsi' => 'TWA (Taman Wisata Alam)',
-                    'jarang' => 2.01,
-                    'sedang' => 94.49,
-                    'lebat' => 1.79,
-                    'total' => 98.28,
-                    'status' => 'Kawasan Konservasi'
-                ]
-            ]
+            'slug' => $location->slug,
+            'name' => $location->name,
+            'type' => ucfirst($location->type),
+            'year' => $location->year_established ?? date('Y'),
+            'area' => $location->area ? $location->area . ' ha' : 'Belum diidentifikasi',
+            'density' => ucfirst($location->density),
+            'health' => $location->health_percentage ? $location->health_percentage . '% Sehat' : 'N/A',
+            'health_score' => $location->health_score ?? 'N/A',
+            'coords' => $location->latitude . ', ' . $location->longitude,
+            'location' => $location->location_address ?? $location->region ?? 'DKI Jakarta',
+            'group' => $this->determineGroup($location),
+            'manager' => $location->manager ?? 'DPHK',
+            'species' => $location->species ?? 'Belum diidentifikasi',
+            'damage_count' => $location->damages->whereIn('status', ['pending', 'in_progress'])->count(),
+            'carbon_data' => $location->carbon_data ?? 'Data tidak tersedia',
+            'certificate_status' => 'Tidak tersedia sertifikat',
+            'description' => $location->description ?? 'Tidak ada deskripsi',
+            'images' => $location->images->pluck('image_url')->toArray(),
+            'damages' => $location->damages->pluck('title')->toArray(),
+            'actions' => $location->damages->flatMap(fn($d) => $d->actions->pluck('action_description'))->toArray(),
+            'species_detail' => $details ? [
+                'vegetasi' => json_decode($details->vegetasi, true) ?? [],
+                'fauna' => json_decode($details->fauna, true) ?? []
+            ] : null,
+            'activities' => $details ? json_decode($details->activities, true) : null,
+            'forest_utilization' => $details ? json_decode($details->forest_utilization, true) : null,
+            'programs' => $details ? json_decode($details->programs, true) : null,
+            'stakeholders' => $details ? json_decode($details->stakeholders, true) : null,
         ];
     }
 
     /**
-     * Get all locations with complete data
+     * Determine location group based on region
      */
-    private function getLocations(): array
+    private function determineGroup($location)
     {
-        return [
-            // Kategori Jarang - Penjaringan
-            [
-                'slug' => 'rawa-hutan-lindung',
-                'name' => 'Rawa Hutan Lindung',
-                'type' => 'Pengkayaan',
-                'year' => '2025',
-                'area' => '44.7 ha',
-                'density' => 'Jarang',
-                'health' => '98% Sehat',
-                'health_score' => 'NAK: 7.2',
-                'coords' => '-6.1023, 106.7655',
-                'location' => 'Kecamatan Penjaringan, Jakarta Utara, Rawa Hutan Lindung',
-                'group' => 'penjaringan',
-                'manager' => 'DPHK',
-                'species' => 'Avicennia alba, Avicennia marina...',
-                'damage_count' => 2,
-                'carbon_data' => 'Data tidak tersedia',
-                'certificate_status' => 'Tidak tersedia sertifikat',
-                'description' => 'Kawasan hutan mangrove lindung dengan tingkat kesehatan yang baik.',
-                'images' => [
-                    'https://res.cloudinary.com/dgctlfa2t/image/upload/v1755389322/rhl2_htfyvf.jpg',
-                    'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758002227/2-tanah_timbul-1_couywb.jpg',
-                    'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758003912/3-pos_2_hutan_lindung-3_hk6fqt.jpg'
-                ],
-                'damages' => [
-                    'Dahan patah dan pohon tumbang akibat angin kencang',
-                    'Sampah dari laut'
-                ],
-                'actions' => [
-                    'Pembersihan area terdampak yang menghalangi akses',
-                    'Pagar jaring dekat pesisir'
-                ],
-                'species_detail' => [
-                    'vegetasi' => [
-                        'Avicennia alba',
-                        'Avicennia marina',
-                        'Excoecaria agallocha',
-                        'Nypa fruticans',
-                        'Rhizophora apiculata',
-                        'Rhizophora mucronata'
-                    ],
-                    'fauna' => [
-                        'Ular Tambang',
-                        'Tupai',
-                        'Biawak',
-                        'Monyet ekor panjang',
-                        'Ikan',
-                        '16 Jenis Burung'
-                    ]
-                ],
-                'activities' => [
-                    'description' => 'Titik pengamatan berada di rawa dekat muara Kali Adem. Aktivitas di sekitarnya terbatas oleh:',
-                    'items' => [
-                        'Nelayan, Petani tambak',
-                        'Petugas kawasan'
-                    ]
-                ],
-                'forest_utilization' => [
-                    'Hutan Lindung',
-                    'Hutan Konservasi',
-                    'Habitat flora & fauna',
-                    'Pelindung pesisir',
-                    'Ekowisata'
-                ],
-                'programs' => [
-                    'Pembibitan/persemaian',
-                    'Grebek sampah (pembersihan)',
-                    'Penanaman mangrove',
-                    'Penyediaan lahan'
-                ],
-                'stakeholders' => [
-                    'PLN PJB',
-                    'Universitas Trisakti',
-                    'Yamaha',
-                    'Bank DKI',
-                    'AEON',
-                    'Mitsubishi Motor'
-                ]
-            ],
+        $region = strtolower($location->region ?? '');
 
-            // Additional simplified entries
-            [
-                'slug' => 'pos-5-hutan-lindung',
-                'name' => 'Pos 5 Hutan Lindung',
-                'type' => 'Dilindungi',
-                'year' => '2025',
-                'area' => '4.7 ha',
-                'density' => 'Jarang',
-                'health' => '92% Sehat',
-                'health_score' => 'NAK: 6.8',
-                'coords' => '-6.0895, 106.7820',
-                'location' => 'Kecamatan Penjaringan, Jakarta Utara, Pos 5 Hutan Lindung',
-                'group' => 'penjaringan',
-                'manager' => 'DPHK',
-                'species' => 'Sonneratia caseolaris, Avicennia alba...',
-                'damage_count' => 1,
-                'carbon_data' => 'Data tidak tersedia',
-                'certificate_status' => 'Tidak tersedia sertifikat',
-                'description' => 'Pos pemantauan 5 di kawasan hutan lindung dengan status dilindungi.',
-                'images' => [
-                    'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758005191/4-pos5_hl-3_gezsmd.jpg'
-                ]
-            ],
-
-            [
-                'slug' => 'rusun-tni-al',
-                'name' => 'Rusun TNI AL',
-                'type' => 'Pengkayaan',
-                'year' => '2025',
-                'area' => '6 ha',
-                'density' => 'Jarang',
-                'health' => '80% Sehat',
-                'health_score' => 'NAK: 6.2',
-                'coords' => '-6.0912, 106.9105',
-                'location' => 'Kecamatan Cilincing, Jakarta Utara, Rusun TNI AL',
-                'group' => 'cilincing',
-                'manager' => 'DPHK',
-                'species' => 'Avicennia alba, Rhizophora mucronata...',
-                'damage_count' => 3,
-                'carbon_data' => 'Data tidak tersedia',
-                'certificate_status' => 'Tidak tersedia sertifikat',
-                'description' => 'Kawasan mangrove di sekitar Rusun TNI AL dengan program pengkayaan.',
-                'images' => [
-                    'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758068635/7-rusun_tni_al-1_gx1iqa.jpg'
-                ]
-            ],
-        ];
-    }
-
-    /**
-     * Get location by slug
-     */
-    private function getLocationBySlug(string $slug): ?array
-    {
-        $locations = $this->getLocations();
-
-        foreach ($locations as $location) {
-            if ($location['slug'] === $slug) {
-                return $location;
-            }
+        if (str_contains($region, 'penjaringan')) {
+            return 'penjaringan';
+        } elseif (str_contains($region, 'cilincing')) {
+            return 'cilincing';
+        } elseif (str_contains($region, 'seribu utara') || str_contains($region, 'kepulauan seribu utara')) {
+            return 'kep-seribu-utara';
+        } elseif (str_contains($region, 'seribu selatan') || str_contains($region, 'kepulauan seribu selatan')) {
+            return 'kep-seribu-selatan';
         }
 
-        return null;
+        return 'all';
     }
 }

@@ -22,6 +22,19 @@ class LocationDetailController extends Controller
         $keyId = decode_id($id);
         $location = MangroveLocation::with(['details', 'images', 'damages.actions'])->findOrFail($keyId);
 
+        // Parse JSON fields in details
+        if ($location->details) {
+            $location->details->species_detail = [
+                'vegetasi' => json_decode($location->details->vegetasi, true) ?? [],
+                'fauna' => json_decode($location->details->fauna, true) ?? []
+            ];
+
+            $location->details->activities = json_decode($location->details->activities, true) ?? [];
+            $location->details->forest_utilization = json_decode($location->details->forest_utilization, true) ?? [];
+            $location->details->programs = json_decode($location->details->programs, true) ?? [];
+            $location->details->stakeholders = json_decode($location->details->stakeholders, true) ?? [];
+        }
+
         $data['breadcrumbs'] = [
             ['name' => 'Dashboard', 'url' => route('admin.dashboard')],
             ['name' => 'Data Lokasi', 'url' => route('admin.monitoring.index')],
@@ -35,22 +48,7 @@ class LocationDetailController extends Controller
     }
 
     /**
-     * Show form to edit species detail
-     */
-    public function editSpecies($id)
-    {
-        $keyId = decode_id($id);
-        $location = MangroveLocation::with('details')->findOrFail($keyId);
-
-        $data['title'] = 'Edit Spesies - ' . $location->name;
-        $data['location'] = $location;
-        $data['keyId'] = $id;
-
-        return view('admin.monitoring.edit-species', $data);
-    }
-
-    /**
-     * Update species detail
+     * Update species detail - FIXED VERSION
      */
     public function updateSpecies(Request $request, $id)
     {
@@ -64,37 +62,29 @@ class LocationDetailController extends Controller
             'fauna.*' => 'string|max:255',
         ]);
 
+        // Filter empty values and re-index array
+        $vegetasiData = array_values(array_filter($validated['vegetasi'] ?? []));
+        $faunaData = array_values(array_filter($validated['fauna'] ?? []));
+
+        // Prepare update data with JSON encoding
         $updateData = [
-            'vegetasi' => array_filter($validated['vegetasi'] ?? []),
-            'fauna' => array_filter($validated['fauna'] ?? []),
+            'vegetasi' => json_encode($vegetasiData),
+            'fauna' => json_encode($faunaData),
         ];
 
-        $location->details->update($updateData);
-
-        LocationDetail::create([
-            'mangrove_location_id' => $location->id,
-            'vegetasi' => $updateData['vegetasi'],
-            'fauna' => $updateData['fauna'],
-        ]);
+        // Update or create location details
+        if ($location->details) {
+            $location->details->update($updateData);
+        } else {
+            LocationDetail::create(array_merge(
+                ['mangrove_location_id' => $location->id],
+                $updateData
+            ));
+        }
 
         return redirect()
             ->route('admin.monitoring.detail', $id)
             ->with(['message' => 'Data spesies berhasil diperbarui', 'type' => 'success']);
-    }
-
-    /**
-     * Show form to edit activities
-     */
-    public function editActivities($id)
-    {
-        $keyId = decode_id($id);
-        $location = MangroveLocation::with('details')->findOrFail($keyId);
-
-        $data['title'] = 'Edit Aktivitas - ' . $location->name;
-        $data['location'] = $location;
-        $data['keyId'] = $id;
-
-        return view('admin.monitoring.edit-activities', $data);
     }
 
     /**
@@ -113,20 +103,24 @@ class LocationDetailController extends Controller
 
         $activities = [
             'description' => $validated['description'] ?? '',
-            'items' => array_filter($validated['items'] ?? []),
+            'items' => array_values(array_filter($validated['items'] ?? [])),
+        ];
+
+        $updateData = [
+            'activities' => json_encode($activities)
         ];
 
         if ($location->details) {
-            $location->details->update(['activities' => $activities]);
+            $location->details->update($updateData);
         } else {
-            LocationDetail::create([
-                'mangrove_location_id' => $location->id,
-                'activities' => $activities,
-            ]);
+            LocationDetail::create(array_merge(
+                ['mangrove_location_id' => $location->id],
+                $updateData
+            ));
         }
 
         return redirect()
-            ->route('pages.admin.monitoring.detail', $id)
+            ->route('admin.monitoring.detail', $id)
             ->with(['message' => 'Data aktivitas berhasil diperbarui', 'type' => 'success']);
     }
 
@@ -148,9 +142,9 @@ class LocationDetailController extends Controller
         ]);
 
         $updateData = [
-            'forest_utilization' => array_filter($validated['forest_utilization'] ?? []),
-            'programs' => array_filter($validated['programs'] ?? []),
-            'stakeholders' => array_filter($validated['stakeholders'] ?? []),
+            'forest_utilization' => json_encode(array_values(array_filter($validated['forest_utilization'] ?? []))),
+            'programs' => json_encode(array_values(array_filter($validated['programs'] ?? []))),
+            'stakeholders' => json_encode(array_values(array_filter($validated['stakeholders'] ?? []))),
         ];
 
         if ($location->details) {
@@ -163,7 +157,7 @@ class LocationDetailController extends Controller
         }
 
         return redirect()
-            ->route('pages.admin.monitoring.detail', $id)
+            ->route('admin.monitoring.detail', $id)
             ->with(['message' => 'Data detail berhasil diperbarui', 'type' => 'success']);
     }
 
@@ -186,7 +180,6 @@ class LocationDetailController extends Controller
             $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('locations', $filename, 'public');
 
-            // Upload to cloudinary or other service if needed
             $imageUrl = asset('storage/' . $path);
 
             LocationImage::create([
@@ -200,7 +193,7 @@ class LocationDetailController extends Controller
         }
 
         return redirect()
-            ->route('pages.admin.monitoring.detail', $id)
+            ->route('admin.monitoring.detail', $id)
             ->with(['message' => "{$uploaded} gambar berhasil diupload", 'type' => 'success']);
     }
 
@@ -246,13 +239,13 @@ class LocationDetailController extends Controller
             'status' => 'required|in:pending,in_progress,resolved',
         ]);
 
-        $damage = LocationDamage::create(array_merge(
+        LocationDamage::create(array_merge(
             ['mangrove_location_id' => $location->id],
             $validated
         ));
 
         return redirect()
-            ->route('pages.admin.monitoring.detail', $id)
+            ->route('admin.monitoring.detail', $id)
             ->with(['message' => 'Laporan kerusakan berhasil ditambahkan', 'type' => 'success']);
     }
 
@@ -278,7 +271,7 @@ class LocationDetailController extends Controller
         $damage->update($validated);
 
         return redirect()
-            ->route('pages.admin.monitoring.detail', $id)
+            ->route('admin.monitoring.detail', $id)
             ->with(['message' => 'Laporan kerusakan berhasil diperbarui', 'type' => 'success']);
     }
 
@@ -326,7 +319,7 @@ class LocationDetailController extends Controller
         ));
 
         return redirect()
-            ->route('pages.admin.monitoring.detail', $id)
+            ->route('admin.monitoring.detail', $id)
             ->with(['message' => 'Aksi penanganan berhasil ditambahkan', 'type' => 'success']);
     }
 }
