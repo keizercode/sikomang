@@ -79,6 +79,6 @@ class DashboardController extends Controller
             ];
         })->toArray();
 
-        return view('admin.dashboard', $data);
+        return view('pages.admin.dashboard', $data);
     }
 }

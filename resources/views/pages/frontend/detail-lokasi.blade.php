@@ -20,8 +20,8 @@
     <nav class="breadcrumb">
         @foreach([
             ['route' => 'home', 'label' => 'Beranda'],
-            ['route' => 'monitoring', 'label' => 'Monitoring'],
-            ['route' => 'hasil-pemantauan', 'label' => 'Hasil Pemantauan']
+            ['route' => 'monitoring.index', 'label' => 'Monitoring'],
+            ['route' => 'monitoring.hasil-pemantauan', 'label' => 'Hasil Pemantauan']
         ] as $crumb)
             <a href="{{ route($crumb['route']) }}">{{ $crumb['label'] }}</a>
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -69,7 +69,7 @@
             {{-- Informasi Lokasi --}}
             <div class="card">
                 <h2 class="card-title">Informasi Lokasi Kawasan</h2>
-                <x-components.info-grid :items="[
+                <x-info-grid :items="[
                     'Koordinat' => $location['coords'],
                     'Luas Area' => $location['area'],
                     'Kerapatan' => $location['density'],
@@ -120,7 +120,7 @@
 
             {{-- Accordion Sections --}}
             @if(isset($location['species_detail']))
-                <x-components.accordion-card id="species" title="Spesies (Vegetasi dan Fauna)">
+                <x-accordion-card id="species" title="Spesies (Vegetasi dan Fauna)">
                     @foreach(['vegetasi' => 'Vegetasi', 'fauna' => 'Fauna'] as $key => $label)
                         @if(isset($location['species_detail'][$key]))
                         <div class="species-section">
@@ -133,7 +133,7 @@
                         </div>
                         @endif
                     @endforeach
-                </x-components.accordion-card>
+                </x-accordion-card>
             @endif
 
             @foreach([
@@ -143,7 +143,7 @@
                 ['key' => 'stakeholders', 'id' => 'stakeholders', 'title' => 'Pihak Terkait', 'listClass' => 'stakeholder-list']
             ] as $acc)
                 @if(isset($location[$acc['key']]))
-                <x-components.accordion-card :id="$acc['id']" :title="$acc['title']">
+                <x-accordion-card :id="$acc['id']" :title="$acc['title']">
                     @if($acc['key'] === 'activities')
                         <p class="activity-description">{{ $location['activities']['description'] }}</p>
                         <ul class="{{ $acc['listClass'] }}">
@@ -158,7 +158,7 @@
                             @endforeach
                         </ul>
                     @endif
-                </x-components.accordion-card>
+                </x-accordion-card>
                 @endif
             @endforeach
 
@@ -215,7 +215,7 @@
 
 {{-- Image Modal with Navigation & Thumbnails --}}
 
-<x-components.gallery-modal />
+<x-gallery-modal />
 
 @endsection
 

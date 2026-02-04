@@ -51,7 +51,7 @@ class GalleryController extends Controller
         $data['categories'] = ['mangrove', 'kegiatan', 'lokasi', 'flora', 'fauna', 'lainnya'];
         $data['locations'] = MangroveLocation::where('is_active', true)->get();
 
-        return view('admin.galleries.index', $data);
+        return view('pages.admin.galleries.index', $data);
     }
 
     /**
@@ -63,7 +63,7 @@ class GalleryController extends Controller
         $data['categories'] = ['mangrove', 'kegiatan', 'lokasi', 'flora', 'fauna', 'lainnya'];
         $data['locations'] = MangroveLocation::where('is_active', true)->get();
 
-        return view('admin.galleries.create', $data);
+        return view('pages.admin.galleries.create', $data);
     }
 
     /**
@@ -104,7 +104,7 @@ class GalleryController extends Controller
         $gallery = Gallery::create($validated);
 
         return redirect()
-            ->route('admin.galleries.index')
+            ->route('pages.admin.galleries.index')
             ->with('success', 'Foto berhasil ditambahkan ke galeri!');
     }
 
@@ -116,7 +116,7 @@ class GalleryController extends Controller
         $data['title'] = 'Detail Foto';
         $data['gallery'] = $gallery->load(['user', 'location']);
 
-        return view('admin.galleries.show', $data);
+        return view('pages.admin.galleries.show', $data);
     }
 
     /**
@@ -129,7 +129,7 @@ class GalleryController extends Controller
         $data['categories'] = ['mangrove', 'kegiatan', 'lokasi', 'flora', 'fauna', 'lainnya'];
         $data['locations'] = MangroveLocation::where('is_active', true)->get();
 
-        return view('admin.galleries.edit', $data);
+        return view('pages.admin.galleries.edit', $data);
     }
 
     /**
@@ -171,7 +171,7 @@ class GalleryController extends Controller
         $gallery->update($validated);
 
         return redirect()
-            ->route('admin.galleries.index')
+            ->route('pages.admin.galleries.index')
             ->with('success', 'Foto berhasil diperbarui!');
     }
 
@@ -191,7 +191,7 @@ class GalleryController extends Controller
         $gallery->delete();
 
         return redirect()
-            ->route('admin.galleries.index')
+            ->route('pages.admin.galleries.index')
             ->with('success', 'Foto berhasil dihapus!');
     }
 
@@ -275,7 +275,7 @@ class GalleryController extends Controller
         }
 
         return redirect()
-            ->route('admin.galleries.index')
+            ->route('pages.admin.galleries.index')
             ->with('success', "{$uploaded} foto berhasil diupload!");
     }
 }

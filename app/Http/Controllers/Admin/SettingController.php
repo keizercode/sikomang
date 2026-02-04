@@ -23,7 +23,7 @@ class SettingController extends Controller
         $data['currentGroup'] = $group;
         $data['groups'] = Setting::distinct()->pluck('group');
 
-        return view('admin.settings.index', $data);
+        return view('pages.admin.settings.index', $data);
     }
 
     /**
@@ -114,7 +114,7 @@ class SettingController extends Controller
         $data['title'] = 'Pengaturan Umum';
         $data['settings'] = Setting::byGroup('general')->get();
 
-        return view('admin.settings.general', $data);
+        return view('pages.admin.settings.general', $data);
     }
 
     /**
@@ -125,7 +125,7 @@ class SettingController extends Controller
         $data['title'] = 'Pengaturan Kontak';
         $data['settings'] = Setting::byGroup('contact')->get();
 
-        return view('admin.settings.contact', $data);
+        return view('pages.admin.settings.contact', $data);
     }
 
     /**
@@ -136,7 +136,7 @@ class SettingController extends Controller
         $data['title'] = 'Pengaturan Media Sosial';
         $data['settings'] = Setting::byGroup('social')->get();
 
-        return view('admin.settings.social', $data);
+        return view('pages.admin.settings.social', $data);
     }
 
     /**
@@ -147,7 +147,7 @@ class SettingController extends Controller
         $data['title'] = 'Pengaturan SEO';
         $data['settings'] = Setting::byGroup('seo')->get();
 
-        return view('admin.settings.seo', $data);
+        return view('pages.admin.settings.seo', $data);
     }
 
     /**
@@ -158,7 +158,7 @@ class SettingController extends Controller
         $data['title'] = 'Pengaturan Email';
         $data['settings'] = Setting::byGroup('mail')->get();
 
-        return view('admin.settings.mail', $data);
+        return view('pages.admin.settings.mail', $data);
     }
 
     /**

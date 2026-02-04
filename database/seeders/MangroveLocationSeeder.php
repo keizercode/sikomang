@@ -36,24 +36,24 @@ class MangroveLocationSeeder extends Seeder
 
         LocationDetail::create([
             'mangrove_location_id' => $location1->id,
-            'species_detail' => [
-                'vegetasi' => [
-                    'Avicennia alba',
-                    'Avicennia marina',
-                    'Excoecaria agallocha',
-                    'Nypa fruticans',
-                    'Rhizophora apiculata',
-                    'Rhizophora mucronata'
-                ],
-                'fauna' => [
-                    'Ular Tambang',
-                    'Tupai',
-                    'Biawak',
-                    'Monyet ekor panjang',
-                    'Ikan',
-                    '16 Jenis Burung'
-                ]
+
+            'vegetasi' => [
+                'Avicennia alba',
+                'Avicennia marina',
+                'Excoecaria agallocha',
+                'Nypa fruticans',
+                'Rhizophora apiculata',
+                'Rhizophora mucronata'
             ],
+            'fauna' => [
+                'Ular Tambang',
+                'Tupai',
+                'Biawak',
+                'Monyet ekor panjang',
+                'Ikan',
+                '16 Jenis Burung'
+            ],
+
             'activities' => [
                 'description' => 'Titik pengamatan berada di rawa dekat muara Kali Adem. Aktivitas di sekitarnya terbatas oleh:',
                 'items' => [

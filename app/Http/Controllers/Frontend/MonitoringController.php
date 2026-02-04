@@ -43,7 +43,7 @@ class MonitoringController extends FrontendController
             abort(404, 'Lokasi tidak ditemukan');
         }
 
-        return view('pages.detail-lokasi', compact('location'));
+        return view('pages.frontend.detail-lokasi', compact('location'));
     }
 
     /**

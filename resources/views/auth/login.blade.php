@@ -1,4 +1,4 @@
-@extends('layouts.blank')
+@extends('layouts.admin.blank')
 
 @section('content')
 <div class="min-vh-100">

@@ -11,7 +11,7 @@ class LocationDetail extends Model
 
     protected $fillable = [
         'mangrove_location_id',
-        'vegetation',
+        'vegetasi',
         'fauna',
         'activities',
         'forest_utilization',
@@ -20,7 +20,7 @@ class LocationDetail extends Model
     ];
 
     protected $casts = [
-        'vegetation' => 'array',
+        'vegetasi' => 'array',
         'fauna' => 'array',
         'activities' => 'array',
         'forest_utilization' => 'array',

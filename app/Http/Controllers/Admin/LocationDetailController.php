@@ -31,7 +31,7 @@ class LocationDetailController extends Controller
         $data['location'] = $location;
         $data['keyId'] = $id;
 
-        return view('admin.monitoring.detail', $data);
+        return view('pages.admin.monitoring.detail', $data);
     }
 
     /**
@@ -64,19 +64,18 @@ class LocationDetailController extends Controller
             'fauna.*' => 'string|max:255',
         ]);
 
-        $speciesDetail = [
+        $updateData = [
             'vegetasi' => array_filter($validated['vegetasi'] ?? []),
             'fauna' => array_filter($validated['fauna'] ?? []),
         ];
 
-        if ($location->details) {
-            $location->details->update(['species_detail' => $speciesDetail]);
-        } else {
-            LocationDetail::create([
-                'mangrove_location_id' => $location->id,
-                'species_detail' => $speciesDetail,
-            ]);
-        }
+        $location->details->update($updateData);
+
+        LocationDetail::create([
+            'mangrove_location_id' => $location->id,
+            'vegetasi' => $updateData['vegetasi'],
+            'fauna' => $updateData['fauna'],
+        ]);
 
         return redirect()
             ->route('admin.monitoring.detail', $id)
@@ -127,7 +126,7 @@ class LocationDetailController extends Controller
         }
 
         return redirect()
-            ->route('admin.monitoring.detail', $id)
+            ->route('pages.admin.monitoring.detail', $id)
             ->with(['message' => 'Data aktivitas berhasil diperbarui', 'type' => 'success']);
     }
 
@@ -164,7 +163,7 @@ class LocationDetailController extends Controller
         }
 
         return redirect()
-            ->route('admin.monitoring.detail', $id)
+            ->route('pages.admin.monitoring.detail', $id)
             ->with(['message' => 'Data detail berhasil diperbarui', 'type' => 'success']);
     }
 
@@ -201,7 +200,7 @@ class LocationDetailController extends Controller
         }
 
         return redirect()
-            ->route('admin.monitoring.detail', $id)
+            ->route('pages.admin.monitoring.detail', $id)
             ->with(['message' => "{$uploaded} gambar berhasil diupload", 'type' => 'success']);
     }
 
@@ -253,7 +252,7 @@ class LocationDetailController extends Controller
         ));
 
         return redirect()
-            ->route('admin.monitoring.detail', $id)
+            ->route('pages.admin.monitoring.detail', $id)
             ->with(['message' => 'Laporan kerusakan berhasil ditambahkan', 'type' => 'success']);
     }
 
@@ -279,7 +278,7 @@ class LocationDetailController extends Controller
         $damage->update($validated);
 
         return redirect()
-            ->route('admin.monitoring.detail', $id)
+            ->route('pages.admin.monitoring.detail', $id)
             ->with(['message' => 'Laporan kerusakan berhasil diperbarui', 'type' => 'success']);
     }
 
@@ -327,7 +326,7 @@ class LocationDetailController extends Controller
         ));
 
         return redirect()
-            ->route('admin.monitoring.detail', $id)
+            ->route('pages.admin.monitoring.detail', $id)
             ->with(['message' => 'Aksi penanganan berhasil ditambahkan', 'type' => 'success']);
     }
 }

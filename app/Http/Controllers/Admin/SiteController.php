@@ -25,7 +25,7 @@ class SiteController extends Controller
         $data['title'] = $this->title;
         $data['route'] = $this->route;
 
-        return view('admin.monitoring.index', $data);
+        return view('pages.admin.monitoring.index', $data);
     }
 
     public function grid(Request $request)
@@ -66,7 +66,7 @@ class SiteController extends Controller
         $data['route'] = $this->route;
         $data['item'] = null;
 
-        return view('admin.monitoring.form', $data);
+        return view('pages.admin.monitoring.form', $data);
     }
 
     public function edit($id)
@@ -84,7 +84,7 @@ class SiteController extends Controller
         $data['keyId'] = $id;
         $data['item'] = $location;
 
-        return view('admin.monitoring.form', $data);
+        return view('pages.admin.monitoring.form', $data);
     }
 
     public function store(Request $request)
@@ -152,7 +152,7 @@ class SiteController extends Controller
         }
 
         return redirect()
-            ->route('admin.monitoring.index')
+            ->route('pages.admin.monitoring.index')
             ->with([
                 'message' => $message,
                 'type' => 'success'
@@ -188,7 +188,7 @@ class SiteController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('admin.monitoring.damages', $data);
+        return view('pages.admin.monitoring.damages', $data);
     }
 
     public function reports()
@@ -198,6 +198,6 @@ class SiteController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.monitoring.reports', $data);
+        return view('pages.admin.monitoring.reports', $data);
     }
 }

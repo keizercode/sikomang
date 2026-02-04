@@ -53,7 +53,7 @@ class ArticleController extends Controller
         // Get all statuses for filter
         $statuses = ['draft', 'published', 'archived'];
 
-        return view('admin.articles.index', [
+        return view('pages.admin.articles.index', [
             'title' => 'Daftar Artikel',
             'articles' => $articles,
             'statuses' => $statuses
@@ -67,7 +67,7 @@ class ArticleController extends Controller
     {
         $statuses = ['draft', 'published', 'archived'];
 
-        return view('admin.articles.create', [
+        return view('pages.admin.articles.create', [
             'title' => 'Tambah Artikel Baru',
             'statuses' => $statuses
         ]);
@@ -145,7 +145,7 @@ class ArticleController extends Controller
         $article = Article::create($validated);
 
         return redirect()
-            ->route('admin.articles.index')
+            ->route('pages.admin.articles.index')
             ->with('success', 'Artikel berhasil ditambahkan');
     }
 
@@ -156,7 +156,7 @@ class ArticleController extends Controller
     {
         $article->load('user');
 
-        return view('admin.articles.show', [
+        return view('pages.admin.articles.show', [
             'title' => 'Detail Artikel',
             'article' => $article
         ]);
@@ -169,7 +169,7 @@ class ArticleController extends Controller
     {
         $statuses = ['draft', 'published', 'archived'];
 
-        return view('admin.articles.edit', [
+        return view('pages.admin.articles.edit', [
             'title' => 'Edit Artikel',
             'article' => $article,
             'statuses' => $statuses
@@ -224,7 +224,7 @@ class ArticleController extends Controller
         $article->update($validated);
 
         return redirect()
-            ->route('admin.articles.index')
+            ->route('pages.admin.articles.index')
             ->with('success', 'Artikel berhasil diperbarui');
     }
 
@@ -242,7 +242,7 @@ class ArticleController extends Controller
         $article->delete();
 
         return redirect()
-            ->route('admin.articles.index')
+            ->route('pages.admin.articles.index')
             ->with('success', 'Artikel berhasil dihapus');
     }
 
@@ -287,7 +287,7 @@ class ArticleController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.articles.index')
+            ->route('pages.admin.articles.index')
             ->with('success', 'Artikel berhasil dipublikasikan');
     }
 
@@ -308,7 +308,7 @@ class ArticleController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.articles.index')
+            ->route('pages.admin.articles.index')
             ->with('success', 'Artikel berhasil di-unpublish');
     }
 
@@ -328,7 +328,7 @@ class ArticleController extends Controller
         $article->forceDelete();
 
         return redirect()
-            ->route('admin.articles.index')
+            ->route('pages.admin.articles.index')
             ->with('success', 'Artikel berhasil dihapus permanen');
     }
 
@@ -348,7 +348,7 @@ class ArticleController extends Controller
         $article->restore();
 
         return redirect()
-            ->route('admin.articles.index')
+            ->route('pages.admin.articles.index')
             ->with('success', 'Artikel berhasil dipulihkan');
     }
 
@@ -362,7 +362,7 @@ class ArticleController extends Controller
             ->latest('deleted_at')
             ->paginate(10);
 
-        return view('admin.articles.trashed', [
+        return view('pages.admin.articles.trashed', [
             'title' => 'Artikel Terhapus',
             'articles' => $articles
         ]);
