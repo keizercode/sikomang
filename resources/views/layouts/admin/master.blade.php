@@ -24,63 +24,103 @@
     <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom Admin CSS -->
-{{-- @vite(['resources/css/admin/dashboard.css']) --}}
-    <!-- Custom Admin CSS -->
+    <!-- Modern Admin CSS -->
     <style>
+        /* ===========================
+           CSS VARIABLES
+           =========================== */
         :root {
-            --primary-color: #009966;
-            --sidebar-width: 250px;
-            --topbar-height: 70px;
+            /* Colors from Home Page */
+            --color-primary: #009966;
+            --color-primary-dark: #2d5c54;
+            --color-primary-light: #5a9e91;
+            --color-secondary: #242621;
+            --color-navbar: #003d28;
+            --color-muted: #4c5250;
+            --color-background: #fbfbfb;
+
+            /* UI Colors */
+            --color-surface: #ffffff;
+            --color-border: #e5e7eb;
+            --color-hover: #f3f4f6;
+            --color-text: #1f2937;
+            --color-text-light: #6b7280;
+
+            /* Layout */
+            --sidebar-width: 260px;
+            --topbar-height: 72px;
+            --transition-speed: 0.3s;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
         }
 
+        /* ===========================
+           BASE STYLES
+           =========================== */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8f9fa;
+            background-color: var(--color-background);
+            color: var(--color-secondary);
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Sidebar */
+        /* ===========================
+           SIDEBAR
+           =========================== */
         .vertical-menu {
             position: fixed;
             left: 0;
             top: 0;
             width: var(--sidebar-width);
             height: 100vh;
-            background: #2a3042;
-            box-shadow: 0 2px 4px rgba(15,34,58,.12);
-            transition: all 0.3s ease;
+            background: var(--color-surface);
+            border-right: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1001;
             overflow-y: auto;
         }
 
         .vertical-menu .navbar-brand-box {
-            padding: 1.5rem 1rem;
-            background: #2a3042;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 1.5rem 1.25rem;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
         }
 
         .vertical-menu .logo-md {
-            color: white;
+            color: var(--color-secondary);
             font-weight: 700;
             font-size: 1.25rem;
+            letter-spacing: -0.02em;
         }
 
         .sidebar-menu-scroll {
-            height: calc(100vh - 80px);
+            height: calc(100vh - 90px);
             overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0.75rem 0;
         }
 
         .sidebar-menu-scroll::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
 
         .sidebar-menu-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
+            background: var(--color-border);
+            border-radius: 2px;
         }
 
         #sidebar-menu {
-            padding: 1rem 0;
+            padding: 0;
         }
 
         .metismenu {
@@ -91,38 +131,45 @@
 
         .metismenu li {
             position: relative;
+            margin-bottom: 0.25rem;
         }
 
         .metismenu a {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: #a6b0cf;
+            padding: 0.75rem 1.25rem;
+            margin: 0 0.75rem;
+            color: var(--color-text-light);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius-md);
         }
 
         .metismenu a:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.05);
+            color: var(--color-primary);
+            background: rgba(0, 153, 102, 0.05);
         }
 
         .metismenu a.active {
-            color: #fff;
-            background: rgba(0,153,102,0.2);
-            border-left: 3px solid var(--primary-color);
+            color: var(--color-primary);
+            background: rgba(0, 153, 102, 0.1);
+            font-weight: 600;
         }
 
         .metismenu a i {
             font-size: 1.25rem;
-            margin-right: 0.75rem;
+            margin-right: 0.875rem;
             min-width: 24px;
         }
 
         .metismenu .sub-menu {
             list-style: none;
-            padding-left: 0;
-            background: rgba(0,0,0,0.1);
+            padding: 0.5rem 0;
+            margin: 0 0.75rem;
+            background: var(--color-hover);
+            border-radius: var(--radius-md);
             display: none;
         }
 
@@ -131,15 +178,16 @@
         }
 
         .metismenu .sub-menu a {
-            padding-left: 3.5rem;
-            font-size: 0.9rem;
+            padding: 0.625rem 1rem 0.625rem 3rem;
+            font-size: 0.813rem;
+            margin: 0.125rem 0.5rem;
         }
 
         .metismenu .has-arrow::after {
             content: "\F0142";
             font-family: "Material Design Icons";
             position: absolute;
-            right: 1.5rem;
+            right: 1.25rem;
             transition: transform 0.3s ease;
         }
 
@@ -148,110 +196,173 @@
         }
 
         .menu-title {
-            padding: 1rem 1.5rem 0.5rem;
-            color: #6c757d;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 1.5rem 1.25rem 0.5rem;
+            color: var(--color-muted);
+            font-size: 0.688rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
-        /* Topbar */
+        /* ===========================
+           TOPBAR
+           =========================== */
         .isvertical-topbar {
             position: fixed;
             top: 0;
             left: var(--sidebar-width);
             right: 0;
             height: var(--topbar-height);
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(15,34,58,.12);
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
             z-index: 1000;
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
         }
 
         .navbar-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem;
+            padding: 0 2rem;
             height: var(--topbar-height);
-        }
-
-        .page-title-box {
-            padding: 0 1rem;
         }
 
         .page-title {
             margin: 0;
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #495057;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-secondary);
         }
 
         .header-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
+            gap: 0.75rem;
+            padding: 0.625rem 1rem;
             background: transparent;
             border: none;
-            color: #495057;
+            color: var(--color-text);
             cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
         }
 
         .header-item:hover {
-            background: #f8f9fa;
+            background: var(--color-hover);
         }
 
         .header-profile-user {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             object-fit: cover;
+            border: 2px solid var(--color-border);
+            border-radius: 50%;
         }
 
         .vertical-menu-btn {
             display: none;
         }
 
-        /* Main Content */
+        /* ===========================
+           MAIN CONTENT
+           =========================== */
         .main-content {
             margin-left: var(--sidebar-width);
             margin-top: var(--topbar-height);
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed) ease;
         }
 
         .page-content {
-            padding: 1.5rem;
+            padding: 2rem;
             min-height: calc(100vh - var(--topbar-height));
         }
 
-        /* Cards */
+        /* ===========================
+           CARDS
+           =========================== */
         .card {
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
             margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+            background: var(--color-surface);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
         }
 
         .card-header {
-            background: #fff;
-            border-bottom: 1px solid #e9ecef;
-            padding: 1rem 1.25rem;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            padding: 1.25rem 1.5rem;
             font-weight: 600;
+            color: var(--color-secondary);
         }
 
         .card-body {
-            padding: 1.25rem;
+            padding: 1.5rem;
         }
 
-        /* Badges */
-        .badge-soft-primary { background: rgba(0,153,102,0.1); color: var(--primary-color); }
-        .badge-soft-success { background: rgba(25,135,84,0.1); color: #198754; }
-        .badge-soft-danger { background: rgba(220,53,69,0.1); color: #dc3545; }
-        .badge-soft-warning { background: rgba(255,193,7,0.1); color: #ffc107; }
-        .badge-soft-info { background: rgba(13,202,240,0.1); color: #0dcaf0; }
+        /* ===========================
+           BADGES
+           =========================== */
+        .badge-soft-primary { background: rgba(0, 153, 102, 0.1); color: var(--color-primary); }
+        .badge-soft-success { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+        .badge-soft-danger { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+        .badge-soft-warning { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+        .badge-soft-info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
 
-        /* Avatar */
+        /* ===========================
+           BUTTONS
+           =========================== */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            border-color: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 153, 102, 0.2);
+        }
+
+        /* ===========================
+           TABLES
+           =========================== */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table-centered th,
+        .table-centered td {
+            vertical-align: middle;
+        }
+
+        /* ===========================
+           DROPDOWN
+           =========================== */
+        .dropdown-menu {
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-lg);
+        }
+
+        /* ===========================
+           AVATAR
+           =========================== */
         .avatar {
             width: 48px;
             height: 48px;
@@ -266,37 +377,12 @@
             border-radius: 0.375rem;
         }
 
-        /* Buttons */
-        .btn-primary {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background: #007a52;
-            border-color: #007a52;
-        }
-
-        /* Table */
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table-centered th,
-        .table-centered td {
-            vertical-align: middle;
-        }
-
-        /* Dropdown */
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-        }
-
-        /* Responsive */
+        /* ===========================
+           RESPONSIVE
+           =========================== */
         @media (max-width: 991.98px) {
             .vertical-menu {
-                left: -var(--sidebar-width);
+                left: calc(-1 * var(--sidebar-width));
             }
 
             .vertical-menu.show {
