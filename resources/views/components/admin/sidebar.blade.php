@@ -4,7 +4,7 @@
         <a href="{{ route('admin.dashboard') }}" class="logo logo-dark">
             <span class="logo-lg">
                 <div class="d-flex align-items-center gap-2">
-                    <img src="https://res.cloudinary.com/dmcvht1vr/image/upload/v1770193394/logo_sikomang_ao9jdj.png" alt="SIKOMANG Logo" height="32">
+                    <img src="https://pencil-matter-70015947.figma.site/_assets/v11/e6fb723ab1735b08498a0a60cab1e81508afa7e6.png" alt="SIKOMANG Logo" height="32">
                     <h3 class="mb-0 logo-md" style="color:#147C45;">SIKOMANG</h3>
 
                 </div>
