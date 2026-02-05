@@ -29,7 +29,7 @@ Route::post('/login', [CustomLoginController::class, 'post_login'])->name('post_
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/logout', [CustomLoginController::class, 'logout'])->name('logout');
+    Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
     Route::get('/profile', function () {
         return view('pages.admin.placeholder', ['title' => 'Profile']);
     })->name('profile');
