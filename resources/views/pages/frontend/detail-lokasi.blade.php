@@ -9,8 +9,7 @@
     'resources/css/detail-lokasi.css',
     'resources/css/accordion.css',
     'resources/js/detail-lokasi.js',
-    'resources/js/image-modal.js',
-
+    'resources/js/image-modal.js'
 ])
 @endpush
 
