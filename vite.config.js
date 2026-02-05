@@ -16,6 +16,7 @@ export default defineConfig({
                 "resources/css/detail-lokasi.css",
                 "resources/css/accordion.css",
                 "resources/css/admin/dashboard.css",
+                "resources/js/admin-location-map.js",
             ],
             refresh: true,
         }),

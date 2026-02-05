@@ -11,7 +11,7 @@
                         <h4 class="mb-0">{{ $location->name }}</h4>
                         <div class="mt-2">
                             <span class="badge bg-primary">{{ ucfirst($location->type) }}</span>
-                            <span class="badge bg-info">{{ ucfirst($location->density) }}</span>
+                            <span class="badge bg-secondary">{{ ucfirst($location->density) }}</span>
                             @if($location->is_active)
                                 <span class="badge bg-success">Aktif</span>
                             @else
@@ -91,7 +91,7 @@
                                     </tr>
                                     <tr>
                                         <th>Kerapatan:</th>
-                                        <td><span class="badge bg-info">{{ ucfirst($location->density) }}</span></td>
+                                        <td><span class="badge bg-secondary">{{ ucfirst($location->density) }}</span></td>
                                     </tr>
                                     <tr>
                                         <th>Tipe:</th>
@@ -370,7 +370,7 @@
                                             <button class="btn btn-sm btn-warning" onclick="editDamage({{ $damage->id }})">
                                                 <i class="mdi mdi-pencil"></i> Edit
                                             </button>
-                                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#actionModal{{ $damage->id }}">
+                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#actionModal{{ $damage->id }}">
                                                 <i class="mdi mdi-plus"></i> Tambah Aksi
                                             </button>
                                             <button class="btn btn-sm btn-danger delete-damage" data-id="{{ $damage->id }}">

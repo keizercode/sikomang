@@ -145,7 +145,7 @@ class ArticleController extends Controller
         $article = Article::create($validated);
 
         return redirect()
-            ->route('pages.admin.articles.index')
+            ->route('admin.articles.index')
             ->with('success', 'Artikel berhasil ditambahkan');
     }
 
@@ -224,7 +224,7 @@ class ArticleController extends Controller
         $article->update($validated);
 
         return redirect()
-            ->route('pages.admin.articles.index')
+            ->route('admin.articles.index')
             ->with('success', 'Artikel berhasil diperbarui');
     }
 
@@ -242,7 +242,7 @@ class ArticleController extends Controller
         $article->delete();
 
         return redirect()
-            ->route('pages.admin.articles.index')
+            ->route('admin.articles.index')
             ->with('success', 'Artikel berhasil dihapus');
     }
 
@@ -287,7 +287,7 @@ class ArticleController extends Controller
         ]);
 
         return redirect()
-            ->route('pages.admin.articles.index')
+            ->route('admin.articles.index')
             ->with('success', 'Artikel berhasil dipublikasikan');
     }
 
@@ -308,7 +308,7 @@ class ArticleController extends Controller
         ]);
 
         return redirect()
-            ->route('pages.admin.articles.index')
+            ->route('admin.articles.index')
             ->with('success', 'Artikel berhasil di-unpublish');
     }
 
@@ -328,7 +328,7 @@ class ArticleController extends Controller
         $article->forceDelete();
 
         return redirect()
-            ->route('pages.admin.articles.index')
+            ->route('admin.articles.index')
             ->with('success', 'Artikel berhasil dihapus permanen');
     }
 

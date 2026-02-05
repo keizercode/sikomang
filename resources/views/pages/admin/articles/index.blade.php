@@ -86,7 +86,7 @@
 
                     <div class="col-md-1">
                         <label class="form-label">&nbsp;</label>
-                        <button type="button" class="btn btn-info w-100" onclick="toggleAdvancedFilter()">
+                        <button type="button" class="btn btn-success w-100" onclick="toggleAdvancedFilter()">
                             <i class="fas fa-sliders-h"></i>
                         </button>
                     </div>
@@ -133,11 +133,11 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="50">#</th>
+                                    <th width="50">No.</th>
                                     <th>Judul</th>
                                     <th width="150">Penulis</th>
                                     <th width="120">Status</th>
-                                    <th width="100" class="text-center">Featured</th>
+                                    <th width="100" class="text-center">Favorites</th>
                                     <th width="80" class="text-center">Views</th>
                                     <th width="150">Tanggal</th>
                                     <th width="180" class="text-center">Aksi</th>
@@ -151,7 +151,7 @@
                                             <strong>{{ Str::limit($article->title, 50) }}</strong>
                                             @if($article->is_featured)
                                                 <span class="badge bg-warning text-dark ms-1">
-                                                    <i class="fas fa-star"></i> Featured
+                                                    <i class="fas fa-star"></i> Favorite
                                                 </span>
                                             @endif
                                         </td>
@@ -181,7 +181,7 @@
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge bg-info">
+                                            <span class="badge bg-secondary">
                                                 <i class="fas fa-eye"></i> {{ number_format($article->views) }}
                                             </span>
                                         </td>
@@ -195,7 +195,7 @@
                                         <td>
                                             <div class="action-buttons d-flex gap-1 justify-content-center">
                                                 <a href="{{ route('admin.articles.show', $article) }}"
-                                                   class="btn btn-sm btn-info"
+                                                   class="btn btn-sm btn-secondary"
                                                    title="Lihat Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </a>

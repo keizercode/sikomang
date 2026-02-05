@@ -1,5 +1,30 @@
 @extends('layouts.admin.master')
 
+@section('css')
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .custom-marker {
+        background: transparent;
+        border: none;
+    }
+
+    #locationMap {
+        z-index: 1;
+    }
+
+    .leaflet-popup-content-wrapper {
+        border-radius: 8px;
+        box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+    }
+
+    .leaflet-popup-content {
+        margin: 12px 16px;
+        font-size: 14px;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="page-content">
     <div class="container-fluid">
@@ -60,7 +85,7 @@
                                     @enderror
                                 </div>
 
-                                <!-- Koordinat -->
+                                <!-- Koordinat & Peta Interaktif -->
                                 <div class="col-12 mb-4 mt-3">
                                     <h5 class="text-primary">Koordinat & Lokasi</h5>
                                     <hr>
@@ -68,7 +93,7 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Latitude <span class="text-danger">*</span></label>
-                                    <input type="text" name="latitude" class="form-control @error('latitude') is-invalid @enderror"
+                                    <input type="text" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror"
                                            value="{{ old('latitude', @$item->latitude) }}"
                                            placeholder="Contoh: -6.1023"
                                            required>
@@ -79,13 +104,42 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Longitude <span class="text-danger">*</span></label>
-                                    <input type="text" name="longitude" class="form-control @error('longitude') is-invalid @enderror"
+                                    <input type="text" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror"
                                            value="{{ old('longitude', @$item->longitude) }}"
                                            placeholder="Contoh: 106.7655"
                                            required>
                                     @error('longitude')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
+                                </div>
+
+                                <!-- Interactive Map -->
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Pilih Lokasi di Peta</label>
+                                    <div class="alert alert-info" role="alert">
+                                        <i class="mdi mdi-information"></i>
+                                        <strong>Info:</strong> Klik pada peta untuk mengatur koordinat lokasi atau masukkan koordinat secara manual di atas.
+                                    </div>
+                                    <div id="locationMap" style="height: 450px; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
+                                    <small class="text-muted">
+                                        <i class="mdi mdi-crosshairs-gps"></i>
+                                        Klik pada peta untuk mengatur marker, atau gunakan tombol "Gunakan Lokasi Saya" untuk menggunakan GPS.
+                                    </small>
+                                </div>
+
+                                <!-- Map Controls -->
+                                <div class="col-12 mb-3">
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button type="button" class="btn btn-sm btn-primary" id="useCurrentLocation">
+                                            <i class="mdi mdi-crosshairs-gps"></i> Gunakan Lokasi Saya
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-secondary" id="resetMap">
+                                            <i class="mdi mdi-map-marker-off"></i> Reset Marker
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary" id="centerJakarta">
+                                            <i class="mdi mdi-map-marker"></i> Pusat Jakarta
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Klasifikasi -->
@@ -214,16 +268,6 @@
                                     <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
-
-                                <div class="col-md-6 mb-3">
-                                    {{-- <div class="form-check">
-                                        <input type="checkbox" name="is_active" class="form-check-input" id="is_active" value="1"
-                                               {{ old('is_active', @$item->is_active ?? true) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="is_active">
-                                            Status Aktif
-                                        </label>
-                                    </div> --}}
-                                </div>
                             </div>
                         </div>
                         <div class="card-footer">
@@ -247,6 +291,9 @@
 @endsection
 
 @section('js')
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@vite('resources/js/admin-location-map.js')
 <script>
 $(document).ready(function() {
     // Auto-generate slug from name
