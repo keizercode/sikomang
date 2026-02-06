@@ -72,21 +72,21 @@
 
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-search"></i> Filter
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-search"></i> Search
                         </button>
                     </div>
 
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <a href="{{ route('admin.articles.index') }}" class="btn btn-secondary w-100">
+                        <a href="{{ route('admin.articles.index') }}" class="btn btn-outline-secondary w-100">
                             <i class="fas fa-redo"></i> Reset
                         </a>
                     </div>
 
                     <div class="col-md-1">
                         <label class="form-label">&nbsp;</label>
-                        <button type="button" class="btn btn-success w-100" onclick="toggleAdvancedFilter()">
+                        <button type="button" class="btn btn-outline-primary w-100" onclick="toggleAdvancedFilter()">
                             <i class="fas fa-sliders-h"></i>
                         </button>
                     </div>
@@ -96,11 +96,11 @@
                 <div id="advancedFilter" style="display: none;" class="mt-3 pt-3 border-top">
                     <form method="GET" action="{{ route('admin.articles.index') }}" class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">Featured</label>
+                            <label class="form-label">Favorite</label>
                             <select name="is_featured" class="form-control">
                                 <option value="">Semua</option>
-                                <option value="1" {{ request('is_featured') == '1' ? 'selected' : '' }}>Featured</option>
-                                <option value="0" {{ request('is_featured') == '0' ? 'selected' : '' }}>Non-Featured</option>
+                                <option value="1" {{ request('is_featured') == '1' ? 'selected' : '' }}>Favorite</option>
+                                <option value="0" {{ request('is_featured') == '0' ? 'selected' : '' }}>Non-Favorite</option>
                             </select>
                         </div>
 
@@ -195,13 +195,13 @@
                                         <td>
                                             <div class="action-buttons d-flex gap-1 justify-content-center">
                                                 <a href="{{ route('admin.articles.show', $article) }}"
-                                                   class="btn btn-sm btn-secondary"
+                                                   class="btn btn-sm btn-outline-secondary"
                                                    title="Lihat Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
 
                                                 <a href="{{ route('admin.articles.edit', $article) }}"
-                                                   class="btn btn-sm btn-warning"
+                                                   class="btn btn-sm btn-outline-primary"
                                                    title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -226,7 +226,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
-                                                            class="btn btn-sm btn-danger"
+                                                            class="btn btn-sm btn-outline-danger"
                                                             title="Hapus">
                                                         <i class="fas fa-trash"></i>
                                                     </button>

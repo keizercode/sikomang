@@ -18,8 +18,8 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="avatar flex-shrink-0">
-                                <div class="avatar-title rounded bg-soft-primary">
-                                    <i class="bx bx-map-pin font-size-24 mb-0 text-primary"></i>
+                                <div class="avatar-title rounded" style="background: #dae4f3;">
+                                    <i class="bx bx-map-pin font-size-24 mb-0" style="color:#3b82f6"></i>
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">

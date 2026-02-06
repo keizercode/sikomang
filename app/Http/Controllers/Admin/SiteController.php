@@ -45,9 +45,9 @@ class SiteController extends Controller
                 'health' => $location->health_percentage ? $location->health_percentage . '%' : 'N/A',
                 'type' => ucfirst($location->type),
                 'action' => '<div class="d-flex gap-1">
-                    <a href="' . route('admin.monitoring.detail', encode_id($location->id)) . '" class="btn btn-sm btn-secondary" title="Detail"><i class="mdi mdi-eye"></i></a>
-                    <a href="' . route('admin.monitoring.edit', encode_id($location->id)) . '" class="btn btn-sm btn-success" title="Edit"><i class="mdi mdi-pencil"></i></a>
-                    <a href="#" data-href="' . route('admin.monitoring.delete', encode_id($location->id)) . '" class="btn btn-sm btn-danger remove_data" title="Hapus"><i class="mdi mdi-delete"></i></a>
+                    <a href="' . route('admin.monitoring.detail', encode_id($location->id)) . '" class="btn btn-sm btn-outline-secondary" title="Detail"><i class="mdi mdi-eye"></i></a>
+                    <a href="' . route('admin.monitoring.edit', encode_id($location->id)) . '" class="btn btn-sm btn-outline-success" title="Edit"><i class="mdi mdi-pencil"></i></a>
+                    <a href="#" data-href="' . route('admin.monitoring.delete', encode_id($location->id)) . '" class="btn btn-sm btn-outline-danger remove_data" title="Hapus"><i class="mdi mdi-delete"></i></a>
                 </div>'
             ];
         })->toArray();

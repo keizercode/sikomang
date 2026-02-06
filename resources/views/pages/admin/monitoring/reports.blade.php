@@ -8,7 +8,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Laporan Monitoring Mangrove</h5>
-                        <button class="btn btn-primary" onclick="window.print()">
+                        <button class="btn btn-outline-success" onclick="window.print()">
                             <i class="mdi mdi-printer"></i> Print Laporan
                         </button>
                     </div>

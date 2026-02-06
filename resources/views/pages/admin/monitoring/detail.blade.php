@@ -1,5 +1,7 @@
 @extends('layouts.admin.master')
-
+@section('css')
+    @vite(['resources/css/admin/detail.css'])
+@endsection
 @section('content')
 <div class="page-content">
     <div class="container-fluid">
@@ -10,17 +12,17 @@
                     <div>
                         <h4 class="mb-0">{{ $location->name }}</h4>
                         <div class="mt-2">
-                            <span class="badge bg-primary">{{ ucfirst($location->type) }}</span>
-                            <span class="badge bg-secondary">{{ ucfirst($location->density) }}</span>
+                            <span class="badge badge-outline-primary">{{ ucfirst($location->type) }}</span>
+                            <span class="badge badge-outline-secondary">{{ ucfirst($location->density) }}</span>
                             @if($location->is_active)
-                                <span class="badge bg-success">Aktif</span>
+                                <span class="badge badge-outline-primary">Aktif</span>
                             @else
-                                <span class="badge bg-secondary">Tidak Aktif</span>
+                                <span class="badge badge-outline-secondary">Tidak Aktif</span>
                             @endif
                         </div>
                     </div>
                     <div>
-                        <a href="{{ route('admin.monitoring.edit', $keyId) }}" class="btn btn-warning">
+                        <a href="{{ route('admin.monitoring.edit', $keyId) }}" class="btn btn-primary" style="background: #0d6efd;">
                             <i class="mdi mdi-pencil"></i> Edit Lokasi
                         </a>
                         <a href="{{ route('admin.monitoring.index') }}" class="btn btn-secondary">
@@ -367,7 +369,7 @@
                                         @endif
 
                                         <div class="mt-3">
-                                            <button class="btn btn-sm btn-warning" onclick="editDamage({{ $damage->id }})">
+                                            <button class="btn btn-sm btn-primary" style="background: #0d6efd" onclick="editDamage({{ $damage->id }})">
                                                 <i class="mdi mdi-pencil"></i> Edit
                                             </button>
                                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#actionModal{{ $damage->id }}">

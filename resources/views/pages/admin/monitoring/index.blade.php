@@ -7,7 +7,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <div id="toolbar">
+                        <div id="toolbar" style="margin-bottom: 15px;">
                             <a href="{{ route('admin.monitoring.create') }}" id="btn-add" class="btn btn-primary">
                                 <i class="mdi mdi-plus"></i> Tambah Lokasi
                             </a>
@@ -45,6 +45,26 @@ $(document).ready(function() {
     loadGridData();
 });
 
+
+function renderHealth(value) {
+
+    value = parseFloat(value);
+
+    if (isNaN(value)) {
+        return `<span class="badge bg-secondary">-</span>`;
+    }
+
+    let color = value >= 80 ? 'success'
+              : value >= 60 ? 'warning'
+              : 'danger';
+
+    return `
+      <span class="badge badge-health border border-${color} text-${color} bg-transparent rounded-pill px-3 py-1 ms-2">
+        ${value}%
+      </span>
+    `;
+}
+
 function loadGridData() {
     $.ajax({
         url: '{{ route("admin.monitoring.grid") }}',
@@ -66,8 +86,12 @@ function loadGridData() {
                     '<td>' + item.region + '</td>' +
                     '<td>' + item.area + '</td>' +
                     '<td>' + item.density + '</td>' +
-                    '<td>' + item.health + '</td>' +
-                    '<td>' + item.type + '</td>' +
+                    '<td>' + renderHealth(item.health) + '</td>' +
+                    '<td>' +
+                    '<span class="badge badge-type border border-primary text-primary bg-transparent rounded-pill px-3 py-1 ms-2">' +
+                    item.type +
+                    '</span>' +
+                    '</td>' +
                     '<td>' + item.action + '</td>' +
                     '</tr>';
                 tbody.append(row);
@@ -116,4 +140,14 @@ $(document).on("click", ".remove_data", function(e) {
     return false;
 });
 </script>
+<style>
+    .badge-health {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.6rem;
+}
+.badge-type{
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+}
+</style>
 @endsection

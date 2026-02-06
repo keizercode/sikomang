@@ -897,3 +897,10 @@ body {
         background: white;
     }
 }
+
+/* Badge */
+.badge-outline-primary {
+    color: #009966;
+    background-color: transparent;
+    border: 1px solid var(--bs-primary);
+}
