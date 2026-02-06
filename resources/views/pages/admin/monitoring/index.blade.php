@@ -41,7 +41,6 @@
 @section('js')
 <script type="text/javascript">
 $(document).ready(function() {
-    // Load data using AJAX
     loadGridData();
 });
 

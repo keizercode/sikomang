@@ -369,8 +369,11 @@
                                         @endif
 
                                         <div class="mt-3">
-                                            <button class="btn btn-sm btn-primary" style="background: #0d6efd" onclick="editDamage({{ $damage->id }})">
-                                                <i class="mdi mdi-pencil"></i> Edit
+                                            <button type="button"
+                                            class="btn btn-sm btn-primary"
+                                            style="background: #0d6efd"
+                                            onclick="editDamage({{ $damage->id }})">
+                                            <i class="mdi mdi-pencil"></i> Edit
                                             </button>
                                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#actionModal{{ $damage->id }}">
                                                 <i class="mdi mdi-plus"></i> Tambah Aksi
@@ -492,5 +495,59 @@ function addField(containerId, fieldName, placeholder) {
     `;
     container.append(html);
 }
+
+// Fungsi untuk reset modal ke mode tambah
+function resetDamageModal() {
+    $('#damageModalTitle').text('Tambah Laporan Kerusakan');
+    $('#submitDamageBtn').text('Simpan');
+    $('#damage_id').val('');
+    $('#form_method').val('POST');
+    $('#damageForm').attr('action', '{{ route("admin.monitoring.add-damage", $keyId) }}');
+    $('#damage_title').val('');
+    $('#damage_description').val('');
+    $('#damage_priority').val('medium');
+    $('#damage_status').val('pending');
+}
+
+// Fungsi untuk edit damage (dipanggil dari tombol Edit)
+function editDamage(damageId) {
+    // Get damage data via AJAX
+    $.ajax({
+        url: `/admin/monitoring/{{ $keyId }}/damages/${damageId}/edit`,
+        method: 'GET',
+        success: function(damage) {
+            // Set modal title dan button
+            $('#damageModalTitle').text('Edit Laporan Kerusakan');
+            $('#submitDamageBtn').text('Update');
+
+            // Set form action dan method
+            $('#damageForm').attr('action', `/admin/monitoring/{{ $keyId }}/damages/${damageId}`);
+            $('#form_method').val('PUT');
+            $('#damage_id').val(damageId);
+
+            // Fill form dengan data damage
+            $('#damage_title').val(damage.title);
+            $('#damage_description').val(damage.description);
+            $('#damage_priority').val(damage.priority);
+            $('#damage_status').val(damage.status);
+
+            // Show modal
+            $('#damageModal').modal('show');
+        },
+        error: function() {
+            alertify.error('Gagal mengambil data kerusakan');
+        }
+    });
+}
+
+// Reset modal saat ditutup
+$('#damageModal').on('hidden.bs.modal', function() {
+    resetDamageModal();
+});
+
+// Reset modal saat tombol "Tambah Laporan" diklik
+$('button[data-bs-target="#damageModal"]').on('click', function() {
+    resetDamageModal();
+});
 </script>
 @endsection

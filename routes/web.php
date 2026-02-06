@@ -44,6 +44,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/delete/{id}', [SiteController::class, 'destroy'])->name('delete');
         Route::get('/damages', [SiteController::class, 'damages'])->name('damages');
         Route::get('/reports', [SiteController::class, 'reports'])->name('reports');
+        // Di dalam group admin monitoring
 
         // Location Details
         Route::get('/{id}/detail', [LocationDetailController::class, 'show'])->name('detail');
@@ -53,7 +54,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{id}/upload-images', [LocationDetailController::class, 'uploadImages'])->name('upload-images');
         Route::delete('/{locationId}/images/{imageId}', [LocationDetailController::class, 'deleteImage'])->name('delete-image');
         Route::post('/{id}/add-damage', [LocationDetailController::class, 'addDamage'])->name('add-damage');
-        Route::put('/{id}/damages/{damageId}', [LocationDetailController::class, 'updateDamage'])->name('update-damage');
+        Route::put('/monitoring/{id}/damages/{damageId}', [LocationDetailController::class, 'updateDamage'])->name('admin.monitoring.update-damage');
+        Route::get('/monitoring/{id}/damages/{damageId}/edit', [LocationDetailController::class, 'editDamage'])->name('admin.monitoring.edit-damage');
         Route::delete('/{id}/damages/{damageId}', [LocationDetailController::class, 'deleteDamage'])->name('delete-damage');
         Route::post('/{id}/damages/{damageId}/add-action', [LocationDetailController::class, 'addAction'])->name('add-action');
     });

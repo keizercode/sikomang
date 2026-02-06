@@ -261,6 +261,9 @@ class LocationDetailController extends Controller
     /**
      * Update damage report
      */
+    /**
+     * Update damage report
+     */
     public function updateDamage(Request $request, $id, $damageId)
     {
         $keyId = decode_id($id);
@@ -282,6 +285,21 @@ class LocationDetailController extends Controller
         return redirect()
             ->route('admin.monitoring.detail', $id)
             ->with(['message' => 'Laporan kerusakan berhasil diperbarui', 'type' => 'success']);
+    }
+
+    /**
+     * Get damage data for edit
+     */
+    public function editDamage($id, $damageId)
+    {
+        $keyId = decode_id($id);
+        $location = MangroveLocation::findOrFail($keyId);
+
+        $damage = LocationDamage::where('mangrove_location_id', $location->id)
+            ->where('id', $damageId)
+            ->firstOrFail();
+
+        return response()->json($damage);
     }
 
     /**
