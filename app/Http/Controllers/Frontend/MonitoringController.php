@@ -8,10 +8,11 @@ use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
 {
+
     /**
      * Menampilkan halaman profil sebaran mangrove dengan data dinamis
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
             // Get all active locations
@@ -28,14 +29,9 @@ class MonitoringController extends Controller
             $monitoring_data = $this->calculateMonitoringData($locations);
 
             // Format locations for map display
+            // Format locations for map display
             $formattedLocations = $locations->map(function ($location) {
-                return [
-                    'name' => $location->name,
-                    'coords' => $location->latitude . ', ' . $location->longitude,
-                    'area' => $location->area ? $location->area . ' ha' : 'N/A',
-                    'density' => strtolower($location->density),
-                    'slug' => $location->slug,
-                ];
+                return $this->formatLocationForFrontend($location);
             })->toArray();
 
             return view('pages.frontend.monitoring', [
@@ -154,7 +150,7 @@ class MonitoringController extends Controller
     }
 
     /**
-     * Format location data untuk frontend
+     * Format location data untuk frontend - FIXED VERSION
      */
     private function formatLocationForFrontend($location)
     {
@@ -166,10 +162,12 @@ class MonitoringController extends Controller
             'type' => ucfirst($location->type),
             'year' => $location->year_established ?? date('Y'),
             'area' => $location->area ? number_format($location->area, 2) . ' ha' : 'Belum diidentifikasi',
-            'density' => ucfirst($location->density),
+            'density' => strtolower($location->density),
             'health' => $location->health_percentage ? $location->health_percentage . '% Sehat' : 'N/A',
             'health_score' => $location->health_score ?? 'N/A',
             'coords' => $location->latitude . ', ' . $location->longitude,
+            'latitude' => (float) $location->latitude,
+            'longitude' => (float) $location->longitude,
             'location' => $location->location_address ?? $location->region ?? 'DKI Jakarta',
             'group' => $this->determineGroup($location),
             'manager' => $location->manager ?? 'DPHK',

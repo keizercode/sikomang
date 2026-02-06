@@ -5,6 +5,93 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 @vite('resources/css/monitoring.css')
+
+<style>
+/* Custom Popup Styles */
+.custom-popup {
+    min-width: 280px;
+    max-width: 320px;
+}
+
+.custom-popup .popup-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+    margin: -12px -16px 10px -16px;
+    background: #f3f4f6;
+}
+
+.custom-popup .popup-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.custom-popup .popup-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #242621;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.custom-popup .popup-badges {
+    display: flex;
+    gap: 5px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+
+.custom-popup .popup-badges span {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.custom-popup .popup-info {
+    font-size: 13px;
+    color: #4b5563;
+    margin: 5px 0;
+    line-height: 1.5;
+}
+
+.custom-popup .popup-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background: #009966;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.custom-popup .popup-link:hover {
+    background: #2d5c54;
+}
+
+/* Custom Tooltip Styles */
+.custom-tooltip {
+    background: rgba(0, 0, 0, 0.85);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.custom-tooltip::before {
+    border-top-color: rgba(0, 0, 0, 0.85);
+}
+</style>
 @endpush
 
 @section('content')
@@ -168,7 +255,12 @@
             coords: coordsArray,
             area: location.area,
             slug: location.slug,
-            density: location.density
+            density: location.density,
+            type: location.type,
+            year: location.year,
+            images: location.images || [],
+            species_detail: location.species_detail || {},
+            damage_count: location.damage_count || 0
         };
 
         // Add to appropriate density group
@@ -236,12 +328,43 @@
     }
 
     function createPopupContent(location, category) {
+        // Get first image or use placeholder
+        const imageUrl = location.images && location.images.length > 0
+            ? location.images[0]
+            : 'https://via.placeholder.com/400x200?text=No+Image';
+
+        // Get first 2 species from vegetasi
+        let speciesText = '-';
+        if (location.species_detail && location.species_detail.vegetasi && location.species_detail.vegetasi.length > 0) {
+            const species = location.species_detail.vegetasi.slice(0, 2);
+            speciesText = species.join(', ');
+            if (location.species_detail.vegetasi.length > 2) {
+                speciesText += ` +${location.species_detail.vegetasi.length - 2} lainnya`;
+            }
+        }
+
+        // Format damage count
+        const damageText = location.damage_count > 0
+            ? `⚠️ ${location.damage_count} Kerusakan`
+            : '✅ Tidak ada kerusakan';
+
+        const damageColor = location.damage_count > 0 ? '#dc2626' : '#16a34a';
+
         return `
             <div class="custom-popup">
+                <div class="popup-image">
+                    <img src="${imageUrl}" alt="${location.name}" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" />
+                </div>
                 <div class="popup-title">${location.name}</div>
+                <div class="popup-badges">
+                    <span style="background: #009966; color: white;">${location.type}</span>
+                    <span style="background: #6b7280; color: white;">${location.year}</span>
+                </div>
                 <div class="popup-info">📍 ${location.coords[0].toFixed(4)}, ${location.coords[1].toFixed(4)}</div>
                 <div class="popup-info">📏 Luas: ${location.area}</div>
-                <div class="popup-info">🌳 Kategori: ${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                <div class="popup-info">🌳 Kerapatan: ${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                <div class="popup-info" style="font-size: 12px; color: #4b5563; margin-top: 4px;">🌿 ${speciesText}</div>
+                <div class="popup-info" style="font-weight: 600; color: ${damageColor}; margin-top: 4px;">${damageText}</div>
                 <a href="/monitoring/lokasi/${location.slug}" class="popup-link">Lihat Detail →</a>
             </div>
         `;
@@ -257,8 +380,12 @@
                 icon: createCustomIcon(CONFIG.colors[category])
             }).addTo(layers[category]);
 
-            // Bind popup
-            marker.bindPopup(createPopupContent(location, category));
+            // Bind popup with custom options
+            marker.bindPopup(createPopupContent(location, category), {
+                maxWidth: 320,
+                minWidth: 280,
+                className: 'leaflet-popup-custom'
+            });
 
             // Add coverage circle
             L.circle(location.coords, {
