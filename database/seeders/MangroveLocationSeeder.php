@@ -130,14 +130,14 @@ class MangroveLocationSeeder extends Seeder
         $location2 = MangroveLocation::create([
             'name' => 'Pos 5 Hutan Lindung',
             'slug' => 'pos-5-hutan-lindung',
-            'latitude' => -6.0895,
-            'longitude' => 106.7820,
-            'area' => 4.7,
-            'density' => 'jarang',
+            'latitude' => -6.1003,
+            'longitude' => 106.7385,
+            'area' => 4.3,
+            'density' => 'lebat',
             'type' => 'dilindungi',
             'year_established' => 2025,
-            'health_percentage' => 92,
-            'health_score' => 'NAK: 6.8',
+            'health_percentage' => 58,
+            'health_score' => 'NAK: 6.4',
             'manager' => 'DPHK',
             'region' => 'Kecamatan Penjaringan, Jakarta Utara',
             'location_address' => 'Pos 5 Hutan Lindung, Penjaringan, Jakarta Utara',
@@ -149,51 +149,159 @@ class MangroveLocationSeeder extends Seeder
 
         LocationDetail::create([
             'mangrove_location_id' => $location2->id,
+
+            'vegetasi' => [
+                'Avicennia marina',
+                'Excoecaria agallocha',
+                'Rhizophora mucronata'
+            ],
+            'fauna' => [
+                'Burung Kenari',
+                'Ikan'
+            ],
+
+            'activities' => [
+                'description' => 'Titik pengamatan berada di ujung kawasan HL sebelah barat, dekat TWA. Aktivitas di sekitarnya terbatas oleh:',
+                'items' => [
+                    'Petugas kawasan'
+                ]
+            ],
+            'forest_utilization' => [
+                'Hutan Lindung',
+                'Hutan Konservasi',
+                'Habitat flora & fauna',
+                'Pelindung pesisir',
+            ],
+
+            'programs' => [
+                'Pembibitan/persemaian',
+                'Grebek sampah (pembersihan)',
+                'Monitoring petugas'
+            ],
+
+            'stakeholders' => [
+                'PLN PJB',
+                'Yamaha',
+                'Bank DKI',
+                'AEON',
+            ]
         ]);
 
-        LocationImage::create([
-            'mangrove_location_id' => $location2->id,
-            'image_url' => 'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758005191/4-pos5_hl-3_gezsmd.jpg',
-            'order' => 0
-        ]);
+        foreach (
+            [
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758005191/4-pos5_hl-3_gezsmd.jpg',
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758005192/4-pos5_hl_ujgm5s.jpg',
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758005191/4-pos5_hl-1_v29w7a.jpg',
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758005190/4-pos5_hl-2_gzrpx4.jpg'
+            ] as $index1 => $imageUrl1
+        ) {
 
-        $damage3 = LocationDamage::create([
-            'mangrove_location_id' => $location2->id,
-            'title' => 'Erosi tanah',
-            'description' => 'Erosi tanah di area pesisir',
-            'priority' => 'medium',
-            'status' => 'in_progress'
-        ]);
+            LocationImage::create([
+                'mangrove_location_id' => $location2->id,
+                'image_url' => $imageUrl1,
+                'order' => $index1
+            ]);
+
+            $damage3 = LocationDamage::create([
+                'mangrove_location_id' => $location2->id,
+                'title' => 'Erosi tanah',
+                'description' => 'Erosi tanah di area pesisir',
+                'priority' => 'medium',
+                'status' => 'in_progress'
+            ]);
+
+            LocationAction::create([
+                'location_damage_id' => $damage3->id,
+                'action_description' => 'Pembersihan area terdampak',
+                'action_date' => now()
+            ]);
+        }
 
         // Location 3: Rusun TNI AL
         $location3 = MangroveLocation::create([
             'name' => 'Rusun TNI AL',
             'slug' => 'rusun-tni-al',
-            'latitude' => -6.0912,
-            'longitude' => 106.9105,
+            'latitude' => -6.1191,
+            'longitude' => 106.9548,
             'area' => 6.0,
-            'density' => 'jarang',
+            'density' => 'sedang',
             'type' => 'pengkayaan',
             'year_established' => 2025,
-            'health_percentage' => 80,
-            'health_score' => 'NAK: 6.2',
-            'manager' => 'DPHK',
+            'health_percentage' => 100,
+            'health_score' => 'NAK: 6.9',
+            'manager' => 'TNI AL',
             'region' => 'Kecamatan Cilincing, Jakarta Utara',
             'location_address' => 'Rusun TNI AL, Cilincing, Jakarta Utara',
             'description' => 'Kawasan mangrove di sekitar Rusun TNI AL dengan program pengkayaan.',
-            'species' => 'Avicennia alba, Rhizophora mucronata',
+            'species' => 'Avicennia alba, Sonneratia alba',
             'carbon_data' => 'Data tidak tersedia',
             'is_active' => true,
         ]);
 
         LocationDetail::create([
             'mangrove_location_id' => $location3->id,
+
+            'vegetasi' => [
+                'Avicennia alba',
+                'Rhizophora mucronata',
+                'Sonneratia caseolaris',
+                'Sonneratia alba'
+            ],
+            'fauna' => [
+                'Ikan',
+                'Kaero Padi',
+                'Blekok Cina'
+            ],
+
+            'activities' => [
+                'description' => 'Titik pengamatan berada di lahan TNI AL yang merupakan perkomplekan TNI. Aktivitas yang teramati:',
+                'items' => [
+                    'Masyarakat setempat',
+                    'Pemancing',
+                    'Penembak burung'
+                ]
+            ],
+
+            'forest_utilization' => [
+                'Pencegah rob'
+            ],
+
+            'programs' => [
+                'Tidak ada (karena lahan milik TNI AL, masyarakat takut mengelola lahan mangrove)'
+            ],
+
+            'stakeholders' => [
+                'Hanya Internal TNI AL'
+            ],
         ]);
 
-        LocationImage::create([
+        foreach (
+            [
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758068637/7-rusun_tni_al_kb8fhu.jpg',
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758068635/7-rusun_tni_al-1_gx1iqa.jpg',
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758068635/7-rusun_tni_al-3_q7wvfm.jpg',
+                'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758068634/7-rusun_tni_al-2_kme66v.jpg'
+            ] as $index3 => $imageUrl3
+        ) {
+            LocationImage::create([
+                'mangrove_location_id' => $location3->id,
+                'image_url' => $imageUrl3,
+                'order' => $index3
+            ]);
+        }
+
+        $damage4 = LocationDamage::create([
             'mangrove_location_id' => $location3->id,
-            'image_url' => 'https://res.cloudinary.com/dgctlfa2t/image/upload/v1758068635/7-rusun_tni_al-1_gx1iqa.jpg',
-            'order' => 0
+            'title' => 'Dahan patah',
+            'description' => 'Dahan patah dan pohon tumbang akibat angin kencang',
+            'priority' => 'medium',
+            'status' => 'in_progress'
+        ]);
+
+        LocationAction::create([
+            'location_damage_id' => $damage4->id,
+            'action_description' => 'Pembersihan area oleh security komplek',
+            'action_date' => now()
         ]);
     }
 }

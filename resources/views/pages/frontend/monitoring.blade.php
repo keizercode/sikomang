@@ -7,6 +7,7 @@
 @vite('resources/css/monitoring.css')
 
 <style>
+
 /* Custom Popup Styles */
 .custom-popup {
     min-width: 280px;
@@ -303,7 +304,6 @@
         "Peta Standar": osmLayer,
         "Satelit": satelliteLayer
     };
-    L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
     // ===========================
     // LAYER GROUPS
@@ -313,6 +313,7 @@
         sedang: L.layerGroup().addTo(map),
         lebat: L.layerGroup().addTo(map)
     };
+    L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
     // ===========================
     // HELPER FUNCTIONS
@@ -345,7 +346,7 @@
 
         // Format damage count
         const damageText = location.damage_count > 0
-            ? `⚠️ ${location.damage_count} Kerusakan`
+            ? `⚠️ ${location.damage_count} Kerusakan teridentifikasi`
             : '✅ Tidak ada kerusakan';
 
         const damageColor = location.damage_count > 0 ? '#dc2626' : '#16a34a';

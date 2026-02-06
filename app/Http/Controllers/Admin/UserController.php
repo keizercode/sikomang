@@ -24,7 +24,7 @@ class UserController extends Controller
         $data['title'] = $this->title;
         $data['route'] = $this->route;
 
-        return view('admin.users.index', $data);
+        return view('pages.admin.users.index', $data);
     }
 
     public function grid(Request $request)
@@ -67,7 +67,7 @@ class UserController extends Controller
         $data['item'] = $keyId ? User::find($keyId) : null;
         $data['group'] = Group::where('MsGroupId', '!=', 1)->get();
 
-        return view('admin.users.create', $data);
+        return view('pages.admin.users.create', $data);
     }
 
     public function store(Request $request)
