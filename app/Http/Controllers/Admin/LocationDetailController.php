@@ -264,27 +264,40 @@ class LocationDetailController extends Controller
     /**
      * Update damage report
      */
+    /**
+     * Update damage report
+     * TAMBAHKAN METHOD INI di app/Http/Controllers/Admin/LocationDetailController.php
+     * Letakkan setelah method addDamage atau sebelum penutup class
+     */
     public function updateDamage(Request $request, $id, $damageId)
     {
-        $keyId = decode_id($id);
-        $location = MangroveLocation::findOrFail($keyId);
+        try {
+            $keyId = decode_id($id);
+            $location = MangroveLocation::findOrFail($keyId);
 
-        $damage = LocationDamage::where('mangrove_location_id', $location->id)
-            ->where('id', $damageId)
-            ->firstOrFail();
+            $damage = LocationDamage::where('mangrove_location_id', $location->id)
+                ->where('id', $damageId)
+                ->firstOrFail();
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:low,medium,high',
-            'status' => 'required|in:pending,in_progress,resolved',
-        ]);
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'priority' => 'required|in:low,medium,high',
+                'status' => 'required|in:pending,in_progress,resolved',
+            ]);
 
-        $damage->update($validated);
+            $damage->update($validated);
 
-        return redirect()
-            ->route('admin.monitoring.detail', $id)
-            ->with(['message' => 'Laporan kerusakan berhasil diperbarui', 'type' => 'success']);
+            return redirect()
+                ->route('admin.monitoring.detail', $id)
+                ->with(['message' => 'Laporan kerusakan berhasil diperbarui', 'type' => 'success']);
+        } catch (\Exception $e) {
+            \Log::error('Update damage error: ' . $e->getMessage());
+
+            return redirect()
+                ->back()
+                ->with(['message' => 'Gagal update: ' . $e->getMessage(), 'type' => 'error']);
+        }
     }
 
     /**

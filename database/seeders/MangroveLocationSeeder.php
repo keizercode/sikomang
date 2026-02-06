@@ -201,21 +201,22 @@ class MangroveLocationSeeder extends Seeder
                 'image_url' => $imageUrl1,
                 'order' => $index1
             ]);
-
-            $damage3 = LocationDamage::create([
-                'mangrove_location_id' => $location2->id,
-                'title' => 'Erosi tanah',
-                'description' => 'Erosi tanah di area pesisir',
-                'priority' => 'medium',
-                'status' => 'in_progress'
-            ]);
-
-            LocationAction::create([
-                'location_damage_id' => $damage3->id,
-                'action_description' => 'Pembersihan area terdampak',
-                'action_date' => now()
-            ]);
         }
+
+        $damage3 = LocationDamage::create([
+            'mangrove_location_id' => $location2->id,
+            'title' => 'Erosi tanah',
+            'description' => 'Erosi tanah di area pesisir',
+            'priority' => 'medium',
+            'status' => 'in_progress'
+        ]);
+
+        LocationAction::create([
+            'location_damage_id' => $damage3->id,
+            'action_description' => 'Pembersihan area terdampak',
+            'action_date' => now()
+        ]);
+
 
         // Location 3: Rusun TNI AL
         $location3 = MangroveLocation::create([

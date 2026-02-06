@@ -333,6 +333,172 @@
                     <div class="card-body">
                         @if($location->damages->count() > 0)
                         <div class="accordion" id="damagesAccordion">
+
+
+@section('js')
+@parent
+
+{{-- Inject damage data ke JavaScript --}}
+<script>
+window.editDamageData = {
+    @foreach($location->damages as $damage)
+    {{ $damage->id }}: {
+        title: @json($damage->title),
+        description: @json($damage->description),
+        priority: '{{ $damage->priority }}',
+        status: '{{ $damage->status }}'
+    },
+    @endforeach
+};
+</script>
+
+{{-- Quick Fix JavaScript Functions --}}
+<script>
+// Reset modal ke mode tambah
+function resetDamageModal() {
+    $('#damageModalTitle').text('Tambah Laporan Kerusakan');
+    $('#submitDamageBtn').text('Simpan');
+    $('#damage_id').val('');
+    $('#form_method').val('POST');
+    $('#damageForm').attr('action', '{{ route("admin.monitoring.add-damage", $keyId) }}');
+    $('#damage_title').val('');
+    $('#damage_description').val('');
+    $('#damage_priority').val('medium');
+    $('#damage_status').val('pending');
+}
+
+// Edit damage function
+function editDamage(damageId) {
+    console.log('Editing damage ID:', damageId);
+
+    const data = window.editDamageData[damageId];
+
+    if (!data) {
+        alertify.error('Data tidak ditemukan');
+        console.error('Available damage IDs:', Object.keys(window.editDamageData));
+        return;
+    }
+
+    // Set modal
+    $('#damageModalTitle').text('Edit Laporan Kerusakan');
+    $('#submitDamageBtn').text('Update');
+
+    // Set form action
+    const updateUrl = '/admin/monitoring/{{ $keyId }}/damages/' + damageId;
+    $('#damageForm').attr('action', updateUrl);
+    $('#form_method').val('PUT');
+    $('#damage_id').val(damageId);
+
+    // Fill form
+    $('#damage_title').val(data.title);
+    $('#damage_description').val(data.description);
+    $('#damage_priority').val(data.priority);
+    $('#damage_status').val(data.status);
+
+    // Show modal
+    $('#damageModal').modal('show');
+}
+
+// Reset modal saat ditutup
+$('#damageModal').on('hidden.bs.modal', function() {
+    resetDamageModal();
+});
+
+// Reset saat tombol tambah diklik
+$('button[data-bs-target="#damageModal"]').on('click', function() {
+    resetDamageModal();
+});
+
+// Log saat ready
+$(document).ready(function() {
+    console.log('✓ Damage edit feature loaded');
+    console.log('✓ Available damages:', Object.keys(window.editDamageData).length);
+});
+
+// Delete damage function (tetap pakai yang ada)
+$(document).on('click', '.delete-damage', function() {
+    const damageId = $(this).data('id');
+    const locationId = '{{ $keyId }}';
+
+    Swal.fire({
+        title: 'Hapus Laporan?',
+        text: "Laporan kerusakan akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/admin/monitoring/${locationId}/damages/${damageId}`,
+                method: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    if (response.success) {
+                        alertify.success(response.message);
+                        location.reload();
+                    }
+                },
+                error: function() {
+                    alertify.error('Gagal menghapus laporan');
+                }
+            });
+        }
+    });
+});
+
+// Delete image function (tetap pakai yang ada)
+$(document).on('click', '.delete-image', function() {
+    const imageId = $(this).data('id');
+    const locationId = '{{ $keyId }}';
+
+    Swal.fire({
+        title: 'Hapus Foto?',
+        text: "Foto akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/admin/monitoring/${locationId}/images/${imageId}`,
+                method: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    if (response.success) {
+                        alertify.success(response.message);
+                        location.reload();
+                    }
+                },
+                error: function() {
+                    alertify.error('Gagal menghapus foto');
+                }
+            });
+        }
+    });
+});
+
+// Dynamic field adders
+function addField(containerId, fieldName, placeholder) {
+    const container = $(`#${containerId}`);
+    const html = `
+        <div class="input-group mb-2">
+            <input type="text" class="form-control" name="${fieldName}[]" placeholder="${placeholder}">
+            <button type="button" class="btn btn-danger" onclick="$(this).parent().remove()">
+                <i class="mdi mdi-minus"></i>
+            </button>
+        </div>
+    `;
+    container.append(html);
+}
+</script>
+@endsection
+
                             @foreach($location->damages as $index => $damage)
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
@@ -495,59 +661,5 @@ function addField(containerId, fieldName, placeholder) {
     `;
     container.append(html);
 }
-
-// Fungsi untuk reset modal ke mode tambah
-function resetDamageModal() {
-    $('#damageModalTitle').text('Tambah Laporan Kerusakan');
-    $('#submitDamageBtn').text('Simpan');
-    $('#damage_id').val('');
-    $('#form_method').val('POST');
-    $('#damageForm').attr('action', '{{ route("admin.monitoring.add-damage", $keyId) }}');
-    $('#damage_title').val('');
-    $('#damage_description').val('');
-    $('#damage_priority').val('medium');
-    $('#damage_status').val('pending');
-}
-
-// Fungsi untuk edit damage (dipanggil dari tombol Edit)
-function editDamage(damageId) {
-    // Get damage data via AJAX
-    $.ajax({
-        url: `/admin/monitoring/{{ $keyId }}/damages/${damageId}/edit`,
-        method: 'GET',
-        success: function(damage) {
-            // Set modal title dan button
-            $('#damageModalTitle').text('Edit Laporan Kerusakan');
-            $('#submitDamageBtn').text('Update');
-
-            // Set form action dan method
-            $('#damageForm').attr('action', `/admin/monitoring/{{ $keyId }}/damages/${damageId}`);
-            $('#form_method').val('PUT');
-            $('#damage_id').val(damageId);
-
-            // Fill form dengan data damage
-            $('#damage_title').val(damage.title);
-            $('#damage_description').val(damage.description);
-            $('#damage_priority').val(damage.priority);
-            $('#damage_status').val(damage.status);
-
-            // Show modal
-            $('#damageModal').modal('show');
-        },
-        error: function() {
-            alertify.error('Gagal mengambil data kerusakan');
-        }
-    });
-}
-
-// Reset modal saat ditutup
-$('#damageModal').on('hidden.bs.modal', function() {
-    resetDamageModal();
-});
-
-// Reset modal saat tombol "Tambah Laporan" diklik
-$('button[data-bs-target="#damageModal"]').on('click', function() {
-    resetDamageModal();
-});
 </script>
 @endsection
