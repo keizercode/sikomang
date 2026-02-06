@@ -114,6 +114,25 @@ class Article extends Model
     }
 
     /**
+     * Get formatted content with proper paragraph breaks
+     * TAMBAHAN: Accessor untuk format content
+     */
+    public function getFormattedContentAttribute()
+    {
+        $content = $this->content;
+
+        // Jika content tidak mengandung tag HTML paragraf, konversi line breaks
+        if (strpos($content, '<p>') === false && strpos($content, '</p>') === false) {
+            // Konversi double line breaks menjadi paragraf
+            $content = '<p>' . preg_replace('/\n\n+/', '</p><p>', $content) . '</p>';
+            // Konversi single line breaks menjadi <br>
+            $content = nl2br($content);
+        }
+
+        return $content;
+    }
+
+    /**
      * Increment views count
      */
     public function incrementViews()
