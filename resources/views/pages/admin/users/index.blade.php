@@ -7,7 +7,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <div id="toolbar">
+                        <div id="toolbar" style="margin-bottom: 15px;">
                             <a href="{{ route('admin.users.update') }}" id="btn-add" class="btn btn-primary">
                                 <i class="mdi mdi-plus"></i> Tambah User
                             </a>

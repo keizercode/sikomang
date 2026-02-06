@@ -140,13 +140,13 @@ $(document).on("click", ".remove_data", function(e) {
 });
 </script>
 <style>
-    .badge-health {
-    font-size: 0.85rem;
-    padding: 0.25rem 0.6rem;
+.badge-health {
+font-size: 0.85rem;
+padding: 0.25rem 0.6rem;
 }
 .badge-type{
-        font-size: 0.75rem;
-        padding: 0.25rem 0.6rem;
+font-size: 0.75rem;
+padding: 0.25rem 0.6rem;
 }
 </style>
 @endsection

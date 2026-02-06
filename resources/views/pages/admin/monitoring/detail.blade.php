@@ -12,10 +12,10 @@
                     <div>
                         <h4 class="mb-0">{{ $location->name }}</h4>
                         <div class="mt-2">
-                            <span class="badge badge-outline-primary">{{ ucfirst($location->type) }}</span>
-                            <span class="badge badge-outline-secondary">{{ ucfirst($location->density) }}</span>
+                            <span class="badge badge-outline-blue" style="padding: 0.25rem 0.6rem;">{{ ucfirst($location->type) }}</span>
+                            <span class="badge badge-outline-secondary" style="padding: 0.25rem 0.6rem;">{{ ucfirst($location->density) }}</span>
                             @if($location->is_active)
-                                <span class="badge badge-outline-primary">Aktif</span>
+                                <span class="badge badge-outline-primary" style="padding: 0.25rem 0.6rem;">Aktif</span>
                             @else
                                 <span class="badge badge-outline-secondary">Tidak Aktif</span>
                             @endif
@@ -25,8 +25,8 @@
                         <a href="{{ route('admin.monitoring.edit', $keyId) }}" class="btn btn-primary" style="background: #0d6efd;">
                             <i class="mdi mdi-pencil"></i> Edit Lokasi
                         </a>
-                        <a href="{{ route('admin.monitoring.index') }}" class="btn btn-secondary">
-                            <i class="mdi mdi-arrow-left"></i> Kembali
+                        <a href="{{ route('admin.monitoring.index') }}" class="btn btn-secondary text-white" style="background:grey">
+                            <i class="mdi mdi-arrow-left text-white"></i> Kembali
                         </a>
                     </div>
                 </div>
@@ -93,11 +93,11 @@
                                     </tr>
                                     <tr>
                                         <th>Kerapatan:</th>
-                                        <td><span class="badge bg-secondary">{{ ucfirst($location->density) }}</span></td>
+                                        <td><span class="badge badge-outline-secondary" style="padding: 0.25rem 0.6rem;">{{ ucfirst($location->density) }}</span></td>
                                     </tr>
                                     <tr>
                                         <th>Tipe:</th>
-                                        <td><span class="badge bg-primary">{{ ucfirst($location->type) }}</span></td>
+                                        <td><span class="badge badge-outline-blue" style="padding: 0.25rem 0.6rem;">{{ ucfirst($location->type) }}</span></td>
                                     </tr>
                                 </table>
                             </div>
@@ -132,7 +132,7 @@
                                         <th>Status:</th>
                                         <td>
                                             @if($location->is_active)
-                                                <span class="badge bg-success">Aktif</span>
+                                                <span class="badge badge-outline-primary" style="padding: 0.25rem 0.6rem;">Aktif</span>
                                             @else
                                                 <span class="badge bg-secondary">Tidak Aktif</span>
                                             @endif

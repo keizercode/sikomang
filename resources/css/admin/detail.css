@@ -884,8 +884,25 @@
     background-color: transparent;
     border: 1px solid var(--color-primary);
 }
+.badge-outline-blue {
+    color: #0b7af0;
+    background-color: transparent;
+    border: 1px solid blue;
+}
 .badge-outline-secondary {
     color: #6c757d;
     background-color: transparent;
     border: 1px solid var(--color-secondary);
+}
+
+.badge-outline-high {
+    color: #dc3545;
+    background-color: transparent;
+    border: 1px solid red;
+}
+
+.badge-outline-yellow {
+    color: #ffc107;
+    background-color: transparent;
+    border: 1px solid yellow;
 }
