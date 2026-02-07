@@ -1,6 +1,20 @@
 @extends('layouts.admin.master')
 @section('css')
     @vite(['resources/css/admin/detail.css'])
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #detailLocationMap {
+            border-radius: 0;
+        }
+        .custom-marker-detail {
+            background: transparent;
+            border: none;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+    </style>
 @endsection
 @section('content')
 <div class="page-content">
@@ -77,6 +91,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
+                            <!-- Left Column - Basic Info -->
                             <div class="col-md-6">
                                 <table class="table table-borderless">
                                     <tr>
@@ -100,9 +115,8 @@
                                         <td><span class="badge badge-outline-blue" style="padding: 0.25rem 0.6rem;">{{ ucfirst($location->type) }}</span></td>
                                     </tr>
                                 </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table table-borderless">
+
+                                <table class="table table-borderless mt-3">
                                     <tr>
                                         <th width="180">Kesehatan:</th>
                                         <td>
@@ -139,22 +153,43 @@
                                         </td>
                                     </tr>
                                 </table>
+
+                                @if($location->description)
+                                <div class="mt-3">
+                                    <h6>Deskripsi:</h6>
+                                    <p class="text-muted">{{ $location->description }}</p>
+                                </div>
+                                @endif
+
+                                @if($location->location_address)
+                                <div class="mt-3">
+                                    <h6>Alamat:</h6>
+                                    <p class="text-muted">{{ $location->location_address }}</p>
+                                </div>
+                                @endif
+                            </div>
+
+                            <!-- Right Column - Map Preview -->
+                            <div class="col-md-6">
+                                <div class="card border">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">
+                                            <i class="mdi mdi-map-marker text-primary"></i>
+                                            Preview Lokasi
+                                        </h6>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div id="detailLocationMap" style="height: 450px; width: 100%;"></div>
+                                    </div>
+                                    <div class="card-footer bg-light">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-information"></i>
+                                            Koordinat: {{ $location->latitude }}, {{ $location->longitude }}
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        @if($location->description)
-                        <div class="mt-3">
-                            <h6>Deskripsi:</h6>
-                            <p class="text-muted">{{ $location->description }}</p>
-                        </div>
-                        @endif
-
-                        @if($location->location_address)
-                        <div class="mt-3">
-                            <h6>Alamat:</h6>
-                            <p class="text-muted">{{ $location->location_address }}</p>
-                        </div>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -333,172 +368,6 @@
                     <div class="card-body">
                         @if($location->damages->count() > 0)
                         <div class="accordion" id="damagesAccordion">
-
-
-@section('js')
-@parent
-
-{{-- Inject damage data ke JavaScript --}}
-<script>
-window.editDamageData = {
-    @foreach($location->damages as $damage)
-    {{ $damage->id }}: {
-        title: @json($damage->title),
-        description: @json($damage->description),
-        priority: '{{ $damage->priority }}',
-        status: '{{ $damage->status }}'
-    },
-    @endforeach
-};
-</script>
-
-{{-- Quick Fix JavaScript Functions --}}
-<script>
-// Reset modal ke mode tambah
-function resetDamageModal() {
-    $('#damageModalTitle').text('Tambah Laporan Kerusakan');
-    $('#submitDamageBtn').text('Simpan');
-    $('#damage_id').val('');
-    $('#form_method').val('POST');
-    $('#damageForm').attr('action', '{{ route("admin.monitoring.add-damage", $keyId) }}');
-    $('#damage_title').val('');
-    $('#damage_description').val('');
-    $('#damage_priority').val('medium');
-    $('#damage_status').val('pending');
-}
-
-// Edit damage function
-function editDamage(damageId) {
-    console.log('Editing damage ID:', damageId);
-
-    const data = window.editDamageData[damageId];
-
-    if (!data) {
-        alertify.error('Data tidak ditemukan');
-        console.error('Available damage IDs:', Object.keys(window.editDamageData));
-        return;
-    }
-
-    // Set modal
-    $('#damageModalTitle').text('Edit Laporan Kerusakan');
-    $('#submitDamageBtn').text('Update');
-
-    // Set form action
-    const updateUrl = '/admin/monitoring/{{ $keyId }}/damages/' + damageId;
-    $('#damageForm').attr('action', updateUrl);
-    $('#form_method').val('PUT');
-    $('#damage_id').val(damageId);
-
-    // Fill form
-    $('#damage_title').val(data.title);
-    $('#damage_description').val(data.description);
-    $('#damage_priority').val(data.priority);
-    $('#damage_status').val(data.status);
-
-    // Show modal
-    $('#damageModal').modal('show');
-}
-
-// Reset modal saat ditutup
-$('#damageModal').on('hidden.bs.modal', function() {
-    resetDamageModal();
-});
-
-// Reset saat tombol tambah diklik
-$('button[data-bs-target="#damageModal"]').on('click', function() {
-    resetDamageModal();
-});
-
-// Log saat ready
-$(document).ready(function() {
-    console.log('✓ Damage edit feature loaded');
-    console.log('✓ Available damages:', Object.keys(window.editDamageData).length);
-});
-
-// Delete damage function (tetap pakai yang ada)
-$(document).on('click', '.delete-damage', function() {
-    const damageId = $(this).data('id');
-    const locationId = '{{ $keyId }}';
-
-    Swal.fire({
-        title: 'Hapus Laporan?',
-        text: "Laporan kerusakan akan dihapus permanen!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `/admin/monitoring/${locationId}/damages/${damageId}`,
-                method: 'DELETE',
-                data: { _token: '{{ csrf_token() }}' },
-                success: function(response) {
-                    if (response.success) {
-                        alertify.success(response.message);
-                        location.reload();
-                    }
-                },
-                error: function() {
-                    alertify.error('Gagal menghapus laporan');
-                }
-            });
-        }
-    });
-});
-
-// Delete image function (tetap pakai yang ada)
-$(document).on('click', '.delete-image', function() {
-    const imageId = $(this).data('id');
-    const locationId = '{{ $keyId }}';
-
-    Swal.fire({
-        title: 'Hapus Foto?',
-        text: "Foto akan dihapus permanen!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `/admin/monitoring/${locationId}/images/${imageId}`,
-                method: 'DELETE',
-                data: { _token: '{{ csrf_token() }}' },
-                success: function(response) {
-                    if (response.success) {
-                        alertify.success(response.message);
-                        location.reload();
-                    }
-                },
-                error: function() {
-                    alertify.error('Gagal menghapus foto');
-                }
-            });
-        }
-    });
-});
-
-// Dynamic field adders
-function addField(containerId, fieldName, placeholder) {
-    const container = $(`#${containerId}`);
-    const html = `
-        <div class="input-group mb-2">
-            <input type="text" class="form-control" name="${fieldName}[]" placeholder="${placeholder}">
-            <button type="button" class="btn btn-danger" onclick="$(this).parent().remove()">
-                <i class="mdi mdi-minus"></i>
-            </button>
-        </div>
-    `;
-    container.append(html);
-}
-</script>
-@endsection
-
                             @foreach($location->damages as $index => $damage)
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
@@ -578,42 +447,190 @@ function addField(containerId, fieldName, placeholder) {
 @endsection
 
 @section('js')
-<script>
-// Delete image
-$(document).on('click', '.delete-image', function() {
-    const imageId = $(this).data('id');
-    const locationId = '{{ $keyId }}';
+@parent
 
-    Swal.fire({
-        title: 'Hapus Foto?',
-        text: "Foto akan dihapus permanen!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `/admin/monitoring/${locationId}/images/${imageId}`,
-                method: 'DELETE',
-                data: { _token: '{{ csrf_token() }}' },
-                success: function(response) {
-                    if (response.success) {
-                        alertify.success(response.message);
-                        location.reload();
-                    }
-                },
-                error: function() {
-                    alertify.error('Gagal menghapus foto');
-                }
-            });
-        }
-    });
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+{{-- Inject location data for map --}}
+<script>
+window.locationData = {
+    latitude: {{ $location->latitude }},
+    longitude: {{ $location->longitude }},
+    name: @json($location->name),
+    density: '{{ $location->density }}',
+    type: '{{ $location->type }}',
+    area: '{{ $location->area }}'
+};
+</script>
+
+{{-- Initialize Detail Location Map --}}
+<script>
+// Map Configuration
+const densityColors = {
+    'jarang': '#8dd3c7',
+    'sedang': '#FFFFB3',
+    'lebat': '#BEBADA'
+};
+
+// Initialize map when Info tab is shown
+document.addEventListener('DOMContentLoaded', function() {
+    let detailMap = null;
+
+    function initDetailMap() {
+        if (detailMap) return; // Already initialized
+
+        const lat = window.locationData.latitude;
+        const lng = window.locationData.longitude;
+
+        // Initialize map
+        detailMap = L.map('detailLocationMap', {
+            center: [lat, lng],
+            zoom: 15,
+            zoomControl: true,
+            scrollWheelZoom: true
+        });
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(detailMap);
+
+        // Create custom marker icon
+        const markerColor = densityColors[window.locationData.density.toLowerCase()] || '#3388ff';
+        const customIcon = L.divIcon({
+            className: 'custom-marker-detail',
+            html: `<div style="background-color: ${markerColor}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -15]
+        });
+
+        // Add marker
+        const marker = L.marker([lat, lng], { icon: customIcon }).addTo(detailMap);
+
+        // Add popup
+        marker.bindPopup(`
+            <div style="min-width: 200px;">
+                <h6 style="margin: 0 0 8px 0; font-weight: 700;">${window.locationData.name}</h6>
+                <div style="font-size: 13px; color: #4b5563;">
+                    <div style="margin: 4px 0;">📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+                    <div style="margin: 4px 0;">📏 ${window.locationData.area} ha</div>
+                    <div style="margin: 4px 0;">🌳 ${window.locationData.density}</div>
+                    <div style="margin: 4px 0;">🏷️ ${window.locationData.type}</div>
+                </div>
+            </div>
+        `).openPopup();
+
+        // Add coverage circle
+        L.circle([lat, lng], {
+            color: markerColor,
+            fillColor: markerColor,
+            fillOpacity: 0.2,
+            radius: 300,
+            weight: 2
+        }).addTo(detailMap);
+
+        // Fix map rendering
+        setTimeout(() => {
+            detailMap.invalidateSize();
+        }, 100);
+    }
+
+    // Initialize map when Info tab is shown
+    const infoTab = document.querySelector('a[href="#info"]');
+    if (infoTab) {
+        infoTab.addEventListener('shown.bs.tab', function() {
+            initDetailMap();
+        });
+    }
+
+    // Initialize immediately if Info tab is active
+    if (document.querySelector('#info.active')) {
+        initDetailMap();
+    }
+});
+</script>
+
+{{-- Inject damage data ke JavaScript --}}
+<script>
+window.editDamageData = {
+    @foreach($location->damages as $damage)
+    {{ $damage->id }}: {
+        title: @json($damage->title),
+        description: @json($damage->description),
+        priority: '{{ $damage->priority }}',
+        status: '{{ $damage->status }}'
+    },
+    @endforeach
+};
+</script>
+
+{{-- Quick Fix JavaScript Functions --}}
+<script>
+// Reset modal ke mode tambah
+function resetDamageModal() {
+    $('#damageModalTitle').text('Tambah Laporan Kerusakan');
+    $('#submitDamageBtn').text('Simpan');
+    $('#damage_id').val('');
+    $('#form_method').val('POST');
+    $('#damageForm').attr('action', '{{ route("admin.monitoring.add-damage", $keyId) }}');
+    $('#damage_title').val('');
+    $('#damage_description').val('');
+    $('#damage_priority').val('medium');
+    $('#damage_status').val('pending');
+}
+
+// Edit damage function
+function editDamage(damageId) {
+    console.log('Editing damage ID:', damageId);
+
+    const data = window.editDamageData[damageId];
+
+    if (!data) {
+        alertify.error('Data tidak ditemukan');
+        console.error('Available damage IDs:', Object.keys(window.editDamageData));
+        return;
+    }
+
+    // Set modal
+    $('#damageModalTitle').text('Edit Laporan Kerusakan');
+    $('#submitDamageBtn').text('Update');
+
+    // Set form action
+    const updateUrl = '/admin/monitoring/{{ $keyId }}/damages/' + damageId;
+    $('#damageForm').attr('action', updateUrl);
+    $('#form_method').val('PUT');
+    $('#damage_id').val(damageId);
+
+    // Fill form
+    $('#damage_title').val(data.title);
+    $('#damage_description').val(data.description);
+    $('#damage_priority').val(data.priority);
+    $('#damage_status').val(data.status);
+
+    // Show modal
+    $('#damageModal').modal('show');
+}
+
+// Reset modal saat ditutup
+$('#damageModal').on('hidden.bs.modal', function() {
+    resetDamageModal();
 });
 
-// Delete damage
+// Reset saat tombol tambah diklik
+$('button[data-bs-target="#damageModal"]').on('click', function() {
+    resetDamageModal();
+});
+
+// Log saat ready
+$(document).ready(function() {
+    console.log('✓ Damage edit feature loaded');
+    console.log('✓ Available damages:', Object.keys(window.editDamageData).length);
+});
+
+// Delete damage function
 $(document).on('click', '.delete-damage', function() {
     const damageId = $(this).data('id');
     const locationId = '{{ $keyId }}';
@@ -647,10 +664,43 @@ $(document).on('click', '.delete-damage', function() {
     });
 });
 
+// Delete image function
+$(document).on('click', '.delete-image', function() {
+    const imageId = $(this).data('id');
+    const locationId = '{{ $keyId }}';
+
+    Swal.fire({
+        title: 'Hapus Foto?',
+        text: "Foto akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/admin/monitoring/${locationId}/images/${imageId}`,
+                method: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    if (response.success) {
+                        alertify.success(response.message);
+                        location.reload();
+                    }
+                },
+                error: function() {
+                    alertify.error('Gagal menghapus foto');
+                }
+            });
+        }
+    });
+});
+
 // Dynamic field adders
 function addField(containerId, fieldName, placeholder) {
     const container = $(`#${containerId}`);
-    const index = container.find('input').length;
     const html = `
         <div class="input-group mb-2">
             <input type="text" class="form-control" name="${fieldName}[]" placeholder="${placeholder}">
