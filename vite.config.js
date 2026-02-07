@@ -19,6 +19,7 @@ export default defineConfig({
                 "resources/js/admin-location-map.js",
                 "resources/css/admin/detail.css",
                 "resources/css/article-frontend.css",
+                "resources/js/ckeditor.js",
             ],
             refresh: true,
         }),

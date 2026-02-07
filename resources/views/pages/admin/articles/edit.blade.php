@@ -1,16 +1,24 @@
 @extends('layouts.admin.master')
 
 @section('css')
-<!-- TinyMCE Skin -->
+<!-- CKEditor 5 CSS -->
+<link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.css">
+
 <style>
-    .tox-tinymce {
+    /* CKEditor Container Styling */
+    .ck-editor__editable {
+        min-height: 400px;
+        max-height: 600px;
+    }
+
+    .ck.ck-editor {
         border-radius: 8px !important;
         border: 2px solid #e5e7eb !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
         transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    .tox-tinymce:focus-within {
+    .ck.ck-editor:focus-within {
         border-color: #009966 !important;
         box-shadow: 0 4px 12px rgba(0, 153, 102, 0.15) !important;
     }
@@ -153,7 +161,7 @@
                                           required>{{ old('content', $article->content) }}</textarea>
                                 <small class="text-muted">
                                     <i class="fas fa-magic"></i>
-                                    Gunakan toolbar untuk memformat teks seperti di Microsoft Word. Mendukung gambar, tabel, dan format rich text lainnya.
+                                    Gunakan toolbar untuk memformat teks. Support heading, alignment, list, table, image, dan format rich text lainnya.
                                 </small>
                                 @error('content')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -324,27 +332,100 @@
 @endsection
 
 @section('js')
-<!-- TinyMCE Latest Version -->
-<script src="https://cdn.tiny.cloud/1/i4v7kghp0a4db8g8ssqhwmv2prjk8x4mfudpnb3en51xhpt2/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- CKEditor 5 Classic Build -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
 
-<!-- SweetAlert2 for better alerts -->
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Article Frontend CSS for Preview -->
-<link rel="stylesheet" href="{{ asset('css/article-frontend.css') }}">
-
-<script src="{{ asset('js/tinymce-config.js') }}"></script>
-
 <script>
+let editor;
+
 $(document).ready(function() {
-    // Initialize TinyMCE
-    TinyMCEConfig.init('#articleContent');
+    // Initialize CKEditor
+    ClassicEditor
+        .create(document.querySelector('#articleContent'), {
+            toolbar: {
+                items: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'underline',
+                    '|',
+                    'alignment',
+                    '|',
+                    'numberedList',
+                    'bulletedList',
+                    '|',
+                    'outdent',
+                    'indent',
+                    '|',
+                    'link',
+                    'imageUpload',
+                    'blockQuote',
+                    'insertTable',
+                    '|',
+                    'undo',
+                    'redo'
+                ],
+                shouldNotGroupWhenFull: true
+            },
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                    { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
+                ]
+            },
+            image: {
+                toolbar: [
+                    'imageTextAlternative',
+                    'imageStyle:inline',
+                    'imageStyle:block',
+                    'imageStyle:side'
+                ]
+            },
+            table: {
+                contentToolbar: [
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells'
+                ]
+            },
+            alignment: {
+                options: ['left', 'center', 'right', 'justify']
+            },
+            placeholder: 'Tulis konten artikel di sini...'
+        })
+        .then(newEditor => {
+            editor = newEditor;
+
+            // Word count
+            editor.model.document.on('change:data', () => {
+                const data = editor.getData();
+                const text = data.replace(/<[^>]*>/g, '');
+                const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+                const chars = text.length;
+
+                $('#editor-counter').html(`
+                    <i class="fas fa-file-alt"></i> ${words} kata |
+                    <i class="fas fa-font"></i> ${chars} karakter
+                `);
+            });
+
+            console.log('CKEditor initialized successfully');
+        })
+        .catch(error => {
+            console.error('CKEditor initialization error:', error);
+        });
 
     // Handle form submission
     $('#articleForm').on('submit', function(e) {
-        const content = tinymce.get('articleContent').getContent();
+        const content = editor.getData();
 
-        if (!content.trim() || content === '<p></p>' || content === '<p><br></p>') {
+        if (!content.trim() || content === '<p></p>' || content === '<p>&nbsp;</p>') {
             e.preventDefault();
             Swal.fire({
                 icon: 'error',
@@ -460,7 +541,7 @@ function togglePreview() {
 
 function updatePreview() {
     const title = $('#articleTitle').val() || 'Judul Artikel';
-    const content = tinymce.get('articleContent') ? tinymce.get('articleContent').getContent() : '';
+    const content = editor.getData();
     const excerpt = $('textarea[name="excerpt"]').val();
 
     $('#preview-title').text(title);

@@ -114,22 +114,18 @@ class Article extends Model
     }
 
     /**
-     * Get formatted content with proper paragraph breaks
-     * TAMBAHAN: Accessor untuk format content
+     * Get formatted content - CKEditor outputs clean, formatted HTML
+     * No additional processing needed
      */
     public function getFormattedContentAttribute()
     {
-        $content = $this->content;
-
-        // Jika content tidak mengandung tag HTML paragraf, konversi line breaks
-        if (strpos($content, '<p>') === false && strpos($content, '</p>') === false) {
-            // Konversi double line breaks menjadi paragraf
-            $content = '<p>' . preg_replace('/\n\n+/', '</p><p>', $content) . '</p>';
-            // Konversi single line breaks menjadi <br>
-            $content = nl2br($content);
-        }
-
-        return $content;
+        // CKEditor already outputs properly formatted HTML with:
+        // - Proper paragraph tags
+        // - Heading tags
+        // - Lists, tables, images
+        // - Text alignment
+        // Just return the content as-is for frontend display
+        return $this->content;
     }
 
     /**
@@ -155,6 +151,6 @@ class Article extends Model
      */
     public function url()
     {
-        return route('article.show', $this->slug);
+        return route('articles.show', $this->slug);
     }
 }
