@@ -76,6 +76,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{article}/toggle-featured', [ArticleController::class, 'toggleFeatured'])->name('toggle-featured');
         Route::patch('/{article}/publish', [ArticleController::class, 'publish'])->name('publish');
         Route::patch('/{article}/unpublish', [ArticleController::class, 'unpublish'])->name('unpublish');
+        Route::post('/admin/articles/upload-image', [ArticleController::class, 'uploadImage'])
+            ->name('admin.articles.upload-image');
     });
 
     // Galleries Management

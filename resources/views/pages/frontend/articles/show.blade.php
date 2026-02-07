@@ -1,223 +1,109 @@
 @extends('layouts.frontend.app')
 
-@section('css')
-<link rel="stylesheet" href="{{ asset('css/article-frontend.css') }}">
+@section('title', $article->title . ' - SIKOMANG')
+
+@push('styles')
+
 <style>
-    .article-header {
-        background: linear-gradient(135deg, #009966 0%, #00664d 100%);
-        color: white;
-        padding: 60px 0;
-        margin-bottom: 40px;
+    /* Additional inline styles for article page */
+    .prose {
+        max-width: 65ch;
     }
 
-    .article-meta {
-        font-size: 0.875rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin-top: 20px;
+    .prose p {
+        margin-bottom: 1.5em;
     }
 
-    .article-meta i {
-        margin-right: 5px;
+    .prose h1, .prose h2, .prose h3, .prose h4 {
+        margin-top: 2em;
+        margin-bottom: 1em;
     }
 
-    .article-featured-image {
-        width: 100%;
-        max-height: 500px;
-        object-fit: cover;
-        border-radius: 12px;
-        margin-bottom: 40px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    .prose ul, .prose ol {
+        margin: 1.5em 0;
+        padding-left: 1.5em;
     }
 
-    .article-container {
-        max-width: 800px;
-        margin: 0 auto;
-        background: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    .prose li {
+        margin: 0.5em 0;
     }
 
-    .share-buttons {
-        margin-top: 40px;
-        padding-top: 30px;
-        border-top: 2px solid #e5e7eb;
-    }
-
-    .share-button {
-        display: inline-block;
-        padding: 10px 20px;
-        margin-right: 10px;
-        border-radius: 6px;
-        text-decoration: none;
-        color: white;
-        font-weight: 500;
-        transition: all 0.3s;
-    }
-
-    .share-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .share-facebook { background-color: #1877f2; }
-    .share-twitter { background-color: #1da1f2; }
-    .share-whatsapp { background-color: #25d366; }
-    .share-linkedin { background-color: #0077b5; }
-
-    @media (max-width: 768px) {
-        .article-container {
-            padding: 20px;
-        }
-
-        .article-header {
-            padding: 40px 0;
-        }
+    .prose img {
+        margin: 2em 0;
+        border-radius: 0.75rem;
     }
 </style>
-@endsection
+@endpush
 
 @section('content')
-<div class="article-header">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-10 mx-auto">
-                <h1 class="display-4 font-weight-bold mb-0">{{ $article->title }}</h1>
-                <div class="article-meta">
-                    <span><i class="far fa-calendar"></i> {{ $article->published_at ? $article->published_at->format('d F Y') : $article->created_at->format('d F Y') }}</span>
-                    <span class="mx-3">•</span>
-                    <span><i class="far fa-user"></i> {{ $article->author->name ?? 'Admin' }}</span>
-                    @if($article->category)
-                    <span class="mx-3">•</span>
-                    <span><i class="far fa-folder"></i> {{ $article->category->name }}</span>
-                    @endif
-                    <span class="mx-3">•</span>
-                    <span><i class="far fa-clock"></i> {{ $article->read_time ?? '5' }} menit baca</span>
+    <!-- Article Header -->
+    <section class="py-8 md:py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Title -->
+            <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-secondary leading-tight mb-6">
+                {{ $article->title }}
+            </h1>
+
+            <!-- Meta -->
+            <div class="flex flex-wrap items-center gap-4 text-sm text-muted mb-8">
+                <div class="flex items-center space-x-2">
+                    <span class="font-medium text-secondary">{{ $article->user->name ?? 'Admin' }}</span>
+                </div>
+                <span class="text-gray-300">|</span>
+                <div class="flex items-center space-x-1">
+                    <span>{{ $article->published_at ? $article->published_at->format('d F Y') : '' }}</span>
+                </div>
+                <span class="text-gray-300">|</span>
+                <div class="flex items-center space-x-1">
+                    <span>{{ number_format($article->views) }} dibaca</span>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="container mb-5">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            @if($article->featured_image)
-            <img src="{{ asset('storage/' . $article->featured_image) }}"
-                 alt="{{ $article->title }}"
-                 class="article-featured-image">
-            @endif
-
-            <div class="article-container">
-                @if($article->excerpt)
-                <div class="lead mb-4" style="font-size: 1.25rem; color: #4b5563; line-height: 1.7;">
-                    {{ $article->excerpt }}
-                </div>
-                @endif
-
-                <div class="article-content">
-                    {!! $article->content !!}
-                </div>
-
-                <!-- Share Buttons -->
-                <div class="share-buttons">
-                    <h5 class="mb-3">Bagikan Artikel Ini:</h5>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
-                       target="_blank"
-                       class="share-button share-facebook">
-                        <i class="fab fa-facebook-f"></i> Facebook
-                    </a>
-                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($article->title) }}"
-                       target="_blank"
-                       class="share-button share-twitter">
-                        <i class="fab fa-twitter"></i> Twitter
-                    </a>
-                    <a href="https://wa.me/?text={{ urlencode($article->title . ' - ' . url()->current()) }}"
-                       target="_blank"
-                       class="share-button share-whatsapp">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </a>
-                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}"
-                       target="_blank"
-                       class="share-button share-linkedin">
-                        <i class="fab fa-linkedin-in"></i> LinkedIn
-                    </a>
-                </div>
+    <!-- Featured Image -->
+    @if($article->featured_image)
+    <section class="mb-8 md:mb-12">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-2xl overflow-hidden">
+                <img
+                    src="{{ asset('storage/' . $article->featured_image) }}"
+                    alt="{{ $article->title }}"
+                    class="w-full h-64 md:h-96 object-cover"
+                >
             </div>
-
-            <!-- Related Articles (Optional) -->
-            @if(isset($relatedArticles) && $relatedArticles->count() > 0)
-            <div class="mt-5">
-                <h3 class="mb-4">Artikel Terkait</h3>
-                <div class="row">
-                    @foreach($relatedArticles as $related)
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                            @if($related->featured_image)
-                            <img src="{{ asset('storage/' . $related->featured_image) }}"
-                                 class="card-img-top"
-                                 alt="{{ $related->title }}"
-                                 style="height: 200px; object-fit: cover;">
-                            @endif
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{{ route('articles.show', $related->slug) }}"
-                                       class="text-dark text-decoration-none">
-                                        {{ $related->title }}
-                                    </a>
-                                </h5>
-                                <p class="card-text text-muted">
-                                    {{ Str::limit($related->excerpt, 100) }}
-                                </p>
-                            </div>
-                            <div class="card-footer bg-white border-0">
-                                <small class="text-muted">
-                                    <i class="far fa-calendar"></i>
-                                    {{ $related->published_at ? $related->published_at->format('d M Y') : $related->created_at->format('d M Y') }}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
         </div>
-    </div>
-</div>
-@endsection
+    </section>
+    @endif
 
-@section('js')
-<script>
-$(document).ready(function() {
-    // Smooth scroll for anchor links
-    $('.article-content a[href^="#"]').on('click', function(e) {
-        e.preventDefault();
-        var target = $(this.hash);
-        if (target.length) {
-            $('html, body').animate({
-                scrollTop: target.offset().top - 100
-            }, 500);
-        }
-    });
+    <!-- Article Content -->
+    <section class="pb-12 md:pb-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <article class="article-content prose prose-lg max-w-none">
+                {!! $article->formatted_content !!}
+            </article>
+        </div>
+    </section>
 
-    // Add copy button to code blocks
-    $('.article-content pre').each(function() {
-        var code = $(this);
-        var copyButton = $('<button class="btn btn-sm btn-secondary copy-code" style="position: absolute; top: 10px; right: 10px;">Copy</button>');
-        code.css('position', 'relative');
-        code.append(copyButton);
+    <!-- Related Articles -->
+    @if($relatedArticles->count() > 0)
+    <section class="py-12 md:py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-secondary mb-8">Artikel Terkait</h2>
 
-        copyButton.on('click', function() {
-            var text = code.text().replace('Copy', '');
-            navigator.clipboard.writeText(text).then(function() {
-                copyButton.text('Copied!');
-                setTimeout(function() {
-                    copyButton.text('Copy');
-                }, 2000);
-            });
-        });
-    });
-});
-</script>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @foreach($relatedArticles as $related)
+                    <x-shared.article-card
+                        :image="$related->featured_image ? asset('storage/' . $related->featured_image) : 'https://via.placeholder.com/400x300'"
+                        :date="$related->published_at ? $related->published_at->format('d F Y') : ''"
+                        :author="$related->user->name ?? 'Admin'"
+                        :title="$related->title"
+                        :excerpt="$related->excerpt"
+                        :link="route('articles.show', $related->slug)"
+                    />
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 @endsection

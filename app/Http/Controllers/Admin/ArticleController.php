@@ -367,4 +367,26 @@ class ArticleController extends Controller
             'articles' => $articles
         ]);
     }
+
+    /**
+     * Upload image dari TinyMCE editor
+     */
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $image = $request->file('file');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('articles/content', $imageName, 'public');
+
+            return response()->json([
+                'location' => asset('storage/' . $imagePath)
+            ]);
+        }
+
+        return response()->json(['error' => 'Upload failed'], 400);
+    }
 }

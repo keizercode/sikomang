@@ -49,7 +49,7 @@
         }
     </style>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js','resources/css/article-frontend.css'])
     @stack('styles')
 </head>
 <body class="bg-background text-secondary antialiased">

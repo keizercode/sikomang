@@ -1,33 +1,92 @@
 @extends('layouts.admin.master')
 
 @section('css')
-<!-- TinyMCE CSS -->
+<!-- TinyMCE Skin -->
 <style>
     .tox-tinymce {
         border-radius: 8px !important;
         border: 2px solid #e5e7eb !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .tox-tinymce:focus-within {
+        border-color: #009966 !important;
+        box-shadow: 0 4px 12px rgba(0, 153, 102, 0.15) !important;
     }
 
     .preview-section {
         display: none;
-        margin-top: 20px;
-        padding: 20px;
-        background: #f9fafb;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        margin-top: 30px;
+        padding: 30px;
+        background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 
     .preview-section.show {
         display: block;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .preview-content {
         background: white;
-        padding: 40px;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        max-width: 800px;
+        padding: 50px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        max-width: 900px;
         margin: 0 auto;
+    }
+
+    #editor-counter {
+        padding: 8px 12px;
+        background: #f9fafb;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        color: #6b7280;
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+    #editor-counter i {
+        color: #009966;
+        margin-right: 4px;
+    }
+
+    .current-image-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .remove-image-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(220, 38, 38, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .remove-image-btn:hover {
+        background: rgb(185, 28, 28);
+        transform: scale(1.1);
     }
 </style>
 @endsection
@@ -39,18 +98,21 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">{{ $title }}</h5>
-                    <button type="button" class="btn btn-info btn-sm" onclick="togglePreview()">
-                        <i class="fas fa-eye"></i> Preview
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-info btn-sm" onclick="togglePreview()">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <span class="badge bg-secondary ms-2">
+                            <i class="fas fa-keyboard"></i> Ctrl+S: Save | Ctrl+P: Preview
+                        </span>
+                    </div>
                 </div>
-                <form action="{{ isset($article) ? route('admin.articles.update', $article) : route('admin.articles.store') }}"
+                <form action="{{ route('admin.articles.update', $article) }}"
                       method="POST"
                       enctype="multipart/form-data"
                       id="articleForm">
                     @csrf
-                    @if(isset($article))
-                        @method('PUT')
-                    @endif
+                    @method('PUT')
 
                     <div class="card-body">
                         <div class="row">
@@ -59,7 +121,8 @@
                                 <label class="form-label">Judul Artikel <span class="text-danger">*</span></label>
                                 <input type="text" name="title" id="articleTitle"
                                        class="form-control @error('title') is-invalid @enderror"
-                                       value="{{ old('title', $article->title ?? '') }}"
+                                       value="{{ old('title', $article->title) }}"
+                                       placeholder="Masukkan judul artikel yang menarik..."
                                        required>
                                 @error('title')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -71,8 +134,11 @@
                                 <label class="form-label">Ringkasan/Excerpt</label>
                                 <textarea name="excerpt"
                                           class="form-control @error('excerpt') is-invalid @enderror"
-                                          rows="3">{{ old('excerpt', $article->excerpt ?? '') }}</textarea>
-                                <small class="text-muted">Opsional. Ringkasan singkat artikel (maks 500 karakter)</small>
+                                          rows="3"
+                                          placeholder="Ringkasan singkat yang menarik pembaca (opsional, maks 500 karakter)">{{ old('excerpt', $article->excerpt) }}</textarea>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle"></i> Ringkasan akan muncul di halaman daftar artikel
+                                </small>
                                 @error('excerpt')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -84,26 +150,36 @@
                                 <textarea name="content"
                                           id="articleContent"
                                           class="form-control @error('content') is-invalid @enderror"
-                                          required>{{ old('content', $article->content ?? '') }}</textarea>
+                                          required>{{ old('content', $article->content) }}</textarea>
                                 <small class="text-muted">
-                                    <i class="fas fa-info-circle"></i>
-                                    Gunakan toolbar untuk memformat teks seperti di Microsoft Word
+                                    <i class="fas fa-magic"></i>
+                                    Gunakan toolbar untuk memformat teks seperti di Microsoft Word. Mendukung gambar, tabel, dan format rich text lainnya.
                                 </small>
                                 @error('content')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <div id="editor-counter" class="mt-2">
+                                    <i class="fas fa-file-alt"></i> 0 kata | <i class="fas fa-font"></i> 0 karakter
+                                </div>
                             </div>
 
                             <!-- Featured Image -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Gambar Utama</label>
-                                @if(isset($article) && $article->featured_image)
-                                <div class="mb-2">
+                                @if($article->featured_image)
+                                <div class="mb-2 current-image-wrapper">
                                     <img src="{{ asset('storage/' . $article->featured_image) }}"
                                          alt="Current featured image"
                                          class="img-thumbnail"
                                          id="preview-image"
                                          style="max-height: 200px;">
+                                    <button type="button" class="remove-image-btn" onclick="removeCurrentImage()" title="Hapus gambar">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <input type="hidden" name="remove_image" id="remove_image" value="0">
+                                    <p class="text-muted mt-2 current-image-label">
+                                        <small><i class="fas fa-image"></i> Gambar saat ini</small>
+                                    </p>
                                 </div>
                                 @else
                                 <div class="mb-2" id="preview-image-container" style="display: none;">
@@ -112,10 +188,13 @@
                                 @endif
                                 <input type="file"
                                        name="featured_image"
+                                       id="featured_image_input"
                                        class="form-control @error('featured_image') is-invalid @enderror"
                                        accept="image/*"
                                        onchange="previewImage(this)">
-                                <small class="text-muted">Format: JPG, PNG, GIF. Maks: 2MB</small>
+                                <small class="text-muted">
+                                    <i class="fas fa-image"></i> Format: JPG, PNG, GIF, WebP. Maksimal: 2MB. Upload gambar baru untuk mengganti.
+                                </small>
                                 @error('featured_image')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -126,8 +205,7 @@
                                 <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <select name="status" id="article-status" class="form-control @error('status') is-invalid @enderror" required>
                                     @foreach($statuses as $status)
-                                    <option value="{{ $status }}"
-                                            {{ old('status', $article->status ?? 'draft') == $status ? 'selected' : '' }}>
+                                    <option value="{{ $status }}" {{ old('status', $article->status) == $status ? 'selected' : '' }}>
                                         {{ ucfirst($status) }}
                                     </option>
                                     @endforeach
@@ -143,8 +221,8 @@
                                 <input type="datetime-local"
                                        name="published_at"
                                        class="form-control @error('published_at') is-invalid @enderror"
-                                       value="{{ old('published_at', isset($article->published_at) ? $article->published_at->format('Y-m-d\TH:i') : '') }}">
-                                <small class="text-muted">Kosongkan untuk otomatis saat publish</small>
+                                       value="{{ old('published_at', $article->published_at ? $article->published_at->format('Y-m-d\TH:i') : '') }}">
+                                <small class="text-muted">Kosongkan untuk otomatis</small>
                                 @error('published_at')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -158,16 +236,18 @@
                                            class="form-check-input"
                                            id="is_featured"
                                            value="1"
-                                           {{ old('is_featured', $article->is_featured ?? false) ? 'checked' : '' }}>
+                                           {{ old('is_featured', $article->is_featured) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="is_featured">
-                                        Jadikan Artikel Unggulan
+                                        <i class="fas fa-star text-warning"></i> Jadikan Artikel Unggulan
                                     </label>
                                 </div>
                             </div>
 
                             <!-- SEO Section -->
                             <div class="col-12 mt-4 mb-3">
-                                <h5 class="text-primary">SEO Meta</h5>
+                                <h5 class="text-primary">
+                                    <i class="fas fa-search"></i> SEO Meta (Opsional)
+                                </h5>
                                 <hr>
                             </div>
 
@@ -176,8 +256,9 @@
                                 <input type="text"
                                        name="meta_title"
                                        class="form-control @error('meta_title') is-invalid @enderror"
-                                       value="{{ old('meta_title', $article->meta_title ?? '') }}">
-                                <small class="text-muted">Opsional. Akan menggunakan judul artikel jika kosong</small>
+                                       value="{{ old('meta_title', $article->meta_title) }}"
+                                       placeholder="Judul untuk mesin pencari">
+                                <small class="text-muted">Kosongkan untuk menggunakan judul artikel</small>
                                 @error('meta_title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -188,7 +269,8 @@
                                 <input type="text"
                                        name="meta_keywords"
                                        class="form-control @error('meta_keywords') is-invalid @enderror"
-                                       value="{{ old('meta_keywords', $article->meta_keywords ?? '') }}">
+                                       value="{{ old('meta_keywords', $article->meta_keywords) }}"
+                                       placeholder="mangrove, jakarta, lingkungan">
                                 <small class="text-muted">Pisahkan dengan koma</small>
                                 @error('meta_keywords')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -199,8 +281,9 @@
                                 <label class="form-label">Meta Description</label>
                                 <textarea name="meta_description"
                                           class="form-control @error('meta_description') is-invalid @enderror"
-                                          rows="3">{{ old('meta_description', $article->meta_description ?? '') }}</textarea>
-                                <small class="text-muted">Opsional. Deskripsi untuk mesin pencari (maks 160 karakter)</small>
+                                          rows="3"
+                                          placeholder="Deskripsi singkat untuk hasil pencarian Google (maks 160 karakter)">{{ old('meta_description', $article->meta_description) }}</textarea>
+                                <small class="text-muted">Deskripsi untuk hasil pencarian</small>
                                 @error('meta_description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -209,7 +292,7 @@
 
                         <!-- Preview Section -->
                         <div class="preview-section" id="previewSection">
-                            <h5 class="mb-3">Preview Artikel</h5>
+                            <h5 class="mb-3"><i class="fas fa-eye"></i> Preview Artikel</h5>
                             <div class="preview-content">
                                 <h1 id="preview-title" class="mb-3"></h1>
                                 <div id="preview-meta" class="text-muted mb-4"></div>
@@ -218,8 +301,8 @@
                         </div>
                     </div>
 
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-between">
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('admin.articles.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Kembali
                             </a>
@@ -228,7 +311,7 @@
                                     <i class="fas fa-save"></i> Simpan sebagai Draft
                                 </button>
                                 <button type="submit" name="action" value="publish" class="btn btn-success">
-                                    <i class="fas fa-paper-plane"></i> {{ isset($article) ? 'Update' : 'Publish' }}
+                                    <i class="fas fa-paper-plane"></i> Update & Publish
                                 </button>
                             </div>
                         </div>
@@ -241,240 +324,209 @@
 @endsection
 
 @section('js')
-<!-- TinyMCE -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- TinyMCE Latest Version -->
+<script src="https://cdn.tiny.cloud/1/i4v7kghp0a4db8g8ssqhwmv2prjk8x4mfudpnb3en51xhpt2/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+<!-- SweetAlert2 for better alerts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Article Frontend CSS for Preview -->
+<link rel="stylesheet" href="{{ asset('css/article-frontend.css') }}">
+
+<script src="{{ asset('js/tinymce-config.js') }}"></script>
 
 <script>
 $(document).ready(function() {
-    // Initialize TinyMCE with Word-like features
-    tinymce.init({
-        selector: '#articleContent',
-        height: 600,
-        menubar: true,
-        plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'help', 'wordcount', 'paste',
-            'autosave', 'emoticons', 'codesample', 'quickbars', 'pagebreak'
-        ],
-        toolbar: 'undo redo | blocks | bold italic underline strikethrough | ' +
-                 'forecolor backcolor | alignleft aligncenter alignright alignjustify | ' +
-                 'bullist numlist outdent indent | removeformat | link image media table | ' +
-                 'code fullscreen preview | help',
+    // Initialize TinyMCE
+    TinyMCEConfig.init('#articleContent');
 
-        // Style untuk content
-        content_style: `
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                font-size: 16px;
-                line-height: 1.8;
-                color: #374151;
-                padding: 20px;
-            }
-            p {
-                margin-bottom: 1.5rem;
-                text-align: justify;
-            }
-            h1, h2, h3, h4, h5, h6 {
-                margin-top: 2rem;
-                margin-bottom: 1rem;
-                font-weight: 700;
-                color: #1f2937;
-                line-height: 1.3;
-            }
-            h1 { font-size: 2.25rem; }
-            h2 { font-size: 1.875rem; }
-            h3 { font-size: 1.5rem; }
-            h4 { font-size: 1.25rem; }
-            ul, ol {
-                margin-bottom: 1.5rem;
-                padding-left: 2rem;
-            }
-            li {
-                margin-bottom: 0.5rem;
-            }
-            blockquote {
-                border-left: 4px solid #009966;
-                padding-left: 1.5rem;
-                margin: 1.5rem 0;
-                font-style: italic;
-                color: #4b5563;
-            }
-            img {
-                max-width: 100%;
-                height: auto;
-                border-radius: 0.75rem;
-                margin: 2rem 0;
-            }
-            a {
-                color: #009966;
-                text-decoration: underline;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 1.5rem 0;
-            }
-            table th, table td {
-                border: 1px solid #e5e7eb;
-                padding: 0.75rem;
-                text-align: left;
-            }
-            table th {
-                background-color: #f3f4f6;
-                font-weight: 600;
-            }
-        `,
+    // Handle form submission
+    $('#articleForm').on('submit', function(e) {
+        const content = tinymce.get('articleContent').getContent();
 
-        // Format blocks
-        block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Preformatted=pre',
-
-        // Paste options
-        paste_as_text: false,
-        paste_data_images: true,
-        paste_retain_style_properties: 'all',
-
-        // Image upload (if you want to enable it)
-        images_upload_handler: function (blobInfo, success, failure) {
-            var formData = new FormData();
-            formData.append('file', blobInfo.blob(), blobInfo.filename());
-            formData.append('_token', '{{ csrf_token() }}');
-
-            // You can implement image upload endpoint
-            // For now, we'll use base64
-            var reader = new FileReader();
-            reader.onload = function() {
-                success(reader.result);
-            };
-            reader.readAsDataURL(blobInfo.blob());
-        },
-
-        // Auto-save
-        autosave_interval: '30s',
-        autosave_retention: '30m',
-
-        // Mobile responsive
-        mobile: {
-            menubar: true,
-            toolbar_mode: 'sliding'
-        },
-
-        // Setup callback
-        setup: function(editor) {
-            editor.on('change keyup', function() {
-                updatePreview();
+        if (!content.trim() || content === '<p></p>' || content === '<p><br></p>') {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Konten Kosong',
+                text: 'Mohon isi konten artikel terlebih dahulu',
+                confirmButtonColor: '#009966'
             });
+            return false;
         }
+
+        Swal.fire({
+            title: 'Menyimpan...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        return true;
     });
 
-    // Handle form submit with action button
     $('button[name="action"]').on('click', function() {
         let action = $(this).val();
-        if (action === 'draft') {
-            $('#article-status').val('draft');
-        } else if (action === 'publish') {
-            $('#article-status').val('published');
-        }
+        $('#article-status').val(action === 'draft' ? 'draft' : 'published');
     });
 });
 
-// Preview image before upload
 function previewImage(input) {
     if (input.files && input.files[0]) {
+        const file = input.files[0];
+
+        if (file.size > 2 * 1024 * 1024) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File Terlalu Besar',
+                text: 'Ukuran file maksimal 2MB',
+                confirmButtonColor: '#009966'
+            });
+            input.value = '';
+            return;
+        }
+
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Format File Tidak Valid',
+                text: 'Hanya menerima format JPG, PNG, GIF, atau WebP',
+                confirmButtonColor: '#009966'
+            });
+            input.value = '';
+            return;
+        }
+
         let reader = new FileReader();
         reader.onload = function(e) {
             $('#preview-image').attr('src', e.target.result);
-            $('#preview-image-container').show();
+            $('#preview-image').closest('.current-image-wrapper, #preview-image-container').show();
+            $('.current-image-label').html('<small><i class="fas fa-image text-success"></i> Gambar baru (akan diupload)</small>');
+            $('.remove-image-btn').hide();
+            $('#remove_image').val('0');
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(file);
     }
 }
 
-// Toggle preview
+function removeCurrentImage() {
+    Swal.fire({
+        title: 'Hapus Gambar?',
+        text: 'Gambar akan dihapus saat Anda menyimpan artikel',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $('.current-image-wrapper').hide();
+            $('#remove_image').val('1');
+            $('#featured_image_input').val('');
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Gambar Ditandai untuk Dihapus',
+                text: 'Gambar akan dihapus saat Anda menyimpan',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
 function togglePreview() {
-    $('#previewSection').toggleClass('show');
-    if ($('#previewSection').hasClass('show')) {
+    const $previewSection = $('#previewSection');
+    const $button = $('button[onclick="togglePreview()"]');
+
+    $previewSection.toggleClass('show');
+
+    if ($previewSection.hasClass('show')) {
         updatePreview();
+        $button.html('<i class="fas fa-eye-slash"></i> Sembunyikan Preview');
+
+        $('html, body').animate({
+            scrollTop: $previewSection.offset().top - 100
+        }, 500);
+    } else {
+        $button.html('<i class="fas fa-eye"></i> Preview');
     }
 }
 
-// Update preview content
 function updatePreview() {
-    let title = $('#articleTitle').val();
-    let content = tinymce.get('articleContent').getContent();
+    const title = $('#articleTitle').val() || 'Judul Artikel';
+    const content = tinymce.get('articleContent') ? tinymce.get('articleContent').getContent() : '';
+    const excerpt = $('textarea[name="excerpt"]').val();
 
-    $('#preview-title').text(title || 'Judul Artikel');
+    $('#preview-title').text(title);
     $('#preview-body').html(content);
 
-    let now = new Date();
-    let dateStr = now.toLocaleDateString('id-ID', {
+    if (excerpt && $('#preview-excerpt').length === 0) {
+        $('#preview-body').before(`
+            <div id="preview-excerpt" class="lead mb-4" style="font-size: 1.25rem; color: #4b5563; line-height: 1.7;">
+                ${excerpt}
+            </div>
+        `);
+    } else if (excerpt) {
+        $('#preview-excerpt').text(excerpt);
+    } else {
+        $('#preview-excerpt').remove();
+    }
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
-    $('#preview-meta').text('Dipublikasikan pada ' + dateStr);
+    const timeStr = now.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    $('#preview-meta').html(`
+        <i class="far fa-calendar"></i> ${dateStr} &nbsp;
+        <i class="far fa-clock"></i> ${timeStr} &nbsp;
+        <i class="far fa-user"></i> {{ $article->user->name ?? auth()->user()->name }}
+    `);
 }
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        $('#article-status').val('draft');
+        $('#articleForm').submit();
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        togglePreview();
+    }
+});
+
+// Warn before leaving
+let formChanged = false;
+$('#articleForm input, #articleForm textarea, #articleForm select').on('change', function() {
+    formChanged = true;
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formChanged && !$('#articleForm').data('submitting')) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
+});
+
+$('#articleForm').on('submit', function() {
+    $(this).data('submitting', true);
+    formChanged = false;
+});
 </script>
-
-<style>
-/* Article content preview styling */
-.article-content {
-    font-size: 1.125rem;
-    line-height: 1.8;
-    color: #374151;
-}
-
-.article-content p {
-    margin-bottom: 1.5rem;
-    text-align: justify;
-}
-
-.article-content h1,
-.article-content h2,
-.article-content h3,
-.article-content h4,
-.article-content h5,
-.article-content h6 {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-    color: #1f2937;
-    line-height: 1.3;
-}
-
-.article-content h1 { font-size: 2.25rem; }
-.article-content h2 { font-size: 1.875rem; }
-.article-content h3 { font-size: 1.5rem; }
-.article-content h4 { font-size: 1.25rem; }
-
-.article-content ul,
-.article-content ol {
-    margin-bottom: 1.5rem;
-    padding-left: 2rem;
-}
-
-.article-content li {
-    margin-bottom: 0.5rem;
-}
-
-.article-content blockquote {
-    border-left: 4px solid #009966;
-    padding-left: 1.5rem;
-    margin: 1.5rem 0;
-    font-style: italic;
-    color: #4b5563;
-}
-
-.article-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0.75rem;
-    margin: 2rem 0;
-}
-
-.article-content a {
-    color: #009966;
-    text-decoration: underline;
-}
-</style>
 @endsection

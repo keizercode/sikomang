@@ -18,6 +18,7 @@ export default defineConfig({
                 "resources/css/admin/dashboard.css",
                 "resources/js/admin-location-map.js",
                 "resources/css/admin/detail.css",
+                "resources/css/article-frontend.css",
             ],
             refresh: true,
         }),

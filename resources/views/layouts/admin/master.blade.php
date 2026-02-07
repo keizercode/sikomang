@@ -10,7 +10,7 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png">
 
-    @vite(['resources/css/admin/dashboard.css'])
+    @vite(['resources/css/admin/dashboard.css','resources/css/article-frontend.css'])
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,6 +25,12 @@
     <!-- Alertify -->
     <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery (before closing body tag) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Modern Admin CSS -->
     <style>
