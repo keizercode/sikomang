@@ -22,7 +22,7 @@
             <div class="card-body d-flex align-items-center">
                 <div class="flex-shrink-0">
                     <div class="icon-circle bg-primary bg-opacity-10 text-primary">
-                        <i class="mdi mdi-map-marker-multiple-outline fs-3"></i>
+                        <i class="mdi mdi-map-marker-outline fs-3"></i>
                     </div>
                 </div>
                 <div class="ms-3">
@@ -127,8 +127,12 @@
 
                         <!-- Report Footer -->
                         <div class="mt-4 text-end">
-                            <p class="text-muted mb-0">
+                            {{-- <p class="text-muted mb-0">
                                 Laporan digenerate pada: {{ date('d F Y H:i') }}
+                            </p> --}}
+                            {{-- Alternatif lain pakai now() --}}
+                            <p class="text-muted mb-0">
+                            Laporan digenerate pada: {{ now()->format('d F Y H:i') }}
                             </p>
                         </div>
                     </div>
