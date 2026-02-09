@@ -60,6 +60,21 @@
                     </a>
                 </li>
 
+<!-- Menu Laporan Masyarakat -->
+<li class="nav-item">
+    <a class="nav-link {{ Request::is('admin/public-reports*') ? 'active' : '' }}"
+       href="{{ route('admin.public-reports.index') }}">
+        <i class="mdi mdi-alert-circle-outline"></i>
+        <span>Laporan Masyarakat</span>
+        @php
+            $pendingCount = \App\Models\PublicReport::where('status', 'pending')->count();
+        @endphp
+        @if($pendingCount > 0)
+            <span class="badge bg-danger rounded-pill ms-auto">{{ $pendingCount }}</span>
+        @endif
+    </a>
+</li>
+
                 <li>
                     {{-- <a href=
                     "{{ route('admin.settings.index') }}" class="waves-effect">

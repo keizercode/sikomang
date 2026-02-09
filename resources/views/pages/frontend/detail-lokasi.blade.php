@@ -2,17 +2,14 @@
 
 @section('title', $location['name'] . ' - Detail Lokasi - SIKOMANG')
 
-@push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-@vite([
-    'resources/css/detail-lokasi.css',
-    'resources/css/accordion.css',
-    'resources/js/detail-lokasi.js',
-])
-@endpush
-
 @section('content')
+{{-- FLOATING REPORT BUTTON --}}
+<button class="report-float-btn pulse" onclick="openReportModal()" aria-label="Laporkan Kondisi Mangrove">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+</button>
+
 <div class="detail-container">
     {{-- Breadcrumb --}}
     <nav class="breadcrumb">
@@ -212,13 +209,50 @@
 </div>
 
 {{-- Image Modal with Navigation & Thumbnails --}}
-
 <x-gallery-modal />
+
+{{-- REPORT MODAL - INCLUDE COMPONENT --}}
+@include('components.report-modal')
+
+{{-- Pass location data to JavaScript --}}
+<script>
+    // IMPORTANT: Pass location ID untuk modal laporan
+    window.currentLocationData = {
+        id: {{ $location['id'] ?? 0 }}, // Real location ID from database
+        name: "{{ $location['name'] ?? '' }}",
+        slug: "{{ $location['slug'] ?? '' }}"
+    };
+
+    // Initialize location on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.currentLocationData && window.currentLocationData.id > 0) {
+            console.log('Current location:', window.currentLocationData);
+            // Set current location name in modal
+            const currentLocationName = document.getElementById('currentLocationName');
+            if (currentLocationName) {
+                currentLocationName.textContent = window.currentLocationData.name;
+            }
+        }
+    });
+</script>
 
 @endsection
 
-@push('scripts')
+@section('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="{{ asset('css/report-modal.css') }}">
+<style>
+    /* Inline styles untuk detail-lokasi dan accordion */
+    @import url('/css/detail-lokasi.css');
+    @import url('/css/accordion.css');
+</style>
+@endsection
+
+@section('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ asset('js/report-modal.js') }}"></script>
+<script src="{{ asset('js/detail-lokasi.js') }}"></script>
+
 <script>
     // ===========================
     // LEAFLET MAP INITIALIZATION
@@ -251,7 +285,5 @@
     function generateReport() {
         alert('Fitur generate report akan segera tersedia');
     }
-
-
 </script>
-@endpush
+@endsection

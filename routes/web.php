@@ -14,6 +14,7 @@ use App\Http\Controllers\Frontend\ArticleController as FrontendArticleController
 use App\Http\Controllers\Frontend\GalleryController as FrontendGalleryController;
 use App\Http\Controllers\Frontend\MonitoringController;
 use App\Http\Controllers\Frontend\ExcelExportController;
+use App\Http\Controllers\Frontend\PublicReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +45,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/delete/{id}', [SiteController::class, 'destroy'])->name('delete');
         Route::get('/damages', [SiteController::class, 'damages'])->name('damages');
         Route::get('/reports', [SiteController::class, 'reports'])->name('reports');
-        // Di dalam group admin monitoring
 
         // Location Details
         Route::get('/{id}/detail', [LocationDetailController::class, 'show'])->name('detail');
@@ -54,14 +54,21 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{id}/upload-images', [LocationDetailController::class, 'uploadImages'])->name('upload-images');
         Route::delete('/{locationId}/images/{imageId}', [LocationDetailController::class, 'deleteImage'])->name('delete-image');
         Route::post('/{id}/add-damage', [LocationDetailController::class, 'addDamage'])->name('add-damage');
-        Route::put(
-            '/admin/monitoring/{id}/damages/{damageId}',
-            [App\Http\Controllers\Admin\LocationDetailController::class, 'updateDamage']
-        )
-            ->name('admin.monitoring.update-damage');
-        Route::get('/monitoring/{id}/damages/{damageId}/edit', [LocationDetailController::class, 'editDamage'])->name('admin.monitoring.edit-damage');
+        Route::put('/{id}/damages/{damageId}', [LocationDetailController::class, 'updateDamage'])->name('update-damage');
+        Route::get('/{id}/damages/{damageId}/edit', [LocationDetailController::class, 'editDamage'])->name('edit-damage');
         Route::delete('/{id}/damages/{damageId}', [LocationDetailController::class, 'deleteDamage'])->name('delete-damage');
         Route::post('/{id}/damages/{damageId}/add-action', [LocationDetailController::class, 'addAction'])->name('add-action');
+    });
+
+    // Public Reports Management (Admin)
+    Route::prefix('public-reports')->name('public-reports.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\PublicReportController::class, 'index'])->name('index');
+        Route::get('/grid', [App\Http\Controllers\Admin\PublicReportController::class, 'grid'])->name('grid');
+        Route::get('/{id}/detail', [App\Http\Controllers\Admin\PublicReportController::class, 'show'])->name('detail');
+        Route::post('/{id}/verify', [App\Http\Controllers\Admin\PublicReportController::class, 'verify'])->name('verify');
+        Route::post('/{id}/update-status', [App\Http\Controllers\Admin\PublicReportController::class, 'updateStatus'])->name('update-status');
+        Route::post('/{id}/add-note', [App\Http\Controllers\Admin\PublicReportController::class, 'addNote'])->name('add-note');
+        Route::delete('/{id}', [App\Http\Controllers\Admin\PublicReportController::class, 'destroy'])->name('destroy');
     });
 
     // Articles Management
@@ -76,8 +83,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{article}/toggle-featured', [ArticleController::class, 'toggleFeatured'])->name('toggle-featured');
         Route::patch('/{article}/publish', [ArticleController::class, 'publish'])->name('publish');
         Route::patch('/{article}/unpublish', [ArticleController::class, 'unpublish'])->name('unpublish');
-        Route::post('/admin/articles/upload-image', [ArticleController::class, 'uploadImage'])
-            ->name('admin.articles.upload-image');
+        Route::post('/upload-image', [ArticleController::class, 'uploadImage'])->name('upload-image');
     });
 
     // Galleries Management
@@ -133,6 +139,13 @@ Route::prefix('monitoring')->name('monitoring.')->group(function () {
     Route::get('/hasil-pemantauan', [MonitoringController::class, 'hasilPemantauan'])->name('hasil-pemantauan');
     Route::get('/lokasi/{slug}', [MonitoringController::class, 'detailLokasi'])->name('detail-lokasi');
     Route::get('/export/{category}', [ExcelExportController::class, 'exportMangroveData'])->name('export');
+});
+
+// Public Reports Routes (Frontend)
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::post('/submit', [PublicReportController::class, 'submit'])->name('submit');
+    Route::get('/search-locations', [PublicReportController::class, 'searchLocations'])->name('search-locations');
+    Route::post('/check-status', [PublicReportController::class, 'checkStatus'])->name('check-status');
 });
 
 // Fallback route untuk 404

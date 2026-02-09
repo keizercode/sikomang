@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^41.4.2",
-        "@ckeditor/ckeditor5-vue": "^7.3.0"
+        "@ckeditor/ckeditor5-vue": "^7.3.0",
+        "bootstrap": "^5.3.8"
     }
 }

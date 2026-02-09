@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Pages */
+
+@import "./hasil-pemantauan.css";
+@import "./hasil-pemantauan-popup.css";
+@import "./monitoring.css";
+@import "./detail-lokasi.css";
+@import "./accordion.css";
+@import "./report-modal.css";
+@import "./article-frontend.css";
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -24,8 +34,7 @@
     --color-background: #fbfbfb;
 }
 
-/* Custom Utility Classes */
-.bg-primary {
+Custom Utility Classes .bg-primary {
     background-color: #009966 !important;
 }
 

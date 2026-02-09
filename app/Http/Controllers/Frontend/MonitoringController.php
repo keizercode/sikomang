@@ -149,14 +149,16 @@ class MonitoringController extends Controller
         return $data;
     }
 
+
     /**
-     * Format location data untuk frontend - FIXED VERSION
+     * Format location data untuk frontend - dengan ID
      */
     private function formatLocationForFrontend($location)
     {
         $details = $location->details;
 
         return [
+            'id' => $location->id, // ID untuk modal laporan
             'slug' => $location->slug,
             'name' => $location->name,
             'type' => ucfirst($location->type),

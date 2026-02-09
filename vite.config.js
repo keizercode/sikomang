@@ -8,26 +8,12 @@ export default defineConfig({
             input: [
                 "resources/css/app.css",
                 "resources/js/app.js",
-                "resources/css/hasil-pemantauan.css",
-                "resources/css/hasil-pemantauan-popup.css",
-                "resources/js/hasil-pemantauan.js",
-                "resources/css/monitoring.css",
-                "resources/js/detail-lokasi.js",
-                "resources/css/detail-lokasi.css",
-                "resources/css/accordion.css",
-                "resources/css/admin/dashboard.css",
-                "resources/js/admin-location-map.js",
-                "resources/css/admin/detail.css",
-                "resources/css/article-frontend.css",
-                "resources/js/ckeditor.js",
+
+                "resources/css/admin.css",
+                "resources/js/admin.js",
             ],
             refresh: true,
         }),
         tailwindcss(),
     ],
-    server: {
-        watch: {
-            ignored: ["**/storage/framework/views/**"],
-        },
-    },
 });

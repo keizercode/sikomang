@@ -10,7 +10,7 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="https://pencil-matter-70015947.figma.site/_assets/v11/5a52c0026642845f54f76f85096c3a34c237af42.png">
 
-    @vite(['resources/css/admin/dashboard.css', 'resources/js/ckeditor.js'])
+    @vite(['resources/css/admin.css', 'resources/js/admin.js'])
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
