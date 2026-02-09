@@ -473,7 +473,7 @@ const densityColors = {
     'lebat': '#BEBADA'
 };
 
-// Initialize map when Info tab is shown
+// map preview on detail page
 document.addEventListener('DOMContentLoaded', function() {
     let detailMap = null;
 
@@ -517,8 +517,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="font-size: 13px; color: #4b5563;">
                     <div style="margin: 4px 0;">📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
                     <div style="margin: 4px 0;">📏 ${window.locationData.area} ha</div>
-                    <div style="margin: 4px 0;">🌳 ${window.locationData.density}</div>
-                    <div style="margin: 4px 0;">🏷️ ${window.locationData.type}</div>
+                    <div style="margin: 4px 0;">🌳 ${window.locationData.density.toUpperCase()}</div>
+                    <div style="margin: 4px 0;">🏷️ ${window.locationData.type.toUpperCase()}</div>
                 </div>
             </div>
         `).openPopup();

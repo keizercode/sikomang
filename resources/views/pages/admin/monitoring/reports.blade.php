@@ -13,41 +13,83 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        <!-- Summary Statistics -->
-                        <div class="row mb-4">
-                            <div class="col-md-3">
-                                <div class="card bg-primary text-white">
-                                    <div class="card-body">
-                                        <h6 class="text-white">Total Lokasi</h6>
-                                        <h3 class="text-white mb-0">{{ $locations->count() }}</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-success text-white">
-                                    <div class="card-body">
-                                        <h6 class="text-white">Total Luas</h6>
-                                        <h3 class="text-white mb-0">{{ number_format($locations->sum('area'), 2) }} ha</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-warning text-white">
-                                    <div class="card-body">
-                                        <h6 class="text-white">Kesehatan Rata-rata</h6>
-                                        <h3 class="text-white mb-0">{{ number_format($locations->avg('health_percentage'), 1) }}%</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-danger text-white">
-                                    <div class="card-body">
-                                        <h6 class="text-white">Total Kerusakan</h6>
-                                        <h3 class="text-white mb-0">{{ $locations->sum(function($loc) { return $loc->damages->count(); }) }}</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                       <!-- Summary Statistics Modern -->
+<div class="row mb-4 g-3">
+
+    <!-- Total Lokasi -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary">
+                        <i class="mdi mdi-map-marker-multiple-outline fs-3"></i>
+                    </div>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-1">Total Lokasi</p>
+                    <h4 class="mb-0 fw-bold">{{ $locations->count() }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Luas -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="icon-circle bg-success bg-opacity-10 text-success">
+                        <i class="mdi mdi-vector-square fs-3"></i>
+                    </div>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-1">Total Luas</p>
+                    <h4 class="mb-0 fw-bold">{{ number_format($locations->sum('area'), 2) }} ha</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kesehatan -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="icon-circle bg-warning bg-opacity-10 text-warning">
+                        <i class="mdi mdi-heart-pulse fs-3"></i>
+                    </div>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-1">Kesehatan Rata-rata</p>
+                    <h4 class="mb-0 fw-bold">
+                        {{ number_format($locations->avg('health_percentage'), 1) }}%
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kerusakan -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="icon-circle bg-danger bg-opacity-10 text-danger">
+                        <i class="mdi mdi-alert-circle-outline fs-3"></i>
+                    </div>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-1">Total Kerusakan</p>
+                    <h4 class="mb-0 fw-bold">
+                        {{ $locations->sum(function($loc) { return $loc->damages->count(); }) }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 
                         <!-- Detailed Report Table -->
                         <div class="table-responsive">
@@ -117,5 +159,23 @@
             border: 1px solid #dee2e6 !important;
         }
     }
+    .icon-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.08) !important;
+}
+
 </style>
 @endsection
