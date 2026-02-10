@@ -4,3 +4,4 @@ import "./detail-lokasi";
 
 import "./report-modal";
 import "./ckeditor";
+import "./image-modal";

@@ -238,52 +238,43 @@
 
 @endsection
 
-@section('styles')
+@push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="{{ asset('css/report-modal.css') }}">
 <style>
-    /* Inline styles untuk detail-lokasi dan accordion */
-    @import url('/css/detail-lokasi.css');
-    @import url('/css/accordion.css');
-</style>
-@endsection
-
-@section('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="{{ asset('js/report-modal.js') }}"></script>
-<script src="{{ asset('js/detail-lokasi.js') }}"></script>
-
-<script>
-    // ===========================
-    // LEAFLET MAP INITIALIZATION
-    // ===========================
-    document.addEventListener('DOMContentLoaded', function() {
-        const coords = '{{ $location["coords"] }}'.split(",").map(c => parseFloat(c.trim()));
-        const map = L.map("detailMap").setView([coords[0], coords[1]], 15);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19
-        }).addTo(map);
-
-        L.marker([coords[0], coords[1]]).addTo(map)
-            .bindPopup('<strong>{{ $location["name"] }}</strong><br>{{ $location["location"] }}')
-            .openPopup();
-
-        L.circle([coords[0], coords[1]], {
-            color: "#009966",
-            fillColor: "#009966",
-            fillOpacity: 0.2,
-            radius: 500,
-            weight: 2
-        }).addTo(map);
-
-        setTimeout(() => map.invalidateSize(), 100);
-    });
-
-    // Generate Report function
-    function generateReport() {
-        alert('Fitur generate report akan segera tersedia');
+    #detailMap {
+        width: 100%;
+        height: 420px;
+        border-radius: 16px;
     }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const coords = '{{ $location["coords"] }}'
+        .split(',')
+        .map(c => parseFloat(c.trim()));
+
+    if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
+        console.error('Koordinat tidak valid:', coords);
+        return;
+    }
+
+    const map = L.map('detailMap').setView(coords, 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map);
+
+    L.marker(coords)
+        .addTo(map)
+        .bindPopup('<strong>{{ $location["name"] }}</strong>')
+        .openPopup();
+
+    setTimeout(() => map.invalidateSize(), 200);
+});
 </script>
-@endsection
+@endpush
+
