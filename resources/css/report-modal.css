@@ -106,7 +106,7 @@
 }
 
 /* ============================================
-   REPORT MODAL - FIXED SCROLL
+   REPORT MODAL - FIXED SCROLL ✅ IMPROVED
    ============================================ */
 .report-modal {
     position: fixed;
@@ -132,14 +132,14 @@
     animation: fadeIn 0.3s ease;
 }
 
-/* ✅ FIX: Gunakan max-height, bukan height */
+/* ✅ IMPROVED: Better height calculation */
 .report-modal-content {
     position: relative;
     background: white;
     border-radius: 16px;
     width: 100%;
     max-width: 700px;
-    max-height: calc(100vh - 40px); /* ✅ CHANGED from height to max-height */
+    max-height: 90vh; /* ✅ CHANGED: More space */
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -171,22 +171,23 @@
     display: flex;
     justify-content: space-between;
     align-items: start;
-    padding: 24px 28px;
+    padding: 20px 24px; /* ✅ Reduced padding */
     border-bottom: 1px solid #e5e7eb;
-    flex-shrink: 0; /* ✅ Prevent header from shrinking */
+    flex-shrink: 0;
+    background: white;
 }
 
 .report-modal-title {
-    font-size: 1.5rem;
+    font-size: 1.375rem; /* ✅ Slightly smaller */
     font-weight: 700;
     color: #1a1a1a;
     margin: 0;
 }
 
 .report-modal-subtitle {
-    font-size: 0.875rem;
+    font-size: 0.813rem; /* ✅ Smaller subtitle */
     color: #6b7280;
-    margin: 8px 0 0 0;
+    margin: 6px 0 0 0; /* ✅ Reduced margin */
 }
 
 .report-modal-close {
@@ -204,33 +205,35 @@
     color: #1a1a1a;
 }
 
-/* ✅ FIX: Better scroll handling */
+/* ✅ CRITICAL FIX: Optimized scroll behavior */
 .report-modal-body {
-    padding: 20px 28px; /* ✅ Reduced top/bottom padding */
+    padding: 12px 24px 16px; /* ✅ Minimal padding */
     overflow-y: auto;
     overflow-x: hidden;
-    flex: 1;
+    flex: 1 1 auto; /* ✅ Allow shrinking */
     min-height: 0; /* ✅ Critical for flexbox scroll */
+    -webkit-overflow-scrolling: touch; /* ✅ Smooth scroll on mobile */
 }
 
 .report-modal-body::-webkit-scrollbar {
-    width: 8px;
+    width: 6px; /* ✅ Thinner scrollbar */
 }
 
 .report-modal-body::-webkit-scrollbar-track {
     background: #f3f4f6;
+    border-radius: 3px;
 }
 
 .report-modal-body::-webkit-scrollbar-thumb {
     background: #d1d5db;
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .report-modal-body::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
 }
 
-/* Steps Indicator */
+/* Steps Indicator - ✅ Compact */
 .report-form-step {
     display: none;
 }
@@ -242,16 +245,16 @@
 .report-steps {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 24px; /* ✅ Reduced from 32px */
+    margin-bottom: 20px; /* ✅ Reduced */
     position: relative;
 }
 
 .report-steps::before {
     content: "";
     position: absolute;
-    top: 20px;
-    left: 40px;
-    right: 40px;
+    top: 18px; /* ✅ Adjusted for smaller step numbers */
+    left: 36px;
+    right: 36px;
     height: 2px;
     background: #e5e7eb;
     z-index: 0;
@@ -261,15 +264,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px; /* ✅ Reduced gap */
     position: relative;
     z-index: 1;
     flex: 1;
 }
 
 .report-step-number {
-    width: 40px;
-    height: 40px;
+    width: 36px; /* ✅ Smaller */
+    height: 36px;
     border-radius: 50%;
     background: white;
     border: 2px solid #e5e7eb;
@@ -277,6 +280,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
+    font-size: 0.875rem; /* ✅ Smaller font */
     color: #9ca3af;
     transition: all 0.3s;
 }
@@ -295,7 +299,7 @@
 }
 
 .report-step-label {
-    font-size: 0.813rem;
+    font-size: 0.75rem; /* ✅ Smaller */
     color: #9ca3af;
     font-weight: 500;
     text-align: center;
@@ -306,25 +310,25 @@
     font-weight: 600;
 }
 
-/* Form Elements - ✅ Optimized spacing */
+/* Form Elements - ✅ Compact spacing */
 .form-group {
-    margin-bottom: 20px; /* ✅ Reduced from 24px */
+    margin-bottom: 16px; /* ✅ Reduced */
 }
 
 .form-label {
     display: block;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 8px;
-    font-size: 0.938rem;
+    margin-bottom: 6px; /* ✅ Reduced */
+    font-size: 0.875rem; /* ✅ Smaller */
 }
 
 .form-control {
     width: 100%;
-    padding: 12px 16px;
+    padding: 10px 14px; /* ✅ Reduced padding */
     border: 1.5px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.938rem;
+    font-size: 0.875rem; /* ✅ Smaller */
     transition: all 0.2s;
     font-family: inherit;
 }
@@ -342,13 +346,13 @@
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 12px; /* ✅ Reduced */
 }
 
 .form-text {
-    font-size: 0.813rem;
+    font-size: 0.75rem; /* ✅ Smaller */
     color: #6b7280;
-    margin-top: 6px;
+    margin-top: 4px;
     display: block;
 }
 
@@ -374,14 +378,14 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     margin-top: 4px;
-    max-height: 240px;
+    max-height: 200px; /* ✅ Reduced height */
     overflow-y: auto;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 10;
 }
 
 .location-result-item {
-    padding: 12px 16px;
+    padding: 10px 14px; /* ✅ Reduced */
     cursor: pointer;
     border-bottom: 1px solid #f3f4f6;
     transition: background 0.2s;
@@ -399,31 +403,33 @@
     color: #1a1a1a;
     display: block;
     margin-bottom: 4px;
+    font-size: 0.875rem;
 }
 
 .location-result-item small {
     color: #6b7280;
-    font-size: 0.813rem;
+    font-size: 0.75rem;
 }
 
 .selected-location {
-    margin-top: 12px;
+    margin-top: 10px; /* ✅ Reduced */
     background: #f0fdf4;
     border: 1.5px solid #86efac;
     border-radius: 8px;
-    padding: 12px 16px;
+    padding: 10px 14px; /* ✅ Reduced */
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .selected-location-content {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     color: #059669;
     font-weight: 500;
+    font-size: 0.875rem;
 }
 
 .selected-location svg {
@@ -444,11 +450,11 @@
     background: rgba(5, 150, 105, 0.1);
 }
 
-/* Urgency Options */
+/* Urgency Options - ✅ Compact */
 .urgency-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px; /* ✅ Reduced */
 }
 
 .urgency-option {
@@ -461,13 +467,13 @@
 
 .urgency-badge {
     display: block;
-    padding: 12px;
+    padding: 10px; /* ✅ Reduced */
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     text-align: center;
     font-weight: 600;
     transition: all 0.2s;
-    font-size: 0.938rem;
+    font-size: 0.875rem;
 }
 
 .urgency-option input[type="radio"]:checked + .urgency-badge {
@@ -497,11 +503,11 @@
     background: #f3e8ff;
 }
 
-/* Photo Upload */
+/* Photo Upload - ✅ Compact */
 .photo-upload-area {
     border: 2px dashed #d1d5db;
     border-radius: 12px;
-    padding: 32px 20px; /* ✅ Reduced from 40px */
+    padding: 24px 16px; /* ✅ Reduced */
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
@@ -514,24 +520,31 @@
 
 .photo-upload-area svg {
     color: #9ca3af;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    width: 40px; /* ✅ Smaller icon */
+    height: 40px;
 }
 
 .photo-upload-area p {
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     color: #374151;
     font-weight: 500;
+    font-size: 0.875rem;
 }
 
 .photo-upload-area small {
     color: #6b7280;
+    font-size: 0.75rem;
 }
 
 .photo-preview {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 12px;
-    margin-top: 16px;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(90px, 1fr)
+    ); /* ✅ Smaller */
+    gap: 10px;
+    margin-top: 12px;
 }
 
 .photo-preview-item {
@@ -565,14 +578,15 @@
     background: rgba(220, 38, 38, 0.9);
 }
 
-/* Alert */
+/* Alert - ✅ Compact */
 .alert {
-    padding: 12px 16px;
+    padding: 10px 14px; /* ✅ Reduced */
     border-radius: 8px;
-    margin-bottom: 16px; /* ✅ Reduced from 20px */
+    margin-bottom: 14px;
     display: flex;
     align-items: start;
-    gap: 12px;
+    gap: 10px;
+    font-size: 0.813rem;
 }
 
 .alert-info {
@@ -583,24 +597,26 @@
 .alert svg {
     flex-shrink: 0;
     margin-top: 2px;
+    width: 18px;
+    height: 18px;
 }
 
-/* Modal Footer */
+/* Modal Footer - ✅ Compact */
 .report-modal-footer {
-    padding: 16px 28px; /* ✅ Reduced from 20px */
+    padding: 14px 24px; /* ✅ Reduced */
     border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
-    gap: 12px;
-    flex-shrink: 0; /* ✅ Prevent footer from shrinking */
+    gap: 10px;
+    flex-shrink: 0;
     background: white;
 }
 
 .btn {
-    padding: 12px 24px;
+    padding: 10px 20px; /* ✅ Reduced */
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.938rem;
+    font-size: 0.875rem;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -653,13 +669,13 @@
 .report-success-modal {
     max-width: 480px;
     text-align: center;
-    padding: 40px 32px;
+    padding: 36px 28px; /* ✅ Reduced */
 }
 
 .success-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 24px;
+    width: 72px; /* ✅ Smaller */
+    height: 72px;
+    margin: 0 auto 20px;
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border-radius: 50%;
     display: flex;
@@ -670,20 +686,21 @@
 }
 
 .report-success-modal h3 {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
     font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .report-success-modal p {
     color: #6b7280;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    font-size: 0.938rem;
 }
 
 .report-success-modal strong {
     color: #009966;
-    font-size: 1.125rem;
+    font-size: 1.063rem;
 }
 
 /* ============================================
@@ -707,49 +724,53 @@
     }
 
     .report-modal {
-        padding: 0; /* ✅ Remove padding on mobile */
+        padding: 0;
     }
 
     .report-modal-content {
         max-width: 100%;
-        max-height: 100vh; /* ✅ Full height on mobile */
-        height: 100vh; /* ✅ Force full height */
+        max-height: 100vh;
+        height: 100vh;
         border-radius: 0;
     }
 
     .report-modal-header {
-        padding: 16px 20px;
+        padding: 14px 18px;
     }
 
     .report-modal-title {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
     }
 
-    .report-modal-body {
-        padding: 16px 20px;
-    }
-
-    .report-modal-footer {
-        padding: 14px 20px;
-    }
-
-    .report-steps::before {
-        left: 30px;
-        right: 30px;
-    }
-
-    .report-step-number {
-        width: 36px;
-        height: 36px;
-        font-size: 0.875rem;
-    }
-
-    .report-step-label {
+    .report-modal-subtitle {
         font-size: 0.75rem;
     }
 
+    .report-modal-body {
+        padding: 12px 18px 16px;
+    }
+
+    .report-modal-footer {
+        padding: 12px 18px;
+    }
+
+    .report-steps::before {
+        left: 28px;
+        right: 28px;
+    }
+
+    .report-step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.813rem;
+    }
+
+    .report-step-label {
+        font-size: 0.688rem;
+    }
+
     .form-group {
-        margin-bottom: 16px; /* ✅ Even more compact on mobile */
+        margin-bottom: 14px;
     }
 
     .form-row {
@@ -761,11 +782,16 @@
     }
 
     .photo-preview {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
     }
 
     .photo-upload-area {
-        padding: 24px 16px;
+        padding: 20px 14px;
+    }
+
+    .photo-upload-area svg {
+        width: 36px;
+        height: 36px;
     }
 }
 
@@ -775,7 +801,12 @@
     }
 
     .btn {
-        padding: 10px 16px;
-        font-size: 0.875rem;
+        padding: 9px 14px;
+        font-size: 0.813rem;
+    }
+
+    .form-control {
+        padding: 9px 12px;
+        font-size: 0.813rem;
     }
 }

@@ -1,5 +1,5 @@
 // ============================================
-// REPORT MODAL FUNCTIONALITY
+// REPORT MODAL FUNCTIONALITY - ✅ IMPROVED
 // ============================================
 
 let currentStep = 1;
@@ -9,7 +9,7 @@ let searchTimeout = null;
 
 // Initialize
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Report modal initialized");
+    console.log("✅ Report modal initialized");
     initializeReportModal();
 });
 
@@ -57,6 +57,7 @@ function initializeReportModal() {
     if (reportForm) {
         reportForm.addEventListener("submit", function (e) {
             e.preventDefault();
+            console.log("✅ Form submit triggered");
             submitReport();
         });
     }
@@ -75,7 +76,10 @@ function openReportModal() {
 
         // Auto-set current location if available
         if (window.currentLocationData && window.currentLocationData.id > 0) {
-            console.log("Auto-setting location:", window.currentLocationData);
+            console.log(
+                "✅ Auto-setting location:",
+                window.currentLocationData,
+            );
             setLocation(
                 window.currentLocationData.id,
                 window.currentLocationData.name,
@@ -147,6 +151,12 @@ function nextStep() {
 
         currentStep++;
         updateStepDisplay();
+
+        // ✅ Scroll to top of modal body after step change
+        const modalBody = document.querySelector(".report-modal-body");
+        if (modalBody) {
+            modalBody.scrollTo({ top: 0, behavior: "smooth" });
+        }
     }
 }
 
@@ -161,6 +171,12 @@ function previousStep() {
         );
         if (currentStepEl) {
             currentStepEl.classList.remove("completed");
+        }
+
+        // ✅ Scroll to top after going back
+        const modalBody = document.querySelector(".report-modal-body");
+        if (modalBody) {
+            modalBody.scrollTo({ top: 0, behavior: "smooth" });
         }
     }
 }
@@ -279,14 +295,21 @@ function isValidEmail(email) {
 
 async function searchLocations(query) {
     try {
+        console.log("🔍 Searching locations:", query);
         const response = await fetch(
             `/reports/search-locations?q=${encodeURIComponent(query)}`,
         );
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const locations = await response.json();
+        console.log("✅ Found locations:", locations);
 
         displayLocationResults(locations);
     } catch (error) {
-        console.error("Location search error:", error);
+        console.error("❌ Location search error:", error);
         showError("Gagal mencari lokasi");
     }
 }
@@ -338,6 +361,8 @@ function setLocation(id, name) {
     if (locationSearch) locationSearch.style.display = "none";
     if (selectedDisplay) selectedDisplay.style.display = "flex";
     if (selectedName) selectedName.textContent = name;
+
+    console.log("✅ Location set:", { id, name });
 }
 
 function clearLocationSelection() {
@@ -427,16 +452,22 @@ function clearPhotoPreview() {
 }
 
 // ============================================
-// FORM SUBMISSION
+// FORM SUBMISSION - ✅ IMPROVED ERROR HANDLING
 // ============================================
 
 async function submitReport() {
+    console.log("📤 Starting form submission...");
+
     if (!validateCurrentStep()) {
+        console.log("❌ Validation failed");
         return;
     }
 
     const submitBtn = document.getElementById("btnSubmit");
-    if (!submitBtn) return;
+    if (!submitBtn) {
+        console.error("❌ Submit button not found");
+        return;
+    }
 
     // Disable button and show loading
     const originalText = submitBtn.innerHTML;
@@ -452,24 +483,43 @@ async function submitReport() {
         const form = document.getElementById("reportForm");
         const formData = new FormData(form);
 
+        // ✅ Log form data for debugging
+        console.log("📋 Form data:");
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}:`, value);
+        }
+
+        const csrfToken = document.querySelector('input[name="_token"]');
+        if (!csrfToken) {
+            throw new Error("CSRF token not found");
+        }
+
+        console.log("🔐 CSRF Token:", csrfToken.value);
+
         const response = await fetch("/reports/submit", {
             method: "POST",
             body: formData,
             headers: {
-                "X-CSRF-TOKEN": document.querySelector('input[name="_token"]')
-                    .value,
+                "X-CSRF-TOKEN": csrfToken.value,
+                Accept: "application/json",
             },
         });
 
+        console.log("📡 Response status:", response.status);
+
         const result = await response.json();
+        console.log("📥 Response data:", result);
 
         if (result.success) {
+            console.log("✅ Report submitted successfully");
             // Show success modal
             closeReportModal();
             showSuccessModal(result.report_number);
         } else {
+            console.log("❌ Submission failed:", result.message);
             if (result.errors) {
                 // Show validation errors
+                console.error("Validation errors:", result.errors);
                 const firstError = Object.values(result.errors)[0][0];
                 showError(firstError);
             } else {
@@ -477,7 +527,7 @@ async function submitReport() {
             }
         }
     } catch (error) {
-        console.error("Submit error:", error);
+        console.error("❌ Submit error:", error);
         showError(
             "Terjadi kesalahan saat mengirim laporan. Silakan coba lagi.",
         );
@@ -504,6 +554,8 @@ function showSuccessModal(reportNumber) {
 // ============================================
 
 function showError(message) {
+    console.error("🚨 Error:", message);
+
     // You can use SweetAlert2, Alertify, or custom notification
     if (typeof Swal !== "undefined") {
         Swal.fire({
@@ -520,6 +572,8 @@ function showError(message) {
 }
 
 function showSuccess(message) {
+    console.log("✅ Success:", message);
+
     if (typeof Swal !== "undefined") {
         Swal.fire({
             icon: "success",
@@ -552,4 +606,4 @@ window.clearLocationSelection = clearLocationSelection;
 window.previewPhotos = previewPhotos;
 window.removePhoto = removePhoto;
 
-console.log("Report modal script loaded successfully");
+console.log("✅ Report modal script loaded successfully");
