@@ -9,6 +9,7 @@
 @import "./accordion.css";
 @import "./report-modal.css";
 @import "./article-frontend.css";
+@import "./poupcontent-detail-lokasi.css";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -34,7 +35,8 @@
     --color-background: #fbfbfb;
 }
 
-Custom Utility Classes .bg-primary {
+/* Custom Utility Classes  */
+.bg-primary {
     background-color: #009966 !important;
 }
 

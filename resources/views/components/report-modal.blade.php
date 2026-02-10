@@ -1,6 +1,3 @@
-<!-- Report Modal Component -->
-<!-- File: resources/views/components/report-modal.blade.php -->
-
 <div id="reportModal" class="report-modal" style="display: none;">
     <div class="report-modal-overlay" onclick="closeReportModal()"></div>
 

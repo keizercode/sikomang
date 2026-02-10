@@ -11,6 +11,7 @@
 </button>
 
 <div class="detail-container">
+
     {{-- Breadcrumb --}}
     <nav class="breadcrumb">
         @foreach([
@@ -67,13 +68,13 @@
                 <x-info-grid :items="[
                     'Koordinat' => $location['coords'],
                     'Luas Area' => $location['area'],
-                    'Kerapatan' => $location['density'],
+                    'Kerapatan' => ucfirst($location['density']),
                     'Kesehatan Mangrove' => $location['health'],
                     'Serapan Karbon' => $location['carbon_data'],
                     'Pengelola' => $location['manager']
                 ]" />
 
-                @foreach([
+                 @foreach([
                     ['label' => 'Lokasi', 'value' => $location['location']],
                     ['label' => 'Species', 'value' => $location['species']],
                     ['label' => 'Deskripsi', 'value' => $location['description'], 'isParagraph' => true]
@@ -240,25 +241,23 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    #detailMap {
-        width: 100%;
-        height: 420px;
-        border-radius: 16px;
-    }
-</style>
-@endpush
 
+@endpush
+<script>
+    const locationData = @json($location);
+</script>
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const coords = '{{ $location["coords"] }}'
-        .split(',')
-        .map(c => parseFloat(c.trim()));
 
-    if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
-        console.error('Koordinat tidak valid:', coords);
+    const coords = [
+        locationData.latitude,
+        locationData.longitude
+    ];
+
+    if (!coords[0] || !coords[1]) {
+        console.error('Koordinat tidak valid', coords);
         return;
     }
 
@@ -268,9 +267,56 @@ document.addEventListener('DOMContentLoaded', function () {
         maxZoom: 19
     }).addTo(map);
 
+
+
+const popupContent = `
+<div class="popup-card">
+
+    <div class="popup-header">
+        <div class="popup-title" style="color:white">${locationData.name}</div>
+        <div class="popup-coord">📍${locationData.coords}</div>
+    </div>
+
+    <div class="popup-body">
+
+        <div class="popup-row">
+            <span class="popup-label">
+                🌱 Kerapatan
+            </span>
+            <span class="popup-value badge badge-density">
+                ${capitalizeFirst(locationData.density)}
+            </span>
+        </div>
+
+        <div class="popup-row">
+            <span class="popup-label">
+                🏷️ Tipe
+            </span>
+            <span class="popup-value">
+                ${locationData.type}
+            </span>
+        </div>
+
+        <div class="popup-row">
+            <span class="popup-label">
+                🏢 Pengelola
+            </span>
+            <span class="popup-value">
+                ${locationData.manager}
+            </span>
+        </div>
+
+    </div>
+</div>
+`;
+function capitalizeFirst(text) {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
     L.marker(coords)
         .addTo(map)
-        .bindPopup('<strong>{{ $location["name"] }}</strong>')
+        .bindPopup(popupContent)
         .openPopup();
 
     setTimeout(() => map.invalidateSize(), 200);
