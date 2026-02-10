@@ -69,6 +69,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{id}/update-status', [App\Http\Controllers\Admin\PublicReportController::class, 'updateStatus'])->name('update-status');
         Route::post('/{id}/add-note', [App\Http\Controllers\Admin\PublicReportController::class, 'addNote'])->name('add-note');
         Route::delete('/{id}', [App\Http\Controllers\Admin\PublicReportController::class, 'destroy'])->name('destroy');
+
+        // Export routes
+        Route::get('/export/excel', [PublicReportExportController::class, 'exportExcel'])->name('export-excel');
+        Route::get('/export/pdf', [PublicReportExportController::class, 'exportPdf'])->name('export-pdf');
+        Route::get('/export/csv', [PublicReportExportController::class, 'exportCsv'])->name('export-csv');
     });
 
     // Articles Management
