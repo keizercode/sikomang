@@ -7,6 +7,8 @@ use App\Models\PublicReport;
 use App\Models\MangroveLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class PublicReportController extends Controller
 {
@@ -59,6 +61,23 @@ class PublicReportController extends Controller
         $keyId = decode_id($id);
         $report = PublicReport::with(['location', 'verifier'])->findOrFail($keyId);
 
+        // 🔧 FIX: Normalize photo URLs for display
+        if ($report->photo_urls && is_array($report->photo_urls)) {
+            $report->photo_urls = array_map(function ($url) {
+                // If it's a full URL, extract the path
+                if (filter_var($url, FILTER_VALIDATE_URL)) {
+                    return parse_url($url, PHP_URL_PATH);
+                }
+
+                // If it doesn't start with /, add it
+                if (!str_starts_with($url, '/')) {
+                    return '/' . $url;
+                }
+
+                return $url;
+            }, $report->photo_urls);
+        }
+
         $data['title'] = 'Detail Laporan: ' . $report->report_number;
         $data['breadcrumbs'] = [
             ['name' => 'Dashboard', 'url' => route('admin.dashboard')],
@@ -86,13 +105,15 @@ class PublicReportController extends Controller
                 'verified_at' => now(),
             ]);
 
+            Log::info("Report verified: {$report->report_number} by " . Auth::user()->name);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Laporan berhasil diverifikasi',
                 'type' => 'success'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Verify report error: ' . $e->getMessage());
+            Log::error('Verify report error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -124,13 +145,15 @@ class PublicReportController extends Controller
 
             $report->update($updateData);
 
+            Log::info("Report status updated: {$report->report_number} to {$validated['status']}");
+
             return response()->json([
                 'success' => true,
                 'message' => 'Status laporan berhasil diperbarui',
                 'type' => 'success'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Update status error: ' . $e->getMessage());
+            Log::error('Update status error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -157,13 +180,15 @@ class PublicReportController extends Controller
                 'admin_notes' => $validated['admin_notes']
             ]);
 
+            Log::info("Note added to report: {$report->report_number}");
+
             return response()->json([
                 'success' => true,
                 'message' => 'Catatan berhasil ditambahkan',
                 'type' => 'success'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Add note error: ' . $e->getMessage());
+            Log::error('Add note error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -174,37 +199,49 @@ class PublicReportController extends Controller
     }
 
     /**
-     * Delete report
+     * 🔧 IMPROVED: Delete report with proper file cleanup
      */
     public function destroy($id)
     {
         try {
             $keyId = decode_id($id);
-            $report = PublicReport::findOrFail($keyId);
+
+            // Use withTrashed to get even soft-deleted records
+            $report = PublicReport::withTrashed()->findOrFail($keyId);
 
             // Delete associated photos if any
             if ($report->photo_urls && is_array($report->photo_urls)) {
                 foreach ($report->photo_urls as $photoUrl) {
-                    if (str_contains($photoUrl, 'storage/')) {
-                        $path = str_replace(asset('storage/'), '', $photoUrl);
-                        \Storage::disk('public')->delete($path);
+                    // Extract filename from various URL formats
+                    $filename = basename(parse_url($photoUrl, PHP_URL_PATH));
+                    $path = "public_reports/{$filename}";
+
+                    // Delete from storage
+                    if (Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                        Log::info("Deleted photo: {$path}");
                     }
                 }
             }
 
-            $report->delete();
+            // Force delete (permanent deletion, bypass soft delete)
+            $reportNumber = $report->report_number;
+            $report->forceDelete();
+
+            Log::info("Report permanently deleted: {$reportNumber}");
 
             return response()->json([
                 'success' => true,
-                'message' => 'Laporan berhasil dihapus',
+                'message' => 'Laporan dan semua file terkait berhasil dihapus',
                 'type' => 'success'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Delete report error: ' . $e->getMessage());
+            Log::error('Delete report error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus laporan',
+                'message' => 'Gagal menghapus laporan: ' . $e->getMessage(),
                 'type' => 'error'
             ], 500);
         }

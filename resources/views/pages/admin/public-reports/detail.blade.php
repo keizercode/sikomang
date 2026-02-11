@@ -23,9 +23,10 @@
         font-size: 0.875rem;
     }
 
+    /* 🔧 IMPROVED: Simpler photo gallery */
     .photo-gallery {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 1rem;
         margin-top: 1rem;
     }
@@ -33,25 +34,30 @@
     .photo-item {
         position: relative;
         aspect-ratio: 1;
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
         overflow: hidden;
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: all 0.3s ease;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: #f3f4f6;
     }
 
     .photo-item:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     }
 
     .photo-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.3s ease;
     }
 
-    /* ✅ NEW: Photo overlay effect */
+    .photo-item:hover img {
+        transform: scale(1.1);
+    }
+
     .photo-overlay {
         position: absolute;
         top: 0;
@@ -63,11 +69,44 @@
         align-items: center;
         justify-content: center;
         opacity: 0;
-        transition: opacity 0.2s;
+        transition: opacity 0.3s;
     }
 
     .photo-item:hover .photo-overlay {
         opacity: 1;
+    }
+
+    .photo-overlay svg {
+        width: 32px;
+        height: 32px;
+        color: white;
+    }
+
+    .photo-number {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .no-photos {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: #f9fafb;
+        border-radius: 0.75rem;
+        border: 2px dashed #d1d5db;
+    }
+
+    .no-photos svg {
+        width: 64px;
+        height: 64px;
+        color: #9ca3af;
+        margin-bottom: 1rem;
     }
 
     .timeline {
@@ -137,12 +176,16 @@
         color: #1f2937;
     }
 
-    .modal-backdrop {
-        z-index: 1040 !important;
+    /* Modal improvements */
+    #photoModal .modal-dialog {
+        max-width: 900px;
     }
 
-    .modal {
-        z-index: 1050 !important;
+    #photoModal img {
+        max-height: 80vh;
+        width: auto;
+        margin: 0 auto;
+        display: block;
     }
 </style>
 @endsection
@@ -222,146 +265,53 @@
                     </div>
                 </div>
 
-              {{-- IMPROVED: Photo Gallery Section with Better Debugging --}}
-@php
-    // Debug: Check photo URLs structure
-    $photoUrls = $report->photo_urls;
-    $hasValidPhotos = !empty($photoUrls) && is_array($photoUrls) && count($photoUrls) > 0;
-
-    // Log for debugging (check browser console)
-    if ($hasValidPhotos) {
-        logger()->info('Photo URLs:', $photoUrls);
-    }
-@endphp
-
-@if($hasValidPhotos)
-<div class="card mb-4">
-    <div class="card-header">
-        <h4 class="card-title mb-0">
-            <i class="mdi mdi-image-multiple text-primary"></i>
-            Foto Pendukung
-            <span class="badge bg-primary ms-2">{{ count($photoUrls) }} Foto</span>
-        </h4>
-    </div>
-    <div class="card-body">
-        {{-- Debug Info (Remove in production) --}}
-        <div class="alert alert-info mb-3">
-            <strong>🔍 Debug Info:</strong><br>
-            <small>
-                Storage Path: <code>{{ storage_path('app/public/public_reports') }}</code><br>
-                Public Path: <code>{{ public_path('storage/public_reports') }}</code><br>
-                Sample Photo Value: <code>{{ $photoUrls[0] ?? 'N/A' }}</code>
-            </small>
-        </div>
-
-        <div class="photo-gallery">
-            @foreach($photoUrls as $index => $photo)
-            @php
-                // ✅ SMART PATH DETECTION
-                // Check if photo already contains full path or just filename
-                if (filter_var($photo, FILTER_VALIDATE_URL)) {
-                    // Full URL
-                    $photoPath = $photo;
-                } elseif (str_starts_with($photo, 'storage/')) {
-                    // Already has storage/ prefix
-                    $photoPath = asset($photo);
-                } elseif (str_starts_with($photo, 'public_reports/')) {
-                    // Has public_reports/ prefix
-                    $photoPath = asset('storage/' . $photo);
-                } else {
-                    // Just filename
-                    $photoPath = asset('storage/public_reports/' . $photo);
-                }
-            @endphp
-
-            <div class="photo-item" data-bs-toggle="modal" data-bs-target="#photoModal"
-                 onclick="showPhoto('{{ addslashes($photoPath) }}', {{ $index + 1 }}, '{{ addslashes($photo) }}')">
-                <img src="{{ $photoPath }}"
-                     alt="Foto {{ $index + 1 }}"
-                     loading="lazy"
-                     onerror="handleImageError(this, '{{ addslashes($photo) }}')">
-                <div class="photo-overlay">
-                    <svg width="32" height="32" fill="white" viewBox="0 0 20 20">
-                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                    </svg>
+                {{-- 🔧 IMPROVED: Simplified Photo Gallery --}}
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-image-multiple text-primary"></i>
+                            Foto Pendukung
+                        </h4>
+                        @if(!empty($report->photo_urls) && is_array($report->photo_urls) && count($report->photo_urls) > 0)
+                        <span class="badge bg-primary">{{ count($report->photo_urls) }} Foto</span>
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        @if(!empty($report->photo_urls) && is_array($report->photo_urls) && count($report->photo_urls) > 0)
+                            <div class="photo-gallery">
+                                @foreach($report->photo_urls as $index => $photoUrl)
+                                    @php
+                                        // Clean and validate photo URL
+                                        $photoPath = str_starts_with($photoUrl, '/') ? $photoUrl : '/' . $photoUrl;
+                                        $fullUrl = asset($photoPath);
+                                    @endphp
+                                    <div class="photo-item"
+                                         data-bs-toggle="modal"
+                                         data-bs-target="#photoModal"
+                                         onclick="showPhoto('{{ $fullUrl }}', {{ $index + 1 }})">
+                                        <img src="{{ $fullUrl }}"
+                                             alt="Foto {{ $index + 1 }}"
+                                             loading="lazy"
+                                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23f3f4f6%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2245%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2248%22 fill=%22%23ef4444%22%3E✕%3C/text%3E%3Ctext x=%2250%25%22 y=%2260%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2212%22 fill=%22%239ca3af%22%3EFoto Error%3C/text%3E%3C/svg%3E';">
+                                        <div class="photo-number">{{ $index + 1 }}</div>
+                                        <div class="photo-overlay">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="no-photos">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-muted mb-0">Tidak ada foto pendukung yang dilampirkan</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</div>
-@else
-<div class="card mb-4">
-    <div class="card-header">
-        <h4 class="card-title mb-0">
-            <i class="mdi mdi-image-off text-muted"></i>
-            Foto Pendukung
-        </h4>
-    </div>
-    <div class="card-body">
-        <div class="text-center py-4">
-            <i class="mdi mdi-image-off text-muted" style="font-size: 48px;"></i>
-            <p class="text-muted mb-0 mt-2">Tidak ada foto pendukung yang dilampirkan</p>
-        </div>
-    </div>
-</div>
-@endif
-
-{{-- IMPROVED JavaScript Functions --}}
-@section('js')
-@parent
-<script>
-// ✅ IMPROVED: Better photo handling with debugging
-function showPhoto(url, index, originalValue) {
-    console.log('📸 Opening photo #' + index);
-    console.log('   URL:', url);
-    console.log('   Original Value:', originalValue);
-
-    document.getElementById('modalPhoto').src = url;
-    document.getElementById('photoModalLabel').textContent = `Foto Laporan #${index}`;
-}
-
-// ✅ NEW: Handle image errors with multiple fallback attempts
-function handleImageError(img, originalPath) {
-    console.error('❌ Image failed to load:', img.src);
-    console.log('   Original path:', originalPath);
-
-    // Try different path variations
-    const basePath = '{{ asset("storage") }}';
-    const fallbacks = [
-        `${basePath}/${originalPath}`,
-        `${basePath}/public_reports/${originalPath}`,
-        `{{ asset("") }}${originalPath}`,
-    ];
-
-    // Get current attempt
-    const currentAttempt = img.dataset.attempt || 0;
-
-    if (currentAttempt < fallbacks.length) {
-        img.dataset.attempt = parseInt(currentAttempt) + 1;
-        const nextPath = fallbacks[currentAttempt];
-        console.log(`   Trying fallback #${currentAttempt + 1}:`, nextPath);
-        img.src = nextPath;
-    } else {
-        // All attempts failed - show placeholder
-        console.error('   ⚠️ All fallback attempts failed');
-        img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f3f4f6' width='200' height='200'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='48' fill='%23ef4444'%3E✕%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%239ca3af'%3EFoto Error%3C/text%3E%3Ctext x='50%25' y='70%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%239ca3af'%3E" + originalPath + "%3C/text%3E%3C/svg%3E";
-
-        // Show error notification
-        img.closest('.photo-item').style.opacity = '0.5';
-        img.closest('.photo-item').style.cursor = 'not-allowed';
-    }
-}
-
-// Debug: Log all photo data on page load
-console.group('📸 Photo Debug Info');
-console.log('Photo URLs from backend:', @json($report->photo_urls));
-console.log('Storage path exists:', '{{ file_exists(storage_path("app/public/public_reports")) ? "YES" : "NO" }}');
-console.log('Symlink exists:', '{{ file_exists(public_path("storage")) ? "YES" : "NO" }}');
-console.groupEnd();
-</script>
-@endsection
 
                 {{-- Catatan Admin --}}
                 <div class="card mb-4">
@@ -507,7 +457,7 @@ console.groupEnd();
     </div>
 </div>
 
-{{-- Modal for Photo --}}
+{{-- Photo Modal --}}
 <div class="modal fade" id="photoModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -515,14 +465,14 @@ console.groupEnd();
                 <h5 class="modal-title" id="photoModalLabel">Foto Laporan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center">
-                <img src="" id="modalPhoto" class="img-fluid" style="max-height: 70vh;">
+            <div class="modal-body text-center bg-dark">
+                <img src="" id="modalPhoto" class="img-fluid">
             </div>
         </div>
     </div>
 </div>
 
-{{-- Modal for Note --}}
+{{-- Note Modal --}}
 <div class="modal fade" id="noteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -547,12 +497,7 @@ console.groupEnd();
 <script>
 const reportId = '{{ $keyId }}';
 
-// ✅ DEBUG: Log photo data on page load
-console.log('📸 Photo URLs:', @json($report->photo_urls));
-console.log('📸 Has Photos:', @json($hasValidPhotos));
-
 function showPhoto(url, index) {
-    console.log('Opening photo:', url);
     document.getElementById('modalPhoto').src = url;
     document.getElementById('photoModalLabel').textContent = `Foto Laporan #${index}`;
 }
@@ -691,12 +636,12 @@ function saveNote() {
 function deleteReport() {
     Swal.fire({
         title: 'Hapus Laporan?',
-        text: "Data laporan akan dihapus permanen!",
+        html: '<p class="mb-2">Data laporan dan <strong>semua foto</strong> akan dihapus permanen!</p><p class="text-danger small">⚠️ Tindakan ini tidak dapat dibatalkan</p>',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Hapus!',
+        confirmButtonText: 'Ya, Hapus Permanen!',
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -716,11 +661,11 @@ function deleteReport() {
                         });
                     }
                 },
-                error: function() {
+                error: function(xhr) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat menghapus laporan',
+                        text: xhr.responseJSON?.message || 'Terjadi kesalahan saat menghapus laporan',
                         confirmButtonColor: '#dc3545'
                     });
                 }

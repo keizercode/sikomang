@@ -8,11 +8,12 @@ use App\Models\MangroveLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class PublicReportController extends Controller
 {
     /**
-     * Submit new public report
+     * 🔧 IMPROVED: Submit new public report with better photo handling
      */
     public function submit(Request $request)
     {
@@ -40,15 +41,31 @@ class PublicReportController extends Controller
                 ], 422);
             }
 
-            // Handle photo uploads
+            // 🔧 IMPROVED: Handle photo uploads with consistent path
             $photoUrls = [];
 
             if ($request->hasFile('photos')) {
-                foreach ($request->file('photos') as $photo) {
-                    $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                    $path = $photo->storeAs('public_reports', $filename, 'public');
-                    $photoUrls[] = Storage::url($path);
+                Log::info('Processing ' . count($request->file('photos')) . ' photo uploads');
+
+                foreach ($request->file('photos') as $index => $photo) {
+                    try {
+                        // Generate unique filename
+                        $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+
+                        // Store in public disk
+                        $path = $photo->storeAs('public_reports', $filename, 'public');
+
+                        // Store as relative path (consistent format)
+                        $photoUrls[] = '/storage/' . $path;
+
+                        Log::info("Uploaded photo #{$index}: {$filename}");
+                    } catch (\Exception $e) {
+                        Log::error("Error uploading photo #{$index}: " . $e->getMessage());
+                        // Continue with other photos
+                    }
                 }
+
+                Log::info('Successfully uploaded ' . count($photoUrls) . ' photos');
             }
 
             // Create report
@@ -68,6 +85,8 @@ class PublicReportController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
+            Log::info("Report created: {$report->report_number} with " . count($photoUrls) . " photos");
+
             return response()->json([
                 'success' => true,
                 'message' => 'Laporan berhasil dikirim',
@@ -75,12 +94,13 @@ class PublicReportController extends Controller
                 'data' => [
                     'id' => $report->id,
                     'report_number' => $report->report_number,
-                    'status' => $report->status_label
+                    'status' => $report->status_label,
+                    'photos_uploaded' => count($photoUrls)
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Submit report error: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
+            Log::error('Submit report error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return response()->json([
                 'success' => false,
@@ -117,7 +137,7 @@ class PublicReportController extends Controller
 
             return response()->json($locations);
         } catch (\Exception $e) {
-            \Log::error('Search locations error: ' . $e->getMessage());
+            Log::error('Search locations error: ' . $e->getMessage());
             return response()->json([], 500);
         }
     }
@@ -166,7 +186,7 @@ class PublicReportController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Check status error: ' . $e->getMessage());
+            Log::error('Check status error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan sistem'
