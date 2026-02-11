@@ -36,10 +36,6 @@
         font-size: 0.813rem;
         font-weight: 600;
     }
-
-    .export-dropdown {
-        position: relative;
-    }
 </style>
 @endsection
 
@@ -64,13 +60,13 @@
                                 <i class="mdi mdi-export"></i> Export
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="exportData('excel')">
+                                <li><a class="dropdown-item" href="#" onclick="exportData('excel'); return false;">
                                     <i class="mdi mdi-file-excel text-success"></i> Export Excel
                                 </a></li>
-                                <li><a class="dropdown-item" href="#" onclick="exportData('pdf')">
+                                <li><a class="dropdown-item" href="#" onclick="exportData('pdf'); return false;">
                                     <i class="mdi mdi-file-pdf text-danger"></i> Export PDF
                                 </a></li>
-                                <li><a class="dropdown-item" href="#" onclick="exportData('csv')">
+                                <li><a class="dropdown-item" href="#" onclick="exportData('csv'); return false;">
                                     <i class="mdi mdi-file-delimited text-primary"></i> Export CSV
                                 </a></li>
                             </ul>
@@ -367,24 +363,63 @@ function refreshData() {
     loadGridData();
 }
 
+// ✅ IMPROVED: Working export with filters
 function exportData(format) {
+    const statusFilter = $('#filterStatus').val();
+    const typeFilter = $('#filterType').val();
+    const urgencyFilter = $('#filterUrgency').val();
+
+    let url = `/admin/public-reports/export/${format}?`;
+    const params = [];
+
+    if (statusFilter) params.push(`status=${statusFilter}`);
+    if (typeFilter) params.push(`report_type=${typeFilter}`);
+    if (urgencyFilter) params.push(`urgency_level=${urgencyFilter}`);
+
+    url += params.join('&');
+
     Swal.fire({
-        title: 'Export Data',
-        text: `Export ${filteredReports.length} laporan ke format ${format.toUpperCase()}?`,
+        title: `Export ${format.toUpperCase()}`,
+        html: `
+            <p>Export <strong>${filteredReports.length}</strong> laporan ke format <strong>${format.toUpperCase()}</strong>?</p>
+            ${params.length > 0 ? '<small class="text-muted">Filter aktif akan diterapkan</small>' : ''}
+        `,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#009966',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Ya, Export',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // TODO: Implement export functionality
-            Swal.fire({
-                icon: 'info',
-                title: 'Segera Hadir',
-                text: 'Fitur export sedang dalam pengembangan',
-                confirmButtonColor: '#009966'
+        cancelButtonText: 'Batal',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                // Show loading
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Sedang membuat file export',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Trigger download
+                window.location.href = url;
+
+                // Show success after delay
+                setTimeout(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Export Berhasil!',
+                        text: 'File sedang diunduh',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    });
+                    resolve();
+                }, 1000);
             });
         }
     });

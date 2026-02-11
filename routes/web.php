@@ -8,13 +8,15 @@ use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\PublicReportController;
+use App\Http\Controllers\Admin\PublicReportExportController;
 use App\Http\Controllers\Auth\CustomLoginController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ArticleController as FrontendArticleController;
 use App\Http\Controllers\Frontend\GalleryController as FrontendGalleryController;
 use App\Http\Controllers\Frontend\MonitoringController;
 use App\Http\Controllers\Frontend\ExcelExportController;
-use App\Http\Controllers\Frontend\PublicReportController;
+use App\Http\Controllers\Frontend\PublicReportController as FrontendPublicReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,13 +64,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Public Reports Management (Admin)
     Route::prefix('public-reports')->name('public-reports.')->group(function () {
-        Route::get('/', [App\Http\Controllers\Admin\PublicReportController::class, 'index'])->name('index');
-        Route::get('/grid', [App\Http\Controllers\Admin\PublicReportController::class, 'grid'])->name('grid');
-        Route::get('/{id}/detail', [App\Http\Controllers\Admin\PublicReportController::class, 'show'])->name('detail');
-        Route::post('/{id}/verify', [App\Http\Controllers\Admin\PublicReportController::class, 'verify'])->name('verify');
-        Route::post('/{id}/update-status', [App\Http\Controllers\Admin\PublicReportController::class, 'updateStatus'])->name('update-status');
-        Route::post('/{id}/add-note', [App\Http\Controllers\Admin\PublicReportController::class, 'addNote'])->name('add-note');
-        Route::delete('/{id}', [App\Http\Controllers\Admin\PublicReportController::class, 'destroy'])->name('destroy');
+        Route::get('/', [PublicReportController::class, 'index'])->name('index');
+        Route::get('/grid', [PublicReportController::class, 'grid'])->name('grid');
+        Route::get('/{id}/detail', [PublicReportController::class, 'show'])->name('detail');
+        Route::post('/{id}/verify', [PublicReportController::class, 'verify'])->name('verify');
+        Route::post('/{id}/update-status', [PublicReportController::class, 'updateStatus'])->name('update-status');
+        Route::post('/{id}/add-note', [PublicReportController::class, 'addNote'])->name('add-note');
+        Route::delete('/{id}', [PublicReportController::class, 'destroy'])->name('destroy');
 
         // Export routes
         Route::get('/export/excel', [PublicReportExportController::class, 'exportExcel'])->name('export-excel');
@@ -148,9 +150,9 @@ Route::prefix('monitoring')->name('monitoring.')->group(function () {
 
 // Public Reports Routes (Frontend)
 Route::prefix('reports')->name('reports.')->group(function () {
-    Route::post('/submit', [PublicReportController::class, 'submit'])->name('submit');
-    Route::get('/search-locations', [PublicReportController::class, 'searchLocations'])->name('search-locations');
-    Route::post('/check-status', [PublicReportController::class, 'checkStatus'])->name('check-status');
+    Route::post('/submit', [FrontendPublicReportController::class, 'submit'])->name('submit');
+    Route::get('/search-locations', [FrontendPublicReportController::class, 'searchLocations'])->name('search-locations');
+    Route::post('/check-status', [FrontendPublicReportController::class, 'checkStatus'])->name('check-status');
 });
 
 // Fallback route untuk 404

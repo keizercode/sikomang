@@ -1,5 +1,5 @@
 // ============================================
-// REPORT MODAL FUNCTIONALITY - ✅ IMPROVED
+// REPORT MODAL FUNCTIONALITY - ✅ PROFESSIONAL
 // ============================================
 
 let currentStep = 1;
@@ -128,10 +128,22 @@ function resetForm() {
     if (locationSearch) {
         locationSearch.style.display = "block";
     }
+
+    // Reset character counter
+    const charCount = document.getElementById("charCount");
+    if (charCount) {
+        charCount.textContent = "0";
+    }
+
+    // ✅ Scroll modal body to top
+    const modalBody = document.querySelector(".report-modal-body");
+    if (modalBody) {
+        modalBody.scrollTop = 0;
+    }
 }
 
 // ============================================
-// STEP NAVIGATION
+// STEP NAVIGATION - ✅ IMPROVED
 // ============================================
 
 function nextStep() {
@@ -152,10 +164,15 @@ function nextStep() {
         currentStep++;
         updateStepDisplay();
 
-        // ✅ Scroll to top of modal body after step change
+        // ✅ IMPROVED: Scroll to top BEFORE displaying new step for smooth UX
         const modalBody = document.querySelector(".report-modal-body");
         if (modalBody) {
-            modalBody.scrollTo({ top: 0, behavior: "smooth" });
+            requestAnimationFrame(() => {
+                modalBody.scrollTo({
+                    top: 0,
+                    behavior: "instant", // Instant for better UX between steps
+                });
+            });
         }
     }
 }
@@ -173,10 +190,15 @@ function previousStep() {
             currentStepEl.classList.remove("completed");
         }
 
-        // ✅ Scroll to top after going back
+        // ✅ Scroll to top
         const modalBody = document.querySelector(".report-modal-body");
         if (modalBody) {
-            modalBody.scrollTo({ top: 0, behavior: "smooth" });
+            requestAnimationFrame(() => {
+                modalBody.scrollTo({
+                    top: 0,
+                    behavior: "instant",
+                });
+            });
         }
     }
 }
@@ -452,7 +474,7 @@ function clearPhotoPreview() {
 }
 
 // ============================================
-// FORM SUBMISSION - ✅ IMPROVED ERROR HANDLING
+// FORM SUBMISSION - ✅ PROFESSIONAL ERROR HANDLING
 // ============================================
 
 async function submitReport() {
@@ -474,7 +496,8 @@ async function submitReport() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = `
         <svg class="animate-spin" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle>
+            <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <span>Mengirim...</span>
     `;
@@ -484,17 +507,26 @@ async function submitReport() {
         const formData = new FormData(form);
 
         // ✅ Log form data for debugging
-        console.log("📋 Form data:");
+        console.log("📋 Form data being sent:");
         for (let [key, value] of formData.entries()) {
-            console.log(`  ${key}:`, value);
+            if (value instanceof File) {
+                console.log(
+                    `  ${key}: [File] ${value.name} (${value.size} bytes)`,
+                );
+            } else {
+                console.log(`  ${key}:`, value);
+            }
         }
 
         const csrfToken = document.querySelector('input[name="_token"]');
-        if (!csrfToken) {
-            throw new Error("CSRF token not found");
+        if (!csrfToken || !csrfToken.value) {
+            throw new Error("CSRF token not found. Please refresh the page.");
         }
 
-        console.log("🔐 CSRF Token:", csrfToken.value);
+        console.log(
+            "🔐 CSRF Token present:",
+            csrfToken.value.substring(0, 10) + "...",
+        );
 
         const response = await fetch("/reports/submit", {
             method: "POST",
@@ -502,39 +534,68 @@ async function submitReport() {
             headers: {
                 "X-CSRF-TOKEN": csrfToken.value,
                 Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
             },
         });
 
         console.log("📡 Response status:", response.status);
 
-        const result = await response.json();
+        let result;
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+            result = await response.json();
+        } else {
+            const text = await response.text();
+            console.error("❌ Non-JSON response:", text.substring(0, 200));
+            throw new Error("Server returned non-JSON response");
+        }
+
         console.log("📥 Response data:", result);
 
-        if (result.success) {
+        if (response.ok && result.success) {
             console.log("✅ Report submitted successfully");
-            // Show success modal
             closeReportModal();
             showSuccessModal(result.report_number);
         } else {
             console.log("❌ Submission failed:", result.message);
-            if (result.errors) {
-                // Show validation errors
-                console.error("Validation errors:", result.errors);
-                const firstError = Object.values(result.errors)[0][0];
-                showError(firstError);
+
+            if (result.errors && typeof result.errors === "object") {
+                // Show first validation error
+                const firstError = Object.values(result.errors)[0];
+                const errorMessage = Array.isArray(firstError)
+                    ? firstError[0]
+                    : firstError;
+                showError(errorMessage);
             } else {
-                showError(result.message || "Gagal mengirim laporan");
+                showError(
+                    result.message ||
+                        "Gagal mengirim laporan. Silakan coba lagi.",
+                );
             }
         }
     } catch (error) {
         console.error("❌ Submit error:", error);
-        showError(
-            "Terjadi kesalahan saat mengirim laporan. Silakan coba lagi.",
-        );
+
+        let errorMessage = "Terjadi kesalahan saat mengirim laporan.";
+
+        if (error.message.includes("Failed to fetch")) {
+            errorMessage =
+                "Gagal terhubung ke server. Periksa koneksi internet Anda.";
+        } else if (error.message.includes("CSRF")) {
+            errorMessage =
+                "Sesi telah berakhir. Silakan refresh halaman dan coba lagi.";
+        } else if (error.message) {
+            errorMessage += " " + error.message;
+        }
+
+        showError(errorMessage);
     } finally {
         // Re-enable button
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
     }
 }
 
@@ -556,18 +617,19 @@ function showSuccessModal(reportNumber) {
 function showError(message) {
     console.error("🚨 Error:", message);
 
-    // You can use SweetAlert2, Alertify, or custom notification
+    // Use SweetAlert2 if available, fallback to alertify or alert
     if (typeof Swal !== "undefined") {
         Swal.fire({
             icon: "error",
             title: "Oops...",
             text: message,
             confirmButtonColor: "#009966",
+            confirmButtonText: "OK",
         });
     } else if (typeof alertify !== "undefined") {
         alertify.error(message);
     } else {
-        alert(message);
+        alert("Error: " + message);
     }
 }
 
@@ -580,6 +642,8 @@ function showSuccess(message) {
             title: "Berhasil!",
             text: message,
             confirmButtonColor: "#009966",
+            timer: 3000,
+            timerProgressBar: true,
         });
     } else if (typeof alertify !== "undefined") {
         alertify.success(message);
@@ -589,10 +653,24 @@ function showSuccess(message) {
 }
 
 function escapeHtml(text) {
+    if (!text) return "";
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
 }
+
+// ✅ Add CSS for spinner animation
+const style = document.createElement("style");
+style.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+`;
+document.head.appendChild(style);
 
 // Make functions globally available
 window.openReportModal = openReportModal;

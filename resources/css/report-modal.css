@@ -106,7 +106,7 @@
 }
 
 /* ============================================
-   REPORT MODAL - FIXED SCROLL ✅ IMPROVED
+   REPORT MODAL - ✅ OPTIMIZED SCROLL
    ============================================ */
 .report-modal {
     position: fixed;
@@ -132,14 +132,14 @@
     animation: fadeIn 0.3s ease;
 }
 
-/* ✅ IMPROVED: Better height calculation */
+/* ✅ CRITICAL FIX: Better height for all screen sizes */
 .report-modal-content {
     position: relative;
     background: white;
     border-radius: 16px;
     width: 100%;
     max-width: 700px;
-    max-height: 90vh; /* ✅ CHANGED: More space */
+    max-height: 95vh; /* ✅ Increased from 90vh */
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -171,23 +171,23 @@
     display: flex;
     justify-content: space-between;
     align-items: start;
-    padding: 20px 24px; /* ✅ Reduced padding */
+    padding: 18px 24px; /* ✅ Further reduced */
     border-bottom: 1px solid #e5e7eb;
     flex-shrink: 0;
     background: white;
 }
 
 .report-modal-title {
-    font-size: 1.375rem; /* ✅ Slightly smaller */
+    font-size: 1.25rem; /* ✅ Reduced from 1.375rem */
     font-weight: 700;
     color: #1a1a1a;
     margin: 0;
 }
 
 .report-modal-subtitle {
-    font-size: 0.813rem; /* ✅ Smaller subtitle */
+    font-size: 0.75rem; /* ✅ Reduced from 0.813rem */
     color: #6b7280;
-    margin: 6px 0 0 0; /* ✅ Reduced margin */
+    margin: 4px 0 0 0; /* ✅ Reduced margin */
 }
 
 .report-modal-close {
@@ -205,18 +205,19 @@
     color: #1a1a1a;
 }
 
-/* ✅ CRITICAL FIX: Optimized scroll behavior */
+/* ✅ CRITICAL FIX: Optimized scroll with better space usage */
 .report-modal-body {
-    padding: 12px 24px 16px; /* ✅ Minimal padding */
+    padding: 16px 24px; /* ✅ Reduced padding */
     overflow-y: auto;
     overflow-x: hidden;
-    flex: 1 1 auto; /* ✅ Allow shrinking */
+    flex: 1 1 auto;
     min-height: 0; /* ✅ Critical for flexbox scroll */
-    -webkit-overflow-scrolling: touch; /* ✅ Smooth scroll on mobile */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable; /* ✅ Prevent layout shift */
 }
 
 .report-modal-body::-webkit-scrollbar {
-    width: 6px; /* ✅ Thinner scrollbar */
+    width: 6px;
 }
 
 .report-modal-body::-webkit-scrollbar-track {
@@ -245,14 +246,14 @@
 .report-steps {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px; /* ✅ Reduced */
+    margin-bottom: 16px; /* ✅ Reduced from 20px */
     position: relative;
 }
 
 .report-steps::before {
     content: "";
     position: absolute;
-    top: 18px; /* ✅ Adjusted for smaller step numbers */
+    top: 16px; /* ✅ Adjusted */
     left: 36px;
     right: 36px;
     height: 2px;
@@ -264,15 +265,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px; /* ✅ Reduced gap */
+    gap: 4px; /* ✅ Reduced gap */
     position: relative;
     z-index: 1;
     flex: 1;
 }
 
 .report-step-number {
-    width: 36px; /* ✅ Smaller */
-    height: 36px;
+    width: 32px; /* ✅ Smaller */
+    height: 32px;
     border-radius: 50%;
     background: white;
     border: 2px solid #e5e7eb;
@@ -280,7 +281,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 0.875rem; /* ✅ Smaller font */
+    font-size: 0.813rem; /* ✅ Smaller */
     color: #9ca3af;
     transition: all 0.3s;
 }
@@ -299,7 +300,7 @@
 }
 
 .report-step-label {
-    font-size: 0.75rem; /* ✅ Smaller */
+    font-size: 0.688rem; /* ✅ Smaller */
     color: #9ca3af;
     font-weight: 500;
     text-align: center;
@@ -312,23 +313,23 @@
 
 /* Form Elements - ✅ Compact spacing */
 .form-group {
-    margin-bottom: 16px; /* ✅ Reduced */
+    margin-bottom: 12px; /* ✅ Reduced from 16px */
 }
 
 .form-label {
     display: block;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 6px; /* ✅ Reduced */
-    font-size: 0.875rem; /* ✅ Smaller */
+    margin-bottom: 4px; /* ✅ Reduced from 6px */
+    font-size: 0.813rem; /* ✅ Smaller */
 }
 
 .form-control {
     width: 100%;
-    padding: 10px 14px; /* ✅ Reduced padding */
+    padding: 8px 12px; /* ✅ Reduced padding */
     border: 1.5px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.875rem; /* ✅ Smaller */
+    font-size: 0.813rem; /* ✅ Smaller */
     transition: all 0.2s;
     font-family: inherit;
 }
@@ -346,13 +347,13 @@
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px; /* ✅ Reduced */
+    gap: 10px; /* ✅ Reduced from 12px */
 }
 
 .form-text {
-    font-size: 0.75rem; /* ✅ Smaller */
+    font-size: 0.688rem; /* ✅ Smaller */
     color: #6b7280;
-    margin-top: 4px;
+    margin-top: 3px;
     display: block;
 }
 
@@ -378,14 +379,14 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     margin-top: 4px;
-    max-height: 200px; /* ✅ Reduced height */
+    max-height: 180px; /* ✅ Reduced */
     overflow-y: auto;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 10;
 }
 
 .location-result-item {
-    padding: 10px 14px; /* ✅ Reduced */
+    padding: 8px 12px; /* ✅ Reduced */
     cursor: pointer;
     border-bottom: 1px solid #f3f4f6;
     transition: background 0.2s;
@@ -402,34 +403,34 @@
 .location-result-item strong {
     color: #1a1a1a;
     display: block;
-    margin-bottom: 4px;
-    font-size: 0.875rem;
+    margin-bottom: 3px;
+    font-size: 0.813rem;
 }
 
 .location-result-item small {
     color: #6b7280;
-    font-size: 0.75rem;
+    font-size: 0.688rem;
 }
 
 .selected-location {
-    margin-top: 10px; /* ✅ Reduced */
+    margin-top: 8px; /* ✅ Reduced */
     background: #f0fdf4;
     border: 1.5px solid #86efac;
     border-radius: 8px;
-    padding: 10px 14px; /* ✅ Reduced */
+    padding: 8px 12px; /* ✅ Reduced */
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .selected-location-content {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     color: #059669;
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 0.813rem;
 }
 
 .selected-location svg {
@@ -454,7 +455,7 @@
 .urgency-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px; /* ✅ Reduced */
+    gap: 8px; /* ✅ Reduced */
 }
 
 .urgency-option {
@@ -467,13 +468,13 @@
 
 .urgency-badge {
     display: block;
-    padding: 10px; /* ✅ Reduced */
+    padding: 8px; /* ✅ Reduced */
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     text-align: center;
     font-weight: 600;
     transition: all 0.2s;
-    font-size: 0.875rem;
+    font-size: 0.813rem;
 }
 
 .urgency-option input[type="radio"]:checked + .urgency-badge {
@@ -507,7 +508,7 @@
 .photo-upload-area {
     border: 2px dashed #d1d5db;
     border-radius: 12px;
-    padding: 24px 16px; /* ✅ Reduced */
+    padding: 20px 16px; /* ✅ Reduced */
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
@@ -520,31 +521,31 @@
 
 .photo-upload-area svg {
     color: #9ca3af;
-    margin-bottom: 10px;
-    width: 40px; /* ✅ Smaller icon */
-    height: 40px;
+    margin-bottom: 8px;
+    width: 36px; /* ✅ Smaller */
+    height: 36px;
 }
 
 .photo-upload-area p {
-    margin: 0 0 6px 0;
+    margin: 0 0 4px 0;
     color: #374151;
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 0.813rem;
 }
 
 .photo-upload-area small {
     color: #6b7280;
-    font-size: 0.75rem;
+    font-size: 0.688rem;
 }
 
 .photo-preview {
     display: grid;
     grid-template-columns: repeat(
         auto-fill,
-        minmax(90px, 1fr)
+        minmax(80px, 1fr)
     ); /* ✅ Smaller */
-    gap: 10px;
-    margin-top: 12px;
+    gap: 8px;
+    margin-top: 10px;
 }
 
 .photo-preview-item {
@@ -580,13 +581,13 @@
 
 /* Alert - ✅ Compact */
 .alert {
-    padding: 10px 14px; /* ✅ Reduced */
+    padding: 8px 12px; /* ✅ Reduced */
     border-radius: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     display: flex;
     align-items: start;
-    gap: 10px;
-    font-size: 0.813rem;
+    gap: 8px;
+    font-size: 0.75rem;
 }
 
 .alert-info {
@@ -596,30 +597,30 @@
 
 .alert svg {
     flex-shrink: 0;
-    margin-top: 2px;
-    width: 18px;
-    height: 18px;
+    margin-top: 1px;
+    width: 16px;
+    height: 16px;
 }
 
 /* Modal Footer - ✅ Compact */
 .report-modal-footer {
-    padding: 14px 24px; /* ✅ Reduced */
+    padding: 12px 24px; /* ✅ Reduced */
     border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     flex-shrink: 0;
     background: white;
 }
 
 .btn {
-    padding: 10px 20px; /* ✅ Reduced */
+    padding: 8px 16px; /* ✅ Reduced */
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.813rem;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
     border: none;
     transition: all 0.2s;
@@ -669,13 +670,13 @@
 .report-success-modal {
     max-width: 480px;
     text-align: center;
-    padding: 36px 28px; /* ✅ Reduced */
+    padding: 32px 24px; /* ✅ Reduced */
 }
 
 .success-icon {
-    width: 72px; /* ✅ Smaller */
-    height: 72px;
-    margin: 0 auto 20px;
+    width: 64px; /* ✅ Smaller */
+    height: 64px;
+    margin: 0 auto 16px;
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border-radius: 50%;
     display: flex;
@@ -686,21 +687,21 @@
 }
 
 .report-success-modal h3 {
-    font-size: 1.375rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 .report-success-modal p {
     color: #6b7280;
-    margin-bottom: 10px;
-    font-size: 0.938rem;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
 }
 
 .report-success-modal strong {
     color: #009966;
-    font-size: 1.063rem;
+    font-size: 1rem;
 }
 
 /* ============================================
@@ -735,7 +736,7 @@
     }
 
     .report-modal-header {
-        padding: 14px 18px;
+        padding: 12px 16px;
     }
 
     .report-modal-title {
@@ -743,34 +744,34 @@
     }
 
     .report-modal-subtitle {
-        font-size: 0.75rem;
-    }
-
-    .report-modal-body {
-        padding: 12px 18px 16px;
-    }
-
-    .report-modal-footer {
-        padding: 12px 18px;
-    }
-
-    .report-steps::before {
-        left: 28px;
-        right: 28px;
-    }
-
-    .report-step-number {
-        width: 32px;
-        height: 32px;
-        font-size: 0.813rem;
-    }
-
-    .report-step-label {
         font-size: 0.688rem;
     }
 
+    .report-modal-body {
+        padding: 12px 16px;
+    }
+
+    .report-modal-footer {
+        padding: 12px 16px;
+    }
+
+    .report-steps::before {
+        left: 24px;
+        right: 24px;
+    }
+
+    .report-step-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+
+    .report-step-label {
+        font-size: 0.625rem;
+    }
+
     .form-group {
-        margin-bottom: 14px;
+        margin-bottom: 10px;
     }
 
     .form-row {
@@ -782,31 +783,27 @@
     }
 
     .photo-preview {
-        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
     }
 
     .photo-upload-area {
-        padding: 20px 14px;
+        padding: 16px 12px;
     }
 
     .photo-upload-area svg {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
     }
 }
 
 @media (max-width: 480px) {
-    .report-modal {
-        padding: 0;
-    }
-
     .btn {
-        padding: 9px 14px;
-        font-size: 0.813rem;
+        padding: 7px 12px;
+        font-size: 0.75rem;
     }
 
     .form-control {
-        padding: 9px 12px;
-        font-size: 0.813rem;
+        padding: 7px 10px;
+        font-size: 0.75rem;
     }
 }
