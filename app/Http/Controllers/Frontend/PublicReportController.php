@@ -110,7 +110,6 @@ class PublicReportController extends Controller
     }
 
     /**
-     * Search mangrove locations for autocomplete
      * ✅ FIXED: Field sesuai MangroveLocation model
      */
     public function searchLocations(Request $request)
@@ -122,16 +121,22 @@ class PublicReportController extends Controller
                 return response()->json([]);
             }
 
-            Log::info('🔍 Searching locations: ' . $query);
+            // Pecah berdasarkan spasi
+            $keywords = explode(' ', trim($query));
 
-            // ✅ Search di field yang BENAR
-            $locations = MangroveLocation::where(function ($q) use ($query) {
-                $q->where('name', 'like', '%' . $query . '%')
-                    ->orWhere('region', 'like', '%' . $query . '%')
-                    ->orWhere('location_address', 'like', '%' . $query . '%')
-                    ->orWhere('manager', 'like', '%' . $query . '%');
+            $locations = MangroveLocation::where(function ($q) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $word = strtolower($word);
+
+                    $q->where(function ($subQuery) use ($word) {
+                        $subQuery->whereRaw('LOWER(name) LIKE ?', ["%{$word}%"])
+                            ->orWhereRaw('LOWER(region) LIKE ?', ["%{$word}%"])
+                            ->orWhereRaw('LOWER(location_address) LIKE ?', ["%{$word}%"])
+                            ->orWhereRaw('LOWER(manager) LIKE ?', ["%{$word}%"]);
+                    });
+                }
             })
-                ->where('is_active', true) // Hanya lokasi aktif
+                ->where('is_active', true)
                 ->orderBy('name', 'asc')
                 ->limit(10)
                 ->get()
