@@ -111,6 +111,7 @@ class PublicReportController extends Controller
 
     /**
      * Search mangrove locations for autocomplete
+     * ✅ FIXED: Field sesuai MangroveLocation model
      */
     public function searchLocations(Request $request)
     {
@@ -121,23 +122,42 @@ class PublicReportController extends Controller
                 return response()->json([]);
             }
 
-            $locations = MangroveLocation::where('name', 'like', '%' . $query . '%')
-                ->orWhere('region', 'like', '%' . $query . '%')
-                ->orWhere('location_address', 'like', '%' . $query . '%')
+            Log::info('🔍 Searching locations: ' . $query);
+
+            // ✅ Search di field yang BENAR
+            $locations = MangroveLocation::where(function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%')
+                    ->orWhere('region', 'like', '%' . $query . '%')
+                    ->orWhere('location_address', 'like', '%' . $query . '%')
+                    ->orWhere('manager', 'like', '%' . $query . '%');
+            })
+                ->where('is_active', true) // Hanya lokasi aktif
+                ->orderBy('name', 'asc')
                 ->limit(10)
                 ->get()
                 ->map(function ($location) {
+                    $displayParts = [$location->name];
+
+                    if ($location->region) {
+                        $displayParts[] = $location->region;
+                    }
+
                     return [
                         'id' => $location->id,
                         'name' => $location->name,
-                        'region' => $location->region,
-                        'display_name' => $location->name . ($location->region ? ', ' . $location->region : '')
+                        'region' => $location->region ?? '',
+                        'location_address' => $location->location_address ?? '',
+                        'display_name' => implode(' - ', $displayParts)
                     ];
                 });
 
+            Log::info('✅ Found ' . $locations->count() . ' locations');
+
             return response()->json($locations);
         } catch (\Exception $e) {
-            Log::error('Search locations error: ' . $e->getMessage());
+            Log::error('❌ Search error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
             return response()->json([], 500);
         }
     }

@@ -175,6 +175,7 @@
     border-bottom: 1px solid #e5e7eb;
     flex-shrink: 0;
     background: white;
+    min-height: 80px;
 }
 
 .report-modal-title {
@@ -212,20 +213,24 @@
     overflow-x: hidden;
     flex: 1 1 auto;
     min-height: 0;
+    /* CRITICAL: Hitung max height untuk mencegah footer tertutup */
+    max-height: calc(95vh - 80px - 72px); /* viewport - header - footer */
     -webkit-overflow-scrolling: touch;
     scrollbar-gutter: stable;
 }
-
-.report-modal-body::-webkit-scrollbar {
+.report-modal-body::-webkit-scrollbar,
+.photo-preview::-webkit-scrollbar {
     width: 6px;
 }
 
-.report-modal-body::-webkit-scrollbar-track {
+.report-modal-body::-webkit-scrollbar-track,
+.photo-preview::-webkit-scrollbar-track {
     background: #f3f4f6;
     border-radius: 3px;
 }
 
-.report-modal-body::-webkit-scrollbar-thumb {
+.report-modal-body::-webkit-scrollbar-thumb,
+.photo-preview::-webkit-scrollbar-thumb {
     background: #d1d5db;
     border-radius: 3px;
 }
@@ -322,7 +327,7 @@
 
 /* ✅ STEP 2: EXTRA COMPACT - banyak field */
 #step-2 .form-group {
-    margin-bottom: 0px; /* Lebih rapat untuk step 2 */
+    margin-bottom: 8px; /* Lebih rapat untuk step 2 */
 }
 
 #step-2 .form-label {
@@ -599,6 +604,8 @@
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 8px;
     margin-top: 10px;
+    max-height: 200px; /* Prevent overflow */
+    overflow-y: auto;
 }
 
 .photo-preview-item {
@@ -664,6 +671,7 @@
     gap: 8px;
     flex-shrink: 0;
     background: white;
+    min-height: 72px;
 }
 
 .btn {
@@ -790,6 +798,7 @@
 
     .report-modal-header {
         padding: 12px 16px;
+        min-height: 70px;
     }
 
     .report-modal-title {
@@ -801,11 +810,12 @@
     }
 
     .report-modal-body {
-        padding: 12px 16px;
+        max-height: calc(100vh - 70px - 68px);
     }
 
     .report-modal-footer {
         padding: 12px 16px;
+        min-height: 68px;
     }
 
     .report-steps::before {
