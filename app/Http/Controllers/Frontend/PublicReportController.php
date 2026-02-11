@@ -45,8 +45,8 @@ class PublicReportController extends Controller
             if ($request->hasFile('photos')) {
                 foreach ($request->file('photos') as $photo) {
                     $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                    $path = $photo->storeAs('public/reports', $filename);
-                    $photoUrls[] = Storage::url($path);
+                    $path = $photo->storeAs('public/public_reports', $filename);
+                    $photoUrls[] = $filename;
                 }
             }
 

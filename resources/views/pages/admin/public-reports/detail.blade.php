@@ -222,58 +222,146 @@
                     </div>
                 </div>
 
-                {{-- Foto Pendukung - ✅ IMPROVED with debugging --}}
-                @php
-                    // Debug: Check photo URLs
-                    $photoUrls = $report->photo_urls;
-                    $hasValidPhotos = !empty($photoUrls) && is_array($photoUrls) && count($photoUrls) > 0;
-                @endphp
+              {{-- IMPROVED: Photo Gallery Section with Better Debugging --}}
+@php
+    // Debug: Check photo URLs structure
+    $photoUrls = $report->photo_urls;
+    $hasValidPhotos = !empty($photoUrls) && is_array($photoUrls) && count($photoUrls) > 0;
 
-                @if($hasValidPhotos)
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4 class="card-title mb-0">
-                            <i class="mdi mdi-image-multiple text-primary"></i>
-                            Foto Pendukung
-                            <span class="badge bg-primary ms-2">{{ count($photoUrls) }} Foto</span>
-                        </h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="photo-gallery">
-                            @foreach($photoUrls as $index => $photo)
-                            <div class="photo-item" data-bs-toggle="modal" data-bs-target="#photoModal"
-                                 onclick="showPhoto('{{ addslashes($photo) }}', {{ $index + 1 }})">
-                                <img src="{{ asset('storage/public_reports/' . $photo) }}"
-                                     alt="Foto {{ $index + 1 }}"
-                                     loading="lazy"
-                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' viewBox=\'0 0 200 200\'%3E%3Crect fill=\'%23f3f4f6\' width=\'200\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'sans-serif\' font-size=\'14\' fill=\'%239ca3af\'%3EFoto Error%3C/text%3E%3C/svg%3E';">
-                                <div class="photo-overlay">
-                                    <svg width="32" height="32" fill="white" viewBox="0 0 20 20">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
+    // Log for debugging (check browser console)
+    if ($hasValidPhotos) {
+        logger()->info('Photo URLs:', $photoUrls);
+    }
+@endphp
+
+@if($hasValidPhotos)
+<div class="card mb-4">
+    <div class="card-header">
+        <h4 class="card-title mb-0">
+            <i class="mdi mdi-image-multiple text-primary"></i>
+            Foto Pendukung
+            <span class="badge bg-primary ms-2">{{ count($photoUrls) }} Foto</span>
+        </h4>
+    </div>
+    <div class="card-body">
+        {{-- Debug Info (Remove in production) --}}
+        <div class="alert alert-info mb-3">
+            <strong>🔍 Debug Info:</strong><br>
+            <small>
+                Storage Path: <code>{{ storage_path('app/public/public_reports') }}</code><br>
+                Public Path: <code>{{ public_path('storage/public_reports') }}</code><br>
+                Sample Photo Value: <code>{{ $photoUrls[0] ?? 'N/A' }}</code>
+            </small>
+        </div>
+
+        <div class="photo-gallery">
+            @foreach($photoUrls as $index => $photo)
+            @php
+                // ✅ SMART PATH DETECTION
+                // Check if photo already contains full path or just filename
+                if (filter_var($photo, FILTER_VALIDATE_URL)) {
+                    // Full URL
+                    $photoPath = $photo;
+                } elseif (str_starts_with($photo, 'storage/')) {
+                    // Already has storage/ prefix
+                    $photoPath = asset($photo);
+                } elseif (str_starts_with($photo, 'public_reports/')) {
+                    // Has public_reports/ prefix
+                    $photoPath = asset('storage/' . $photo);
+                } else {
+                    // Just filename
+                    $photoPath = asset('storage/public_reports/' . $photo);
+                }
+            @endphp
+
+            <div class="photo-item" data-bs-toggle="modal" data-bs-target="#photoModal"
+                 onclick="showPhoto('{{ addslashes($photoPath) }}', {{ $index + 1 }}, '{{ addslashes($photo) }}')">
+                <img src="{{ $photoPath }}"
+                     alt="Foto {{ $index + 1 }}"
+                     loading="lazy"
+                     onerror="handleImageError(this, '{{ addslashes($photo) }}')">
+                <div class="photo-overlay">
+                    <svg width="32" height="32" fill="white" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                    </svg>
                 </div>
-                @else
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4 class="card-title mb-0">
-                            <i class="mdi mdi-image-off text-muted"></i>
-                            Foto Pendukung
-                        </h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center py-4">
-                            <i class="mdi mdi-image-off text-muted" style="font-size: 48px;"></i>
-                            <p class="text-muted mb-0 mt-2">Tidak ada foto pendukung yang dilampirkan</p>
-                        </div>
-                    </div>
-                </div>
-                @endif
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+@else
+<div class="card mb-4">
+    <div class="card-header">
+        <h4 class="card-title mb-0">
+            <i class="mdi mdi-image-off text-muted"></i>
+            Foto Pendukung
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="text-center py-4">
+            <i class="mdi mdi-image-off text-muted" style="font-size: 48px;"></i>
+            <p class="text-muted mb-0 mt-2">Tidak ada foto pendukung yang dilampirkan</p>
+        </div>
+    </div>
+</div>
+@endif
+
+{{-- IMPROVED JavaScript Functions --}}
+@section('js')
+@parent
+<script>
+// ✅ IMPROVED: Better photo handling with debugging
+function showPhoto(url, index, originalValue) {
+    console.log('📸 Opening photo #' + index);
+    console.log('   URL:', url);
+    console.log('   Original Value:', originalValue);
+
+    document.getElementById('modalPhoto').src = url;
+    document.getElementById('photoModalLabel').textContent = `Foto Laporan #${index}`;
+}
+
+// ✅ NEW: Handle image errors with multiple fallback attempts
+function handleImageError(img, originalPath) {
+    console.error('❌ Image failed to load:', img.src);
+    console.log('   Original path:', originalPath);
+
+    // Try different path variations
+    const basePath = '{{ asset("storage") }}';
+    const fallbacks = [
+        `${basePath}/${originalPath}`,
+        `${basePath}/public_reports/${originalPath}`,
+        `{{ asset("") }}${originalPath}`,
+    ];
+
+    // Get current attempt
+    const currentAttempt = img.dataset.attempt || 0;
+
+    if (currentAttempt < fallbacks.length) {
+        img.dataset.attempt = parseInt(currentAttempt) + 1;
+        const nextPath = fallbacks[currentAttempt];
+        console.log(`   Trying fallback #${currentAttempt + 1}:`, nextPath);
+        img.src = nextPath;
+    } else {
+        // All attempts failed - show placeholder
+        console.error('   ⚠️ All fallback attempts failed');
+        img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f3f4f6' width='200' height='200'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='48' fill='%23ef4444'%3E✕%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%239ca3af'%3EFoto Error%3C/text%3E%3Ctext x='50%25' y='70%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%239ca3af'%3E" + originalPath + "%3C/text%3E%3C/svg%3E";
+
+        // Show error notification
+        img.closest('.photo-item').style.opacity = '0.5';
+        img.closest('.photo-item').style.cursor = 'not-allowed';
+    }
+}
+
+// Debug: Log all photo data on page load
+console.group('📸 Photo Debug Info');
+console.log('Photo URLs from backend:', @json($report->photo_urls));
+console.log('Storage path exists:', '{{ file_exists(storage_path("app/public/public_reports")) ? "YES" : "NO" }}');
+console.log('Symlink exists:', '{{ file_exists(public_path("storage")) ? "YES" : "NO" }}');
+console.groupEnd();
+</script>
+@endsection
 
                 {{-- Catatan Admin --}}
                 <div class="card mb-4">
