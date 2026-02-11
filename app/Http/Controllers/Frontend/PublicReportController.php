@@ -42,11 +42,12 @@ class PublicReportController extends Controller
 
             // Handle photo uploads
             $photoUrls = [];
+
             if ($request->hasFile('photos')) {
                 foreach ($request->file('photos') as $photo) {
                     $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                    $path = $photo->storeAs('public/public_reports', $filename);
-                    $photoUrls[] = $filename;
+                    $path = $photo->storeAs('public_reports', $filename, 'public');
+                    $photoUrls[] = Storage::url($path);
                 }
             }
 
