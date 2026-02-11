@@ -243,7 +243,7 @@
                             @foreach($photoUrls as $index => $photo)
                             <div class="photo-item" data-bs-toggle="modal" data-bs-target="#photoModal"
                                  onclick="showPhoto('{{ addslashes($photo) }}', {{ $index + 1 }})">
-                                <img src="{{ $photo }}"
+                                <img src="{{ asset('storage/public_reports/' . $photo) }}"
                                      alt="Foto {{ $index + 1 }}"
                                      loading="lazy"
                                      onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' viewBox=\'0 0 200 200\'%3E%3Crect fill=\'%23f3f4f6\' width=\'200\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'sans-serif\' font-size=\'14\' fill=\'%239ca3af\'%3EFoto Error%3C/text%3E%3C/svg%3E';">
