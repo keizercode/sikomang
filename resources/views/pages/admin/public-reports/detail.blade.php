@@ -351,13 +351,13 @@
                         <div class="mb-3">
                             <label class="text-muted small">Email</label>
                             <p class="mb-0">
-                                <a href="mailto:{{ $report->reporter_email }}">{{ $report->reporter_email }}</a>
+                                <a {{ $report->reporter_email }}>{{ $report->reporter_email }}</a>
                             </p>
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small">Telepon</label>
                             <p class="mb-0">
-                                <a href="tel:{{ $report->reporter_phone }}">{{ $report->reporter_phone }}</a>
+                                <a{{ $report->reporter_phone }}>{{ $report->reporter_phone }}</a>
                             </p>
                         </div>
                         @if($report->reporter_address)
