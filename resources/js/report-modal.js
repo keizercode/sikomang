@@ -617,7 +617,6 @@ function showSuccessModal(reportNumber) {
 function showError(message) {
     console.error("🚨 Error:", message);
 
-    // Use SweetAlert2 if available, fallback to alertify or alert
     if (typeof Swal !== "undefined") {
         Swal.fire({
             icon: "error",

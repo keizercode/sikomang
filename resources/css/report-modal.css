@@ -139,7 +139,7 @@
     border-radius: 16px;
     width: 100%;
     max-width: 700px;
-    max-height: 95vh; /* ✅ Increased from 90vh */
+    max-height: 95vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -171,23 +171,23 @@
     display: flex;
     justify-content: space-between;
     align-items: start;
-    padding: 18px 24px; /* ✅ Further reduced */
+    padding: 18px 24px;
     border-bottom: 1px solid #e5e7eb;
     flex-shrink: 0;
     background: white;
 }
 
 .report-modal-title {
-    font-size: 1.25rem; /* ✅ Reduced from 1.375rem */
+    font-size: 1.25rem;
     font-weight: 700;
     color: #1a1a1a;
     margin: 0;
 }
 
 .report-modal-subtitle {
-    font-size: 0.75rem; /* ✅ Reduced from 0.813rem */
+    font-size: 0.75rem;
     color: #6b7280;
-    margin: 4px 0 0 0; /* ✅ Reduced margin */
+    margin: 4px 0 0 0;
 }
 
 .report-modal-close {
@@ -207,13 +207,13 @@
 
 /* ✅ CRITICAL FIX: Optimized scroll with better space usage */
 .report-modal-body {
-    padding: 16px 24px; /* ✅ Reduced padding */
+    padding: 16px 24px;
     overflow-y: auto;
     overflow-x: hidden;
     flex: 1 1 auto;
-    min-height: 0; /* ✅ Critical for flexbox scroll */
+    min-height: 0;
     -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable; /* ✅ Prevent layout shift */
+    scrollbar-gutter: stable;
 }
 
 .report-modal-body::-webkit-scrollbar {
@@ -246,14 +246,14 @@
 .report-steps {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 16px; /* ✅ Reduced from 20px */
+    margin-bottom: 16px;
     position: relative;
 }
 
 .report-steps::before {
     content: "";
     position: absolute;
-    top: 16px; /* ✅ Adjusted */
+    top: 16px;
     left: 36px;
     right: 36px;
     height: 2px;
@@ -265,14 +265,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px; /* ✅ Reduced gap */
+    gap: 4px;
     position: relative;
     z-index: 1;
     flex: 1;
 }
 
 .report-step-number {
-    width: 32px; /* ✅ Smaller */
+    width: 32px;
     height: 32px;
     border-radius: 50%;
     background: white;
@@ -281,7 +281,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 0.813rem; /* ✅ Smaller */
+    font-size: 0.813rem;
     color: #9ca3af;
     transition: all 0.3s;
 }
@@ -300,7 +300,7 @@
 }
 
 .report-step-label {
-    font-size: 0.688rem; /* ✅ Smaller */
+    font-size: 0.688rem;
     color: #9ca3af;
     font-weight: 500;
     text-align: center;
@@ -311,25 +311,81 @@
     font-weight: 600;
 }
 
-/* Form Elements - ✅ Compact spacing */
-.form-group {
-    margin-bottom: 12px; /* ✅ Reduced from 16px */
+/* ============================================
+   STEP-SPECIFIC FORM STYLING
+   ============================================ */
+
+/* ✅ STEP 1: Normal spacing - fokus pencarian lokasi */
+#step-1 .form-group {
+    margin-bottom: 14px;
 }
 
+/* ✅ STEP 2: EXTRA COMPACT - banyak field */
+#step-2 .form-group {
+    margin-bottom: 0px; /* Lebih rapat untuk step 2 */
+}
+
+#step-2 .form-label {
+    margin-bottom: 3px; /* Label lebih rapat */
+}
+
+#step-2 textarea {
+    font-size: 0.813rem; /* Text lebih kecil */
+}
+
+#step-2 .urgency-options {
+    gap: 6px; /* Urgency badges lebih rapat */
+}
+
+#step-2 .urgency-badge {
+    padding: 6px; /* Badges lebih kecil */
+    font-size: 0.75rem;
+}
+
+#step-2 .photo-upload-area {
+    padding: 16px 12px; /* Upload area lebih compact */
+}
+
+#step-2 .photo-upload-area svg {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 6px;
+}
+
+#step-2 .photo-upload-area p {
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+}
+
+#step-2 .photo-preview {
+    margin-top: 8px;
+}
+
+/* ✅ STEP 3: Normal spacing - form identitas */
+#step-3 .form-group {
+    margin-bottom: 10px;
+}
+
+#step-3 .alert {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+}
+
+/* Form Elements */
 .form-label {
     display: block;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 4px; /* ✅ Reduced from 6px */
-    font-size: 0.813rem; /* ✅ Smaller */
+    margin-bottom: 4px;
+    font-size: 0.813rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 8px 12px; /* ✅ Reduced padding */
+    padding: 8px 12px;
     border: 1.5px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.813rem; /* ✅ Smaller */
+    font-size: 0.813rem;
     transition: all 0.2s;
     font-family: inherit;
 }
@@ -347,11 +403,11 @@
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px; /* ✅ Reduced from 12px */
+    gap: 10px;
 }
 
 .form-text {
-    font-size: 0.688rem; /* ✅ Smaller */
+    font-size: 0.688rem;
     color: #6b7280;
     margin-top: 3px;
     display: block;
@@ -379,14 +435,14 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     margin-top: 4px;
-    max-height: 180px; /* ✅ Reduced */
+    max-height: 180px;
     overflow-y: auto;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 10;
 }
 
 .location-result-item {
-    padding: 8px 12px; /* ✅ Reduced */
+    padding: 8px 12px;
     cursor: pointer;
     border-bottom: 1px solid #f3f4f6;
     transition: background 0.2s;
@@ -413,11 +469,11 @@
 }
 
 .selected-location {
-    margin-top: 8px; /* ✅ Reduced */
+    margin-top: 8px;
     background: #f0fdf4;
     border: 1.5px solid #86efac;
     border-radius: 8px;
-    padding: 8px 12px; /* ✅ Reduced */
+    padding: 8px 12px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -455,7 +511,7 @@
 .urgency-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px; /* ✅ Reduced */
+    gap: 8px;
 }
 
 .urgency-option {
@@ -468,7 +524,7 @@
 
 .urgency-badge {
     display: block;
-    padding: 8px; /* ✅ Reduced */
+    padding: 8px;
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     text-align: center;
@@ -508,7 +564,7 @@
 .photo-upload-area {
     border: 2px dashed #d1d5db;
     border-radius: 12px;
-    padding: 20px 16px; /* ✅ Reduced */
+    padding: 20px 16px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
@@ -522,7 +578,7 @@
 .photo-upload-area svg {
     color: #9ca3af;
     margin-bottom: 8px;
-    width: 36px; /* ✅ Smaller */
+    width: 36px;
     height: 36px;
 }
 
@@ -540,10 +596,7 @@
 
 .photo-preview {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fill,
-        minmax(80px, 1fr)
-    ); /* ✅ Smaller */
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 8px;
     margin-top: 10px;
 }
@@ -581,7 +634,7 @@
 
 /* Alert - ✅ Compact */
 .alert {
-    padding: 8px 12px; /* ✅ Reduced */
+    padding: 8px 12px;
     border-radius: 8px;
     margin-bottom: 12px;
     display: flex;
@@ -604,7 +657,7 @@
 
 /* Modal Footer - ✅ Compact */
 .report-modal-footer {
-    padding: 12px 24px; /* ✅ Reduced */
+    padding: 12px 24px;
     border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
@@ -614,7 +667,7 @@
 }
 
 .btn {
-    padding: 8px 16px; /* ✅ Reduced */
+    padding: 8px 16px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.813rem;
@@ -670,11 +723,11 @@
 .report-success-modal {
     max-width: 480px;
     text-align: center;
-    padding: 32px 24px; /* ✅ Reduced */
+    padding: 32px 24px;
 }
 
 .success-icon {
-    width: 64px; /* ✅ Smaller */
+    width: 64px;
     height: 64px;
     margin: 0 auto 16px;
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -770,8 +823,10 @@
         font-size: 0.625rem;
     }
 
-    .form-group {
-        margin-bottom: 10px;
+    #step-2 .form-group,
+    #step-1 .form-group,
+    #step-3 .form-group {
+        margin-bottom: 8px;
     }
 
     .form-row {

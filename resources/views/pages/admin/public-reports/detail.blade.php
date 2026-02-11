@@ -37,16 +37,37 @@
         overflow: hidden;
         cursor: pointer;
         transition: transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .photo-item:hover {
         transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
 
     .photo-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    /* ✅ NEW: Photo overlay effect */
+    .photo-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .photo-item:hover .photo-overlay {
+        opacity: 1;
     }
 
     .timeline {
@@ -201,23 +222,54 @@
                     </div>
                 </div>
 
-                {{-- Foto Pendukung --}}
-                @if($report->hasPhotos())
+                {{-- Foto Pendukung - ✅ IMPROVED with debugging --}}
+                @php
+                    // Debug: Check photo URLs
+                    $photoUrls = $report->photo_urls;
+                    $hasValidPhotos = !empty($photoUrls) && is_array($photoUrls) && count($photoUrls) > 0;
+                @endphp
+
+                @if($hasValidPhotos)
                 <div class="card mb-4">
                     <div class="card-header">
                         <h4 class="card-title mb-0">
+                            <i class="mdi mdi-image-multiple text-primary"></i>
                             Foto Pendukung
-                            <span class="badge bg-primary ms-2">{{ count($report->photo_urls) }} Foto</span>
+                            <span class="badge bg-primary ms-2">{{ count($photoUrls) }} Foto</span>
                         </h4>
                     </div>
                     <div class="card-body">
                         <div class="photo-gallery">
-                            @foreach($report->photo_urls as $index => $photo)
+                            @foreach($photoUrls as $index => $photo)
                             <div class="photo-item" data-bs-toggle="modal" data-bs-target="#photoModal"
-                                 onclick="showPhoto('{{ $photo }}', {{ $index + 1 }})">
-                                <img src="{{ $photo }}" alt="Foto {{ $index + 1 }}" loading="lazy">
+                                 onclick="showPhoto('{{ addslashes($photo) }}', {{ $index + 1 }})">
+                                <img src="{{ $photo }}"
+                                     alt="Foto {{ $index + 1 }}"
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\' viewBox=\'0 0 200 200\'%3E%3Crect fill=\'%23f3f4f6\' width=\'200\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'sans-serif\' font-size=\'14\' fill=\'%239ca3af\'%3EFoto Error%3C/text%3E%3C/svg%3E';">
+                                <div class="photo-overlay">
+                                    <svg width="32" height="32" fill="white" viewBox="0 0 20 20">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
                             </div>
                             @endforeach
+                        </div>
+                    </div>
+                </div>
+                @else
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-image-off text-muted"></i>
+                            Foto Pendukung
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center py-4">
+                            <i class="mdi mdi-image-off text-muted" style="font-size: 48px;"></i>
+                            <p class="text-muted mb-0 mt-2">Tidak ada foto pendukung yang dilampirkan</p>
                         </div>
                     </div>
                 </div>
@@ -407,7 +459,12 @@
 <script>
 const reportId = '{{ $keyId }}';
 
+// ✅ DEBUG: Log photo data on page load
+console.log('📸 Photo URLs:', @json($report->photo_urls));
+console.log('📸 Has Photos:', @json($hasValidPhotos));
+
 function showPhoto(url, index) {
+    console.log('Opening photo:', url);
     document.getElementById('modalPhoto').src = url;
     document.getElementById('photoModalLabel').textContent = `Foto Laporan #${index}`;
 }
