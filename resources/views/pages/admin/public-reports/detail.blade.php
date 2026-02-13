@@ -3,6 +3,9 @@
 @section('title', 'Detail Laporan: ' . $report->report_number)
 
 @section('css')
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <style>
     /* Custom styles for report detail */
     .report-detail-header {
@@ -23,7 +26,109 @@
         font-size: 0.875rem;
     }
 
-    /* 🔧 IMPROVED: Simpler photo gallery */
+    /* Reporter Info Card - Horizontal Layout */
+    .reporter-info-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .reporter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .reporter-item {
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+    .reporter-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .reporter-icon i {
+        font-size: 1.25rem;
+    }
+
+    .reporter-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .reporter-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .reporter-value {
+        color: #1f2937;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    .reporter-value a {
+        color: #009966;
+        text-decoration: none;
+    }
+
+    .reporter-value a:hover {
+        text-decoration: underline;
+    }
+
+    /* Map Container */
+    .map-container {
+        height: 400px;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: #f3f4f6;
+    }
+
+    #locationMap {
+        height: 100%;
+        width: 100%;
+    }
+
+    .location-info-overlay {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1000;
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        max-width: 300px;
+    }
+
+    .location-info-overlay strong {
+        color: #009966;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .location-info-overlay small {
+        color: #6b7280;
+    }
+
+    /* Photo Gallery */
     .photo-gallery {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -187,6 +292,17 @@
         margin: 0 auto;
         display: block;
     }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .reporter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .map-container {
+            height: 300px;
+        }
+    }
 </style>
 @endsection
 
@@ -213,14 +329,94 @@
             </div>
         </div>
 
+        {{-- Data Pelapor - Horizontal Layout --}}
+        <div class="reporter-info-card">
+            <h5 class="mb-3">
+                <i class="mdi mdi-account-circle text-primary"></i>
+                Data Pelapor
+            </h5>
+            <div class="reporter-grid">
+                <div class="reporter-item">
+                    <div class="reporter-icon bg-primary bg-opacity-10">
+                        <i class="mdi mdi-account text-primary"></i>
+                    </div>
+                    <div class="reporter-content">
+                        <div class="reporter-label">Nama Lengkap</div>
+                        <div class="reporter-value">{{ $report->reporter_name }}</div>
+                    </div>
+                </div>
+
+                <div class="reporter-item">
+                    <div class="reporter-icon bg-success bg-opacity-10">
+                        <i class="mdi mdi-email text-success"></i>
+                    </div>
+                    <div class="reporter-content">
+                        <div class="reporter-label">Email</div>
+                        <div class="reporter-value">
+                            <a>{{ $report->reporter_email }}</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reporter-item">
+                    <div class="reporter-icon bg-info bg-opacity-10">
+                        <i class="mdi mdi-phone text-info"></i>
+                    </div>
+                    <div class="reporter-content">
+                        <div class="reporter-label">Telepon</div>
+                        <div class="reporter-value">
+                            <a>{{ $report->reporter_phone }}</a>
+                        </div>
+                    </div>
+                </div>
+
+                @if($report->reporter_address)
+                <div class="reporter-item">
+                    <div class="reporter-icon bg-warning bg-opacity-10">
+                        <i class="mdi mdi-map-marker text-warning"></i>
+                    </div>
+                    <div class="reporter-content">
+                        <div class="reporter-label">Alamat</div>
+                        <div class="reporter-value">{{ $report->reporter_address }}</div>
+                    </div>
+                </div>
+                @endif
+
+                @if($report->reporter_organization)
+                <div class="reporter-item">
+                    <div class="reporter-icon bg-danger bg-opacity-10">
+                        <i class="mdi mdi-office-building text-danger"></i>
+                    </div>
+                    <div class="reporter-content">
+                        <div class="reporter-label">Organisasi</div>
+                        <div class="reporter-value">{{ $report->reporter_organization }}</div>
+                    </div>
+                </div>
+                @endif
+
+                <div class="reporter-item">
+                    <div class="reporter-icon bg-secondary bg-opacity-10">
+                        <i class="mdi mdi-ip text-secondary"></i>
+                    </div>
+                    <div class="reporter-content">
+                        <div class="reporter-label">IP Address</div>
+                        <div class="reporter-value"><code>{{ $report->ip_address }}</code></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
-            {{-- Main Content --}}
-            <div class="col-lg-8">
+            {{-- Main Content - Left Side --}}
+            <div class="col-lg-6">
 
                 {{-- Informasi Laporan --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h4 class="card-title mb-0">Informasi Laporan</h4>
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-file-document-outline text-primary"></i>
+                            Informasi Laporan
+                        </h4>
                     </div>
                     <div class="card-body">
                         <div class="info-row">
@@ -265,7 +461,31 @@
                     </div>
                 </div>
 
-                {{-- 🔧 IMPROVED: Simplified Photo Gallery --}}
+            </div>
+
+            {{-- Preview Lokasi - Right Side --}}
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-map text-primary"></i>
+                            Preview Lokasi
+                        </h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="map-container position-relative">
+
+                            <div id="locationMap"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+
+                {{-- Foto Pendukung --}}
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title mb-0">
@@ -316,7 +536,10 @@
                 {{-- Catatan Admin --}}
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0">Catatan Admin</h4>
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-note-text text-primary"></i>
+                            Catatan Admin
+                        </h4>
                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#noteModal">
                             <i class="mdi mdi-pencil"></i> Tambah/Edit Catatan
                         </button>
@@ -338,51 +561,13 @@
             {{-- Sidebar --}}
             <div class="col-lg-4">
 
-                {{-- Data Pelapor --}}
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Data Pelapor</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="text-muted small">Nama</label>
-                            <p class="mb-0 fw-semibold">{{ $report->reporter_name }}</p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="text-muted small">Email</label>
-                            <p class="mb-0">
-                                <a {{ $report->reporter_email }}>{{ $report->reporter_email }}</a>
-                            </p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="text-muted small">Telepon</label>
-                            <p class="mb-0">
-                                <a{{ $report->reporter_phone }}>{{ $report->reporter_phone }}</a>
-                            </p>
-                        </div>
-                        @if($report->reporter_address)
-                        <div class="mb-3">
-                            <label class="text-muted small">Alamat</label>
-                            <p class="mb-0">{{ $report->reporter_address }}</p>
-                        </div>
-                        @endif
-                        @if($report->reporter_organization)
-                        <div class="mb-3">
-                            <label class="text-muted small">Organisasi</label>
-                            <p class="mb-0">{{ $report->reporter_organization }}</p>
-                        </div>
-                        @endif
-                        <div class="mb-0">
-                            <label class="text-muted small">IP Address</label>
-                            <p class="mb-0"><code>{{ $report->ip_address }}</code></p>
-                        </div>
-                    </div>
-                </div>
-
                 {{-- Quick Actions --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Aksi Cepat</h5>
+                        <h5 class="card-title mb-0">
+                            <i class="mdi mdi-lightning-bolt text-warning"></i>
+                            Aksi Cepat
+                        </h5>
                     </div>
                     <div class="card-body">
 
@@ -422,7 +607,10 @@
                 {{-- Timeline --}}
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Riwayat</h5>
+                        <h5 class="card-title mb-0">
+                            <i class="mdi mdi-timeline-clock text-primary"></i>
+                            Riwayat
+                        </h5>
                     </div>
                     <div class="card-body">
                         <div class="timeline">
@@ -494,8 +682,76 @@
 @endsection
 
 @section('js')
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 const reportId = '{{ $keyId }}';
+
+// Initialize Map
+document.addEventListener('DOMContentLoaded', function() {
+    const lat = {{ $report->location->latitude ?? -6.1751 }};
+    const lng = {{ $report->location->longitude ?? 106.8650 }};
+
+    // Create map
+    const map = L.map('locationMap').setView([lat, lng], 14);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Custom marker icon
+    const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `
+            <div style="
+                background: #009966;
+                width: 40px;
+                height: 40px;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                border: 3px solid white;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            ">
+                <i class="mdi mdi-alert" style="
+                    color: white;
+                    font-size: 20px;
+                    transform: rotate(45deg);
+                "></i>
+            </div>
+        `,
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+    });
+
+    // Add marker
+    const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+    // Add popup
+    marker.bindPopup(`
+        <div style="min-width: 200px;">
+            <strong style="color: #009966;">{{ $report->location->name }}</strong><br>
+            @if($report->location->region)
+            <small style="color: #6b7280;">{{ $report->location->region }}</small><br>
+            @endif
+            <small style="color: #6b7280;">Koordinat: ${lat.toFixed(5)}, ${lng.toFixed(5)}</small>
+        </div>
+    `).openPopup();
+
+    // Add circle to show area
+    L.circle([lat, lng], {
+        color: '#009966',
+        fillColor: '#009966',
+        fillOpacity: 0.1,
+        radius: 500
+    }).addTo(map);
+});
 
 function showPhoto(url, index) {
     document.getElementById('modalPhoto').src = url;
