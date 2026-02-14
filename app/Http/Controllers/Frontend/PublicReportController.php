@@ -110,18 +110,33 @@ class PublicReportController extends Controller
     }
 
     /**
-     * ✅ FIXED: Field sesuai MangroveLocation model
+     * ✅ NEW: Search locations with default popular locations
      */
     public function searchLocations(Request $request)
     {
         try {
             $query = $request->get('q', '');
 
+            // ✅ NEW: If no query or empty, return 10 most popular/recent locations
+            if (strlen(trim($query)) === 0) {
+                $locations = MangroveLocation::where('is_active', true)
+                    ->orderByDesc('health_percentage') // Prioritas lokasi sehat
+                    ->orderBy('name', 'asc')
+                    ->limit(10)
+                    ->get()
+                    ->map(function ($location) {
+                        return $this->formatLocationForDropdown($location);
+                    });
+
+                Log::info('✅ Returning ' . $locations->count() . ' popular locations');
+                return response()->json($locations);
+            }
+
+            // ✅ EXISTING: Search with keywords (minimum 2 characters)
             if (strlen($query) < 2) {
                 return response()->json([]);
             }
 
-            // Pecah berdasarkan spasi
             $keywords = explode(' ', trim($query));
 
             $locations = MangroveLocation::where(function ($q) use ($keywords) {
@@ -141,22 +156,10 @@ class PublicReportController extends Controller
                 ->limit(10)
                 ->get()
                 ->map(function ($location) {
-                    $displayParts = [$location->name];
-
-                    if ($location->region) {
-                        $displayParts[] = $location->region;
-                    }
-
-                    return [
-                        'id' => $location->id,
-                        'name' => $location->name,
-                        'region' => $location->region ?? '',
-                        'location_address' => $location->location_address ?? '',
-                        'display_name' => implode(' - ', $displayParts)
-                    ];
+                    return $this->formatLocationForDropdown($location);
                 });
 
-            Log::info('✅ Found ' . $locations->count() . ' locations');
+            Log::info('✅ Found ' . $locations->count() . ' locations for query: ' . $query);
 
             return response()->json($locations);
         } catch (\Exception $e) {
@@ -165,6 +168,27 @@ class PublicReportController extends Controller
 
             return response()->json([], 500);
         }
+    }
+
+    /**
+     * ✅ NEW: Format location data for dropdown display
+     */
+    private function formatLocationForDropdown($location)
+    {
+        $displayParts = [$location->name];
+
+        if ($location->region) {
+            $displayParts[] = $location->region;
+        }
+
+        return [
+            'id' => $location->id,
+            'name' => $location->name,
+            'region' => $location->region ?? '',
+            'location_address' => $location->location_address ?? '',
+            'health_percentage' => $location->health_percentage ?? 0,
+            'display_name' => implode(' - ', $displayParts)
+        ];
     }
 
     /**

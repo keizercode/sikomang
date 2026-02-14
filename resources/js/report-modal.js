@@ -1,5 +1,5 @@
 // ============================================
-// REPORT MODAL FUNCTIONALITY - ✅ PROFESSIONAL
+// REPORT MODAL FUNCTIONALITY - ✅ PROFESSIONAL WITH AUTO-LOAD LOCATIONS
 // ============================================
 
 let currentStep = 1;
@@ -34,14 +34,18 @@ function initializeReportModal() {
             clearTimeout(searchTimeout);
             const query = this.value.trim();
 
-            if (query.length < 2) {
-                hideLocationResults();
-                return;
-            }
-
             searchTimeout = setTimeout(() => {
                 searchLocations(query);
             }, 300);
+        });
+
+        // ✅ NEW: Show dropdown on focus (load popular locations)
+        locationSearch.addEventListener("focus", function () {
+            const query = this.value.trim();
+            if (query.length === 0) {
+                // Load popular locations when clicking on empty field
+                loadPopularLocations();
+            }
         });
 
         // Hide results when clicking outside
@@ -84,6 +88,11 @@ function openReportModal() {
                 window.currentLocationData.id,
                 window.currentLocationData.name,
             );
+        } else {
+            // ✅ NEW: Load popular locations if no location pre-selected
+            setTimeout(() => {
+                loadPopularLocations();
+            }, 100);
         }
     }
 }
@@ -312,11 +321,47 @@ function isValidEmail(email) {
 }
 
 // ============================================
-// LOCATION SEARCH
+// LOCATION SEARCH - ✅ ENHANCED WITH POPULAR LOCATIONS
 // ============================================
 
+/**
+ * ✅ NEW: Load 10 popular locations on modal open
+ */
+async function loadPopularLocations() {
+    try {
+        console.log("📍 Loading popular locations...");
+        const response = await fetch("/reports/search-locations?q=");
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const locations = await response.json();
+        console.log("✅ Loaded popular locations:", locations);
+
+        displayLocationResults(locations, true); // true = isPopular
+    } catch (error) {
+        console.error("❌ Error loading popular locations:", error);
+    }
+}
+
+/**
+ * Search locations with query
+ */
 async function searchLocations(query) {
     try {
+        // If query is empty, load popular locations
+        if (!query || query.trim().length === 0) {
+            loadPopularLocations();
+            return;
+        }
+
+        // Minimum 2 characters for search
+        if (query.length < 2) {
+            hideLocationResults();
+            return;
+        }
+
         console.log("🔍 Searching locations:", query);
         const response = await fetch(
             `/reports/search-locations?q=${encodeURIComponent(query)}`,
@@ -329,36 +374,73 @@ async function searchLocations(query) {
         const locations = await response.json();
         console.log("✅ Found locations:", locations);
 
-        displayLocationResults(locations);
+        displayLocationResults(locations, false); // false = search results
     } catch (error) {
         console.error("❌ Location search error:", error);
         showError("Gagal mencari lokasi");
     }
 }
 
-function displayLocationResults(locations) {
+/**
+ * ✅ IMPROVED: Display location results with health indicator
+ */
+function displayLocationResults(locations, isPopular = false) {
     const resultsDiv = document.getElementById("locationResults");
     if (!resultsDiv) return;
 
     if (locations.length === 0) {
-        resultsDiv.innerHTML =
-            '<div class="location-result-item">Tidak ada lokasi ditemukan</div>';
+        resultsDiv.innerHTML = `
+            <div class="location-result-item" style="text-align: center; color: #6b7280;">
+                ${isPopular ? "Tidak ada lokasi tersedia" : "Tidak ada lokasi ditemukan"}
+            </div>
+        `;
         resultsDiv.style.display = "block";
         return;
     }
 
-    resultsDiv.innerHTML = locations
-        .map(
-            (location) => `
-        <div class="location-result-item" onclick="selectLocation(${location.id}, '${escapeHtml(location.display_name)}')">
-            <strong>${escapeHtml(location.name)}</strong>
-            ${location.display_name !== location.name ? `<small>${escapeHtml(location.display_name)}</small>` : ""}
-        </div>
-    `,
-        )
-        .join("");
+    // ✅ Add header for popular locations
+    let headerHtml = "";
+    if (isPopular) {
+        headerHtml = `
+            <div style="padding: 8px 12px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                📍 Lokasi Mangrove
+            </div>
+        `;
+    }
+
+    resultsDiv.innerHTML =
+        headerHtml +
+        locations
+            .map((location) => {
+                const healthBadge = location.health_percentage
+                    ? `<span class="health-badge" style="background: ${getHealthColor(location.health_percentage)}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.688rem; font-weight: 600; margin-left: 6px;">${location.health_percentage}%</span>`
+                    : "";
+
+                return `
+            <div class="location-result-item" onclick="selectLocation(${location.id}, '${escapeHtml(location.display_name)}')">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1;">
+                        <strong>${escapeHtml(location.name)}</strong>
+                        ${location.display_name !== location.name ? `<small style="display: block; margin-top: 2px;">${escapeHtml(location.region)}</small>` : ""}
+                    </div>
+                    ${healthBadge}
+                </div>
+            </div>
+        `;
+            })
+            .join("");
 
     resultsDiv.style.display = "block";
+}
+
+/**
+ * Get health color based on percentage
+ */
+function getHealthColor(percentage) {
+    if (percentage >= 80) return "#10b981"; // Green
+    if (percentage >= 60) return "#f59e0b"; // Yellow
+    if (percentage >= 40) return "#f97316"; // Orange
+    return "#ef4444"; // Red
 }
 
 function hideLocationResults() {
@@ -396,6 +478,9 @@ function clearLocationSelection() {
     if (locationSearch) {
         locationSearch.style.display = "block";
         locationSearch.value = "";
+        locationSearch.focus();
+        // Load popular locations again
+        loadPopularLocations();
     }
     if (selectedDisplay) selectedDisplay.style.display = "none";
 }
@@ -668,6 +753,13 @@ style.textContent = `
     .animate-spin {
         animation: spin 1s linear infinite;
     }
+
+    .health-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+    }
 `;
 document.head.appendChild(style);
 
@@ -682,5 +774,6 @@ window.setLocation = setLocation;
 window.clearLocationSelection = clearLocationSelection;
 window.previewPhotos = previewPhotos;
 window.removePhoto = removePhoto;
+window.loadPopularLocations = loadPopularLocations;
 
 console.log("✅ Report modal script loaded successfully");

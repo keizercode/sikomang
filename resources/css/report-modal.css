@@ -426,7 +426,9 @@
     color: #6b7280;
 }
 
-/* Location Search */
+/* ============================================
+   ✅ ENHANCED LOCATION SEARCH DROPDOWN
+   ============================================ */
 .location-search-wrapper {
     position: relative;
 }
@@ -440,17 +442,35 @@
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     margin-top: 4px;
-    max-height: 180px;
+    max-height: 280px; /* ✅ Increased for 10 items */
     overflow-y: auto;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     z-index: 10;
 }
 
+.location-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.location-results::-webkit-scrollbar-track {
+    background: #f9fafb;
+    border-radius: 3px;
+}
+
+.location-results::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.location-results::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
 .location-result-item {
-    padding: 8px 12px;
+    padding: 10px 12px;
     cursor: pointer;
     border-bottom: 1px solid #f3f4f6;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .location-result-item:last-child {
@@ -458,7 +478,9 @@
 }
 
 .location-result-item:hover {
-    background: #f9fafb;
+    background: linear-gradient(90deg, #f0fdf4 0%, #ecfdf5 100%);
+    border-left: 3px solid #009966;
+    padding-left: 9px; /* Compensate for border */
 }
 
 .location-result-item strong {
@@ -473,15 +495,28 @@
     font-size: 0.688rem;
 }
 
+/* ✅ Selected Location Display */
 .selected-location {
     margin-top: 8px;
-    background: #f0fdf4;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border: 1.5px solid #86efac;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 10px 12px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    animation: slideInFromTop 0.3s ease;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .selected-location-content {
@@ -490,7 +525,7 @@
     align-items: center;
     gap: 8px;
     color: #059669;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.813rem;
 }
 
@@ -501,15 +536,19 @@
 .btn-clear-location {
     background: none;
     border: none;
-    padding: 4px;
+    padding: 6px;
     cursor: pointer;
     color: #059669;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-clear-location:hover {
-    background: rgba(5, 150, 105, 0.1);
+    background: rgba(5, 150, 105, 0.15);
+    transform: scale(1.1);
 }
 
 /* Urgency Options - ✅ Compact */
@@ -543,6 +582,7 @@
     box-shadow:
         0 0 0 3px currentColor,
         0 0 0 5px rgba(0, 0, 0, 0.05);
+    transform: scale(1.02);
 }
 
 .urgency-rendah {
@@ -858,6 +898,10 @@
     .photo-upload-area svg {
         width: 32px;
         height: 32px;
+    }
+
+    .location-results {
+        max-height: 220px;
     }
 }
 
