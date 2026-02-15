@@ -7,6 +7,33 @@
 @vite('resources/css/monitoring.css')
 
 <style>
+/* Polygon fill styles by density */
+.leaflet-interactive.density-jarang {
+    fill: #8dd3c7 !important;
+    fill-opacity: 0.4 !important;
+    stroke: #5aa89a !important;
+    stroke-width: 2px !important;
+}
+
+.leaflet-interactive.density-sedang {
+    fill: #FFFFB3 !important;
+    fill-opacity: 0.4 !important;
+    stroke: #d4d466 !important;
+    stroke-width: 2px !important;
+}
+
+.leaflet-interactive.density-lebat {
+    fill: #BEBADA !important;
+    fill-opacity: 0.4 !important;
+    stroke: #9186ad !important;
+    stroke-width: 2px !important;
+}
+
+/* Highlight on hover */
+.leaflet-interactive:hover {
+    fill-opacity: 0.7 !important;
+    stroke-width: 3px !important;
+}
 
 /* Custom Popup Styles */
 .custom-popup {
@@ -92,10 +119,43 @@
 .custom-tooltip::before {
     border-top-color: rgba(0, 0, 0, 0.85);
 }
+
+/* Loading overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+#loading-overlay .spinner {
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #009966;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </style>
 @endpush
 
 @section('content')
+<!-- Loading Overlay -->
+<div id="loading-overlay" style="display: none;">
+    <div class="spinner"></div>
+</div>
+
 <div class="monitoring-wrapper">
     {{-- Info Panel Section --}}
     <aside class="info-panel">
@@ -227,54 +287,14 @@
             sedang: '#FFFFB3',
             lebat: '#BEBADA'
         },
-        circleRadius: 500, // 500 meters
-        markerSize: 24
-    };
-
-    // ===========================
-    // MANGROVE DATA FROM CONTROLLER
-    // ===========================
-    const locationsData = @json($locations);
-
-    console.log('=== MONITORING MAP DEBUG ===');
-    console.log('Total locations from controller:', locationsData.length);
-    console.log('Locations data:', locationsData);
-
-    // Group locations by density
-    const mangroveData = {
-        'jarang': [],
-        'sedang': [],
-        'lebat': []
-    };
-
-    locationsData.forEach(location => {
-        // Parse coordinates from "lat, lng" string to [lat, lng] array
-        const coordsArray = location.coords.split(',').map(c => parseFloat(c.trim()));
-
-        const mapLocation = {
-            name: location.name,
-            coords: coordsArray,
-            area: location.area,
-            slug: location.slug,
-            density: location.density,
-            type: location.type,
-            year: location.year,
-            images: location.images || [],
-            species_detail: location.species_detail || {},
-            damage_count: location.damage_count || 0
-        };
-
-        // Add to appropriate density group
-        const densityKey = location.density.toLowerCase();
-        if (mangroveData[densityKey]) {
-            mangroveData[densityKey].push(mapLocation);
+        api: {
+            baseUrl: '{{ url("/api/geojson") }}',
+            densities: ['jarang', 'sedang', 'lebat']
         }
-    });
+    };
 
-    console.log('Grouped by density:');
-    console.log('- Jarang:', mangroveData.jarang.length, 'locations');
-    console.log('- Sedang:', mangroveData.sedang.length, 'locations');
-    console.log('- Lebat:', mangroveData.lebat.length, 'locations');
+    console.log('=== GEOJSON MONITORING MAP DEBUG ===');
+    console.log('API Base URL:', CONFIG.api.baseUrl);
 
     // ===========================
     // MAP INITIALIZATION
@@ -304,107 +324,137 @@
         "Peta Standar": osmLayer,
         "Satelit": satelliteLayer
     };
+    L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
     // ===========================
-    // LAYER GROUPS
+    // LAYER GROUPS FOR GEOJSON
     // ===========================
     const layers = {
         jarang: L.layerGroup().addTo(map),
         sedang: L.layerGroup().addTo(map),
         lebat: L.layerGroup().addTo(map)
     };
-    L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
     // ===========================
     // HELPER FUNCTIONS
     // ===========================
-    function createCustomIcon(color) {
-        return L.divIcon({
-            className: 'custom-marker',
-            html: `<div style="background-color: ${color}; width: ${CONFIG.markerSize}px; height: ${CONFIG.markerSize}px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-            iconSize: [CONFIG.markerSize, CONFIG.markerSize],
-            iconAnchor: [CONFIG.markerSize / 2, CONFIG.markerSize / 2],
-            popupAnchor: [0, -CONFIG.markerSize / 2]
-        });
+    function showLoading() {
+        document.getElementById('loading-overlay').style.display = 'flex';
     }
 
-    function createPopupContent(location, category) {
-        // Get first image or use placeholder
-        const imageUrl = location.images && location.images.length > 0
-            ? location.images[0]
+    function hideLoading() {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+
+    function getStyleByDensity(density) {
+        return {
+            color: CONFIG.colors[density],
+            weight: 2,
+            opacity: 1,
+            fillColor: CONFIG.colors[density],
+            fillOpacity: 0.4,
+            className: `density-${density}`
+        };
+    }
+
+    function createPopupContent(feature) {
+        const props = feature.properties;
+        const imageUrl = props.images && props.images.length > 0
+            ? props.images[0]
             : 'https://via.placeholder.com/400x200?text=No+Image';
 
-        // Get first 2 species from vegetasi
-        let speciesText = '-';
-        if (location.species_detail && location.species_detail.vegetasi && location.species_detail.vegetasi.length > 0) {
-            const species = location.species_detail.vegetasi.slice(0, 2);
-            speciesText = species.join(', ');
-            if (location.species_detail.vegetasi.length > 2) {
-                speciesText += ` +${location.species_detail.vegetasi.length - 2} lainnya`;
-            }
-        }
-
-        // Format damage count
-        const damageText = location.damage_count > 0
-            ? `⚠️ ${location.damage_count} Kerusakan teridentifikasi`
+        const damageText = props.damage_count > 0
+            ? `⚠️ ${props.damage_count} Kerusakan teridentifikasi`
             : '✅ Tidak ada kerusakan';
 
-        const damageColor = location.damage_count > 0 ? '#dc2626' : '#16a34a';
+        const damageColor = props.damage_count > 0 ? '#dc2626' : '#16a34a';
 
         return `
             <div class="custom-popup">
                 <div class="popup-image">
-                    <img src="${imageUrl}" alt="${location.name}" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" />
+                    <img src="${imageUrl}" alt="${props.name}" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" />
                 </div>
-                <div class="popup-title">${location.name}</div>
+                <div class="popup-title">${props.name}</div>
                 <div class="popup-badges">
-                    <span style="background: #009966; color: white;">${location.type}</span>
-                    <span style="background: #6b7280; color: white;">${location.year}</span>
+                    <span style="background: #009966; color: white;">${props.type}</span>
+                    <span style="background: #6b7280; color: white;">${props.year_established || 'N/A'}</span>
                 </div>
-                <div class="popup-info">📍 ${location.coords[0].toFixed(4)}, ${location.coords[1].toFixed(4)}</div>
-                <div class="popup-info">📏 Luas: ${location.area}</div>
-                <div class="popup-info">🌳 Kerapatan: ${category.charAt(0).toUpperCase() + category.slice(1)}</div>
-                <div class="popup-info" style="font-size: 12px; color: #4b5563; margin-top: 4px;">🌿 ${speciesText}</div>
+                <div class="popup-info">📏 Luas: ${props.area ? props.area + ' ha' : 'N/A'}</div>
+                <div class="popup-info">🌳 Kerapatan: ${props.density.charAt(0).toUpperCase() + props.density.slice(1)}</div>
+                <div class="popup-info">📍 ${props.region || 'DKI Jakarta'}</div>
                 <div class="popup-info" style="font-weight: 600; color: ${damageColor}; margin-top: 4px;">${damageText}</div>
-                <a href="/monitoring/lokasi/${location.slug}" class="popup-link">Lihat Detail →</a>
+                <a href="${props.detail_url}" class="popup-link">Lihat Detail →</a>
             </div>
         `;
     }
 
-    // ===========================
-    // ADD MARKERS TO MAP
-    // ===========================
-    Object.keys(mangroveData).forEach(category => {
-        mangroveData[category].forEach(location => {
-            // Create marker
-            const marker = L.marker(location.coords, {
-                icon: createCustomIcon(CONFIG.colors[category])
-            }).addTo(layers[category]);
-
-            // Bind popup with custom options
-            marker.bindPopup(createPopupContent(location, category), {
-                maxWidth: 320,
-                minWidth: 280,
-                className: 'leaflet-popup-custom'
-            });
-
-            // Add coverage circle
-            L.circle(location.coords, {
-                color: CONFIG.colors[category],
-                fillColor: CONFIG.colors[category],
-                fillOpacity: 0.3,
-                radius: CONFIG.circleRadius,
-                weight: 2
-            }).addTo(layers[category]);
-
-            // Add tooltip
-            marker.bindTooltip(location.name, {
-                permanent: false,
-                direction: 'top',
-                className: 'custom-tooltip'
-            });
+    function onEachFeature(feature, layer, density) {
+        // Bind popup
+        layer.bindPopup(createPopupContent(feature), {
+            maxWidth: 320,
+            minWidth: 280,
+            className: 'leaflet-popup-custom'
         });
-    });
+
+        // Bind tooltip
+        layer.bindTooltip(feature.properties.name, {
+            permanent: false,
+            direction: 'top',
+            className: 'custom-tooltip'
+        });
+
+        // Add hover effects
+        layer.on({
+            mouseover: function(e) {
+                this.setStyle({
+                    fillOpacity: 0.7,
+                    weight: 3
+                });
+            },
+            mouseout: function(e) {
+                this.setStyle(getStyleByDensity(density));
+            }
+        });
+    }
+
+    // ===========================
+    // LOAD GEOJSON DATA FROM API
+    // ===========================
+    async function loadGeoJsonData() {
+        showLoading();
+
+        try {
+            // Load each density layer
+            for (const density of CONFIG.api.densities) {
+                const url = `${CONFIG.api.baseUrl}/density/${density}`;
+                console.log(`Fetching ${density} data from:`, url);
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const geojsonData = await response.json();
+                console.log(`✓ Loaded ${density}:`, geojsonData.features.length, 'features');
+
+                // Add GeoJSON to map
+                L.geoJSON(geojsonData, {
+                    style: getStyleByDensity(density),
+                    onEachFeature: (feature, layer) => onEachFeature(feature, layer, density)
+                }).addTo(layers[density]);
+            }
+
+            console.log('✓ All GeoJSON layers loaded successfully');
+            hideLoading();
+
+        } catch (error) {
+            console.error('❌ Error loading GeoJSON:', error);
+            hideLoading();
+
+            alert('Gagal memuat data peta. Silakan refresh halaman.');
+        }
+    }
 
     // ===========================
     // UI INTERACTION FUNCTIONS
@@ -412,7 +462,6 @@
     function toggleLegend(type) {
         const body = document.getElementById(`legend-body-${type}`);
         const btn = body.previousElementSibling.querySelector('.legend-toggle-btn');
-        const icon = btn.querySelector('svg path');
         const text = btn.querySelector('span');
 
         body.classList.toggle('show');
@@ -450,17 +499,15 @@
         map.invalidateSize();
     });
 
-    // Show toggle button on desktop when panel is hidden
-    if (window.innerWidth > 1024) {
-        const panel = document.querySelector('.info-panel');
-        const toggleBtn = document.querySelector('.panel-toggle');
+    // ===========================
+    // INITIALIZE
+    // ===========================
+    // Load GeoJSON data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadGeoJsonData();
+    });
 
-        if (panel.style.display === 'none') {
-            toggleBtn.style.display = 'block';
-        }
-    }
-
-    // Fix map rendering on page load
+    // Fix map rendering
     setTimeout(() => {
         map.invalidateSize();
     }, 100);

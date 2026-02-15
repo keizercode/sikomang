@@ -17,6 +17,7 @@ use App\Http\Controllers\Frontend\GalleryController as FrontendGalleryController
 use App\Http\Controllers\Frontend\MonitoringController;
 use App\Http\Controllers\Frontend\ExcelExportController;
 use App\Http\Controllers\Frontend\PublicReportController as FrontendPublicReportController;
+use App\Http\Controllers\Frontend\GeoJsonApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -153,6 +154,14 @@ Route::prefix('reports')->name('reports.')->group(function () {
     Route::post('/submit', [FrontendPublicReportController::class, 'submit'])->name('submit');
     Route::get('/search-locations', [FrontendPublicReportController::class, 'searchLocations'])->name('search-locations');
     Route::post('/check-status', [FrontendPublicReportController::class, 'checkStatus'])->name('check-status');
+});
+
+// GeoJSON API Routes (Frontend)
+Route::prefix('api/geojson')->name('api.geojson.')->group(function () {
+    Route::get('/all', [GeoJsonApiController::class, 'getAllGeoJson'])->name('all');
+    Route::get('/density/{density}', [GeoJsonApiController::class, 'getByDensity'])->name('by-density');
+    Route::get('/bounds', [GeoJsonApiController::class, 'getWithinBounds'])->name('within-bounds');
+    Route::get('/feature/{id}', [GeoJsonApiController::class, 'getSingleFeature'])->name('single-feature');
 });
 
 // Fallback route untuk 404
