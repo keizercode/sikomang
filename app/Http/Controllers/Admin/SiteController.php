@@ -30,8 +30,9 @@ class SiteController extends Controller
 
     public function grid(Request $request)
     {
+        // FIXED: Gunakan orderBy('id') agar urutan konsisten dan tidak berubah saat update
         $locations = MangroveLocation::with(['damages'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'asc') // Urutan berdasarkan ID (terbaru di atas)
             ->get();
 
         $data = $locations->map(function ($location, $index) {

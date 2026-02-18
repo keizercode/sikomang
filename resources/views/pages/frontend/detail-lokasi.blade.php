@@ -66,17 +66,17 @@
             <div class="card">
                 <h2 class="card-title">Informasi Lokasi Kawasan</h2>
                 <x-info-grid :items="[
-                    'Koordinat' => $location['coords'],
-                    'Luas Area' => $location['area'],
-                    'Kerapatan' => ucfirst($location['density']),
-                    'Kesehatan Mangrove' => $location['health'],
-                    'Serapan Karbon' => $location['carbon_data'],
-                    'Pengelola' => $location['manager']
+                    'Koordinat'           => $location['coords'],
+                    'Luas Area'           => $location['area'],
+                    'Kerapatan'           => ucfirst($location['density']),
+                    'Kesehatan Mangrove'  => $location['health'],
+                    'Serapan Karbon'      => $location['carbon_data'],
+                    'Pengelola'           => $location['manager']
                 ]" />
 
-                 @foreach([
-                    ['label' => 'Lokasi', 'value' => $location['location']],
-                    ['label' => 'Species', 'value' => $location['species']],
+                @foreach([
+                    ['label' => 'Lokasi',    'value' => $location['location']],
+                    ['label' => 'Species',   'value' => $location['species']],
                     ['label' => 'Deskripsi', 'value' => $location['description'], 'isParagraph' => true]
                 ] as $info)
                     <div style="margin-top: 1.5rem;">
@@ -95,8 +95,8 @@
             {{-- Kerusakan & Aksi --}}
             @if(isset($location['damages']) && count($location['damages']) > 0)
                 @foreach([
-                    ['title' => 'Kerusakan Teridentifikasi', 'items' => $location['damages'], 'class' => 'damage'],
-                    ['title' => 'Aksi Penanganan', 'items' => $location['actions'] ?? [], 'class' => 'action']
+                    ['title' => 'Kerusakan Teridentifikasi', 'items' => $location['damages'],          'class' => 'damage'],
+                    ['title' => 'Aksi Penanganan',           'items' => $location['actions'] ?? [],    'class' => 'action']
                 ] as $section)
                     @if(count($section['items']) > 0)
                     <div class="card">
@@ -114,11 +114,16 @@
                 @endforeach
             @endif
 
-            {{-- Accordion Sections --}}
-            @if(isset($location['species_detail']))
+            {{-- Accordion: Spesies --}}
+            @if(isset($location['species_detail']) && is_array($location['species_detail']))
+                @php
+                    $hasVegetasi = !empty($location['species_detail']['vegetasi']);
+                    $hasFauna    = !empty($location['species_detail']['fauna']);
+                @endphp
+                @if($hasVegetasi || $hasFauna)
                 <x-accordion-card id="species" title="Spesies (Vegetasi dan Fauna)">
                     @foreach(['vegetasi' => 'Vegetasi', 'fauna' => 'Fauna'] as $key => $label)
-                        @if(isset($location['species_detail'][$key]))
+                        @if(!empty($location['species_detail'][$key]))
                         <div class="species-section">
                             <h3 class="species-subtitle">{{ $label }}:</h3>
                             <ul class="species-list">
@@ -130,35 +135,59 @@
                         @endif
                     @endforeach
                 </x-accordion-card>
+                @endif
             @endif
 
+            {{-- Accordion: Activities --}}
+            @if(isset($location['activities']) && is_array($location['activities']) && count($location['activities']) > 0)
+            <x-accordion-card id="activities" title="Aktivitas Sekitar">
+                @php
+
+                    $actDesc  = $location['activities']['description'] ?? null;
+                    $actItems = $location['activities']['items']       ?? $location['activities'];
+                    $actItems = is_array($actItems) ? $actItems : [];
+                @endphp
+
+                @if($actDesc)
+                    <p class="activity-description">{{ $actDesc }}</p>
+                @endif
+
+                @if(count($actItems) > 0)
+                <ul class="activity-list">
+                    @foreach($actItems as $item)
+                        @if(is_string($item) && trim($item) !== '')
+                        <li>{{ $item }}</li>
+                        @endif
+                    @endforeach
+                </ul>
+                @endif
+            </x-accordion-card>
+            @endif
+
+            {{-- Accordion: lainnya (forest_utilization, programs, stakeholders) --}}
             @foreach([
-                ['key' => 'activities', 'id' => 'activities', 'title' => 'Aktivitas Sekitar', 'listClass' => 'activity-list'],
-                ['key' => 'forest_utilization', 'id' => 'utilization', 'title' => 'Pemanfaatan Hutan', 'listClass' => 'utilization-list'],
-                ['key' => 'programs', 'id' => 'programs', 'title' => 'Program yang Dilaksanakan', 'listClass' => 'program-list'],
-                ['key' => 'stakeholders', 'id' => 'stakeholders', 'title' => 'Pihak Terkait', 'listClass' => 'stakeholder-list']
+                ['key' => 'forest_utilization', 'id' => 'utilization',  'title' => 'Pemanfaatan Hutan',          'listClass' => 'utilization-list'],
+                ['key' => 'programs',            'id' => 'programs',     'title' => 'Program yang Dilaksanakan',   'listClass' => 'program-list'],
+                ['key' => 'stakeholders',        'id' => 'stakeholders', 'title' => 'Pihak Terkait',              'listClass' => 'stakeholder-list']
             ] as $acc)
-                @if(isset($location[$acc['key']]))
+                @php
+                    $accItems = isset($location[$acc['key']]) && is_array($location[$acc['key']])
+                        ? array_filter($location[$acc['key']], fn($i) => is_string($i) && trim($i) !== '')
+                        : [];
+                @endphp
+                @if(count($accItems) > 0)
                 <x-accordion-card :id="$acc['id']" :title="$acc['title']">
-                    @if($acc['key'] === 'activities')
-                        <p class="activity-description">{{ $location['activities']['description'] }}</p>
-                        <ul class="{{ $acc['listClass'] }}">
-                            @foreach($location['activities']['items'] as $item)
-                            <li>{{ $item }}</li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <ul class="{{ $acc['listClass'] }}">
-                            @foreach($location[$acc['key']] as $item)
-                            <li>{{ $item }}</li>
-                            @endforeach
-                        </ul>
-                    @endif
+                    <ul class="{{ $acc['listClass'] }}">
+                        @foreach($accItems as $item)
+                        <li>{{ $item }}</li>
+                        @endforeach
+                    </ul>
                 </x-accordion-card>
                 @endif
             @endforeach
 
             {{-- Galeri Foto --}}
+            @if(!empty($location['images']))
             <div class="card">
                 <h2 class="card-title">Galeri Foto</h2>
                 <div class="gallery">
@@ -169,6 +198,7 @@
                     @endforeach
                 </div>
             </div>
+            @endif
 
         </div>
 
@@ -212,27 +242,21 @@
 {{-- Image Modal with Navigation & Thumbnails --}}
 <x-gallery-modal />
 
-{{-- REPORT MODAL - INCLUDE COMPONENT --}}
+{{-- REPORT MODAL --}}
 @include('components.report-modal')
 
-{{-- Pass location data to JavaScript --}}
+{{-- Location data untuk JavaScript --}}
 <script>
-    // IMPORTANT: Pass location ID untuk modal laporan
     window.currentLocationData = {
-        id: {{ $location['id'] ?? 0 }}, // Real location ID from database
-        name: "{{ $location['name'] ?? '' }}",
+        id:   {{ $location['id'] ?? 0 }},
+        name: "{{ addslashes($location['name'] ?? '') }}",
         slug: "{{ $location['slug'] ?? '' }}"
     };
 
-    // Initialize location on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.currentLocationData && window.currentLocationData.id > 0) {
-            console.log('Current location:', window.currentLocationData);
-            // Set current location name in modal
-            const currentLocationName = document.getElementById('currentLocationName');
-            if (currentLocationName) {
-                currentLocationName.textContent = window.currentLocationData.name;
-            }
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.currentLocationData?.id > 0) {
+            const el = document.getElementById('currentLocationName');
+            if (el) el.textContent = window.currentLocationData.name;
         }
     });
 </script>
@@ -241,20 +265,19 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
 @endpush
+
+{{-- locationData harus ada sebelum push scripts agar tersedia saat scripts dieksekusi --}}
 <script>
     const locationData = @json($location);
 </script>
+
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    const coords = [
-        locationData.latitude,
-        locationData.longitude
-    ];
+    const coords = [locationData.latitude, locationData.longitude];
 
     if (!coords[0] || !coords[1]) {
         console.error('Koordinat tidak valid', coords);
@@ -267,52 +290,33 @@ document.addEventListener('DOMContentLoaded', function () {
         maxZoom: 19
     }).addTo(map);
 
+    function capitalizeFirst(text) {
+        if (!text) return '';
+        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+    }
 
-
-const popupContent = `
-<div class="popup-card">
-
-    <div class="popup-header">
-        <div class="popup-title" style="color:white">${locationData.name}</div>
-        <div class="popup-coord">📍${locationData.coords}</div>
-    </div>
-
-    <div class="popup-body">
-
-        <div class="popup-row">
-            <span class="popup-label">
-                🌱 Kerapatan
-            </span>
-            <span class="popup-value badge badge-density">
-                ${capitalizeFirst(locationData.density)}
-            </span>
+    const popupContent = `
+        <div class="popup-card">
+            <div class="popup-header">
+                <div class="popup-title" style="color:white">${locationData.name}</div>
+                <div class="popup-coord">📍 ${locationData.coords}</div>
+            </div>
+            <div class="popup-body">
+                <div class="popup-row">
+                    <span class="popup-label">🌱 Kerapatan</span>
+                    <span class="popup-value badge badge-density">${capitalizeFirst(locationData.density)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">🏷️ Tipe</span>
+                    <span class="popup-value">${locationData.type}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">🏢 Pengelola</span>
+                    <span class="popup-value">${locationData.manager}</span>
+                </div>
+            </div>
         </div>
-
-        <div class="popup-row">
-            <span class="popup-label">
-                🏷️ Tipe
-            </span>
-            <span class="popup-value">
-                ${locationData.type}
-            </span>
-        </div>
-
-        <div class="popup-row">
-            <span class="popup-label">
-                🏢 Pengelola
-            </span>
-            <span class="popup-value">
-                ${locationData.manager}
-            </span>
-        </div>
-
-    </div>
-</div>
-`;
-function capitalizeFirst(text) {
-    if (!text) return '';
-    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-}
+    `;
 
     L.marker(coords)
         .addTo(map)
@@ -323,4 +327,3 @@ function capitalizeFirst(text) {
 });
 </script>
 @endpush
-

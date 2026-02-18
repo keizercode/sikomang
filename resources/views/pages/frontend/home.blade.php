@@ -34,7 +34,7 @@
 
                         <button
                             type="button"
-                            onclick="openModal()"
+                            onclick="openModal('aboutModal')"
                             class="cursor-pointer inline-flex items-center space-x-2 border border-gray-300 text-secondary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all"
                         >
                             <span>Pelajari lebih lanjut</span>
@@ -175,15 +175,16 @@
     </section>
 
     {{-- Modal Tentang Sikomang --}}
-    <div id="aboutModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal()"></div>
+
+    <div id="aboutModal" class="fixed inset-0 z-[9999] hidden">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('aboutModal')"></div>
         <div class="fixed inset-0 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative animate-modal">
                 <div class="flex items-center justify-between p-6 pb-4">
                     <h2 class="text-2xl md:text-3xl font-bold" style="color: #242621;">Tentang Sikomang</h2>
                     <button
                         type="button"
-                        onclick="closeModal()"
+                        onclick="closeModal('aboutModal')"
                         class="cursor-pointer w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all"
                     >
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,26 +243,4 @@
         animation: modalFadeIn 0.2s ease-out forwards;
     }
 </style>
-@endpush
-
-@push('scripts')
-<script>
-    function openModal() {
-        const modal = document.getElementById('aboutModal');
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-        const modal = document.getElementById('aboutModal');
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
-    });
-</script>
 @endpush

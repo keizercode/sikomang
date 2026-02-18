@@ -20,13 +20,18 @@
                 <h2>Pemanfaatan Mangrove</h2>
             </div>
 
+            {{-- ── Statistik Utama (dinamis dari database) ─────────── --}}
             <div class="stats-section">
                 <h3>Total Pemanfaatan Kawasan Mangrove</h3>
-                <div class="stat-number primary">23</div>
-                <div class="stat-label">Pemanfaatan Aktif (ha)</div>
-                <div class="stat-number secondary">297</div>
+
+                <div class="stat-number primary">{{ $totalSites }}</div>
+                <div class="stat-label">Total Titik Monitoring</div>
+
+                <div class="stat-number secondary">{{ $totalArea }}</div>
+                <div class="stat-label">Total Luas (ha)</div>
             </div>
 
+            {{-- ── Rekomendasi Pengelolaan (dinamis dari database) ─── --}}
             <div class="info-section">
                 <div class="info-header">
                     <h3>Rekomendasi Pengelolaan</h3>
@@ -41,31 +46,40 @@
                 </div>
 
                 <div class="recommendation-tags">
-                    <span class="tag tag-green">Dilindungi: 6</span>
-                    <span class="tag tag-yellow">Pengkayaan: 11</span>
-                    <span class="tag tag-orange">Pengkayaan / Rehabilitasi: 1</span>
-                    <span class="tag tag-red">Rehabilitasi: 3</span>
+                    @if($typeStats['dilindungi'] > 0)
+                        <span class="tag tag-green">Dilindungi: {{ $typeStats['dilindungi'] }}</span>
+                    @endif
+                    @if($typeStats['pengkayaan'] > 0)
+                        <span class="tag tag-yellow">Pengkayaan: {{ $typeStats['pengkayaan'] }}</span>
+                    @endif
+                    @if($typeStats['rehabilitasi'] > 0)
+                        <span class="tag tag-red">Rehabilitasi: {{ $typeStats['rehabilitasi'] }}</span>
+                    @endif
+                    @if($typeStats['restorasi'] > 0)
+                        <span class="tag tag-orange">Restorasi: {{ $typeStats['restorasi'] }}</span>
+                    @endif
                 </div>
             </div>
 
+            {{-- ── Sebaran Geografis (dinamis dari database) ───────── --}}
             <div class="geography-section">
                 <h3>Sebaran Geografis</h3>
                 <ul class="location-list">
                     <li>
                         <span class="location-name">Kecamatan Penjaringan</span>
-                        <span class="location-count">11 Sites</span>
+                        <span class="location-count">{{ $regionStats['penjaringan'] }} Sites</span>
                     </li>
                     <li>
                         <span class="location-name">Kecamatan Cilincing</span>
-                        <span class="location-count">5 Sites</span>
+                        <span class="location-count">{{ $regionStats['cilincing'] }} Sites</span>
                     </li>
                     <li>
                         <span class="location-name">Kepulauan Seribu Utara</span>
-                        <span class="location-count">3 Sites</span>
+                        <span class="location-count">{{ $regionStats['kep_seribu_utara'] }} Sites</span>
                     </li>
                     <li>
                         <span class="location-name">Kepulauan Seribu Selatan</span>
-                        <span class="location-count">4 Sites</span>
+                        <span class="location-count">{{ $regionStats['kep_seribu_selatan'] }} Sites</span>
                     </li>
                 </ul>
             </div>
@@ -87,18 +101,37 @@
 
             {{-- Filter Tabs by Group --}}
             <div class="filter-tabs">
-                <button class="tab active" onclick="filterByGroup('all')">Semua</button>
-                <button class="tab" onclick="filterByGroup('penjaringan')">Penjaringan, Jakarta Utara</button>
-                <button class="tab" onclick="filterByGroup('cilincing')">Cilincing, Jakarta Utara</button>
-                <button class="tab" onclick="filterByGroup('kep-seribu-utara')">Kep. Seribu Utara</button>
-                <button class="tab" onclick="filterByGroup('kep-seribu-selatan')">Kep. Seribu Selatan</button>
+                <button class="tab active" onclick="filterByGroup('all')">
+                    Semua
+                    <span class="tab-count">{{ $totalSites }}</span>
+                </button>
+                <button class="tab" onclick="filterByGroup('penjaringan')">
+                    Penjaringan, Jakarta Utara
+                    <span class="tab-count">{{ $regionStats['penjaringan'] }}</span>
+                </button>
+                <button class="tab" onclick="filterByGroup('cilincing')">
+                    Cilincing, Jakarta Utara
+                    <span class="tab-count">{{ $regionStats['cilincing'] }}</span>
+                </button>
+                <button class="tab" onclick="filterByGroup('kep-seribu-utara')">
+                    Kep. Seribu Utara
+                    <span class="tab-count">{{ $regionStats['kep_seribu_utara'] }}</span>
+                </button>
+                <button class="tab" onclick="filterByGroup('kep-seribu-selatan')">
+                    Kep. Seribu Selatan
+                    <span class="tab-count">{{ $regionStats['kep_seribu_selatan'] }}</span>
+                </button>
             </div>
 
             {{-- Cards Grid --}}
             <div class="cards-grid">
-                @foreach($locations as $location)
+                @forelse($locations as $location)
                     <x-shared.location-card :location="$location" />
-                @endforeach
+                @empty
+                    <div class="empty-state">
+                        <p>Belum ada data lokasi monitoring.</p>
+                    </div>
+                @endforelse
             </div>
         </main>
     </div>
@@ -112,9 +145,7 @@
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // CRITICAL: Set locations data BEFORE loading the script
     window.locationsData = @json($locations);
     console.log('Locations data set:', window.locationsData.length, 'locations');
 </script>
-
 @endpush

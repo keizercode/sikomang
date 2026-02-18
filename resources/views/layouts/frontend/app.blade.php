@@ -59,7 +59,7 @@
     <main>
         @yield('content')
     </main>
-
+    @stack('modals')
     @include('components.frontend.footer')
     @stack('scripts')
 </body>
