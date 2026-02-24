@@ -91,6 +91,23 @@
         text-decoration: underline;
     }
 
+    /* Leaflet popup override — hapus padding bawaan agar header flush */
+    .mangrove-popup .leaflet-popup-content-wrapper {
+        padding: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .mangrove-popup .leaflet-popup-content {
+        margin: 0;
+        width: 280px !important;
+    }
+
+    .mangrove-popup .leaflet-popup-tip-container {
+        margin-top: -1px;
+    }
+
     /* Map Container */
     .map-container {
         height: 400px;
@@ -474,7 +491,6 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="map-container position-relative">
-
                             <div id="locationMap"></div>
                         </div>
                     </div>
@@ -702,23 +718,52 @@ document.addEventListener('DOMContentLoaded', function() {
         maxZoom: 19
     }).addTo(map);
 
-    // Custom marker icon
+    // ─── Warna marker berdasarkan tipe kawasan ───────────────────────────────
+    const typeColorMap = {
+        'dilindungi'  : '#00BC7D',
+        'pengkayaan'  : '#F0B100',
+        'rehabilitasi': '#FF6900',
+        'restorasi'   : '#9F0712',
+    };
+    const locationType = '{{ $report->location->type ?? "pengkayaan" }}';
+    const markerColor  = typeColorMap[locationType] || '#009966';
+
+    const typeLabelMap = {
+        'dilindungi'  : 'Dilindungi',
+        'pengkayaan'  : 'Pengkayaan',
+        'rehabilitasi': 'Rehabilitasi',
+        'restorasi'   : 'Restorasi',
+    };
+    const densityLabelMap = {
+        'jarang': 'Jarang',
+        'sedang': 'Sedang',
+        'lebat' : 'Lebat',
+    };
+
+    // Data lokasi — dari PHP (dinamis)
+    const locationName    = @json($report->location->name ?? '-');
+    const locationYear    = @json($report->location->year_established ?? null);
+    const locationArea    = @json($report->location->area ?? null);
+    const locationDensity = @json($report->location->density ?? '-');
+    const locationSpecies = @json($report->location->species ?? null);
+
+    // ─── Custom marker — warna sesuai tipe ──────────────────────────────────
     const customIcon = L.divIcon({
         className: 'custom-marker',
         html: `
             <div style="
-                background: #009966;
+                background: ${markerColor};
                 width: 40px;
                 height: 40px;
                 border-radius: 50% 50% 50% 0;
                 transform: rotate(-45deg);
                 border: 3px solid white;
-                box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.35);
                 display: flex;
                 align-items: center;
                 justify-content: center;
             ">
-                <i class="mdi mdi-alert" style="
+                <i class="mdi mdi-tree" style="
                     color: white;
                     font-size: 20px;
                     transform: rotate(45deg);
@@ -727,28 +772,94 @@ document.addEventListener('DOMContentLoaded', function() {
         `,
         iconSize: [40, 40],
         iconAnchor: [20, 40],
-        popupAnchor: [0, -40]
+        popupAnchor: [0, -46]
     });
 
     // Add marker
     const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
 
-    // Add popup
-    marker.bindPopup(`
-        <div style="min-width: 200px;">
-            <strong style="color: #009966;">{{ $report->location->name }}</strong><br>
-            @if($report->location->region)
-            <small style="color: #6b7280;">{{ $report->location->region }}</small><br>
-            @endif
-            <small style="color: #6b7280;">Koordinat: ${lat.toFixed(5)}, ${lng.toFixed(5)}</small>
-        </div>
-    `).openPopup();
+    // ─── Helper baris popup ──────────────────────────────────────────────────
+    function popupRow(icon, label, value) {
+        return `
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f3f4f6;">
+                <span style="color:${markerColor};font-size:15px;flex-shrink:0;margin-top:2px;">
+                    <i class="mdi mdi-${icon}"></i>
+                </span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.4px;line-height:1.2;">
+                        ${label}
+                    </div>
+                    <div style="font-size:12.5px;color:#1f2937;font-weight:500;line-height:1.4;word-break:break-word;">
+                        ${value}
+                    </div>
+                </div>
+            </div>`;
+    }
 
-    // Add circle to show area
+    // ─── Nilai popup (dinamis) ───────────────────────────────────────────────
+    const coordStr  = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+    const areaStr   = locationArea
+        ? `${Number(locationArea).toLocaleString('id-ID')} ha`
+        : `<em style="color:#9ca3af">Belum terdata</em>`;
+
+    const yearStr   = locationYear
+        ? `${locationYear}`
+        : `<em style="color:#9ca3af">Belum terdata</em>`;
+
+    const densStr   = densityLabelMap[locationDensity] || locationDensity;
+
+    const typeStr   = `<span style="
+                            display:inline-block;padding:2px 10px;border-radius:20px;
+                            background:${markerColor}22;color:${markerColor};
+                            font-weight:700;font-size:11px;letter-spacing:.3px;">
+                            ${typeLabelMap[locationType] || locationType}
+                        </span>`;
+
+    const specStr   = locationSpecies
+        ? `<span style="font-size:11.5px;font-style:italic;">${locationSpecies}</span>`
+        : `<em style="color:#9ca3af">Belum terdata</em>`;
+
+    // ─── Popup ───────────────────────────────────────────────────────────────
+    marker.bindPopup(`
+        <div style="font-family:sans-serif;">
+
+            {{-- Header — flush ke atas, tanpa margin negatif --}}
+            <div style="
+                background: linear-gradient(135deg, ${markerColor});
+                color: white;
+                padding: 12px 16px 10px;
+            ">
+                <div style="font-size:14px;font-weight:700;line-height:1.3;margin-bottom:3px;">
+                    ${locationName}
+                </div>
+                @if($report->location->region)
+                <div style="font-weight:600;font-size:11px;opacity:.85;">
+                    <i class="mdi mdi-map-marker-outline"></i>
+                    {{ $report->location->region }}
+                </div>
+                @endif
+            </div>
+
+            {{-- Baris info --}}
+            <div style="padding:4px 12px 8px;">
+                ${popupRow('forest',            'Tipe Kawasan',  typeStr)}
+                ${popupRow('ruler-square',      'Luas Area',     areaStr)}
+                ${popupRow('signal-cellular-2', 'Kerapatan',     densStr)}
+                ${popupRow('crosshairs-gps',    'Koordinat',     coordStr)}
+                </div>
+
+                </div>
+                `, { maxWidth: 300, className: 'mangrove-popup' }).openPopup();
+
+                // ─── Lingkaran area — warna sesuai tipe ─────────────────────────────────
+                // ${popupRow('calendar-range',    'Tahun Berdiri', yearStr)}
+                // ${popupRow('leaf',              'Spesies',       specStr)}
     L.circle([lat, lng], {
-        color: '#009966',
-        fillColor: '#009966',
-        fillOpacity: 0.1,
+        color: markerColor,
+        fillColor: markerColor,
+        fillOpacity: 0.08,
+        weight: 2,
         radius: 500
     }).addTo(map);
 });

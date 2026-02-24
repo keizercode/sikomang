@@ -33,7 +33,7 @@
                 </div>
                 <div class="detail-item">
                     <span class="label">Kerapatan</span>
-                    <span class="value">{{ $location['density'] }}</span>
+                <span class="value">{{ \Illuminate\Support\Str::title($location['density']) }}</span>
                 </div>
             </div>
             <p class="description">{{ $location['description'] ?? 'Tidak ada deskripsi' }}</p>

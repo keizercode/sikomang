@@ -568,7 +568,7 @@
 
 /* Matrix Cell Colors */
 .hasil-pemantauan-page .pengkayaan-prioritas {
-    background: linear-gradient(135deg, #d4f4dd 0%, #b8e6c9 100%);
+    background: #3c6300;
 }
 
 .hasil-pemantauan-page .dilindungi {
@@ -811,4 +811,63 @@
     .hasil-pemantauan-page #groupMap {
         height: 350px;
     }
+}
+/* ===== HEADER VS CONTENT MATRIX ===== */
+
+/* Bikin cell jadi 2 bagian */
+.hasil-pemantauan-page .matrix-cell {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* HEADER CELL */
+.hasil-pemantauan-page .cell-title {
+    padding: 6px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: center;
+    color: #ffffff;
+}
+
+/* CONTENT AREA */
+.hasil-pemantauan-page .matrix-cell ul {
+    padding: 8px 10px 10px;
+    background: rgba(255, 255, 255, 0.75);
+    flex: 1;
+}
+
+/* ===== WARNA HEADER TIAP KATEGORI ===== */
+
+.hasil-pemantauan-page .pengkayaan .cell-title,
+.hasil-pemantauan-page .pengkayaan-2 .cell-title,
+.hasil-pemantauan-page .pengkayaan-prioritas .cell-title {
+    background: #8b5e34;
+}
+
+.hasil-pemantauan-page .rehabilitasi .cell-title,
+.hasil-pemantauan-page .rehabilitasi-2 .cell-title,
+.hasil-pemantauan-page .rehabilitasi-3 .cell-title,
+.hasil-pemantauan-page .rehabilitasi-prioritas .cell-title {
+    background: #c2410c;
+}
+
+.hasil-pemantauan-page .restorasi .cell-title,
+.hasil-pemantauan-page .restorasi-2 .cell-title,
+.hasil-pemantauan-page .restorasi-prioritas .cell-title {
+    background: #b91c1c;
+}
+
+.hasil-pemantauan-page .dilindungi .cell-title,
+.hasil-pemantauan-page .dilindungi-2 .cell-title {
+    background: #047857;
+}
+
+.hasil-pemantauan-page .dipertahankan .cell-title {
+    background: #0369a1;
+}
+
+.hasil-pemantauan-page .pengkayaan-rehabilitasi .cell-title {
+    background: #9a3412;
 }

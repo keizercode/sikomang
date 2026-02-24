@@ -11,10 +11,6 @@
                 </a>
             </div>
 
-            <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect vertical-menu-btn">
-                <i class="bx bx-menu align-middle"></i>
-            </button>
-
             <!-- Page title -->
             <div class="page-title-box align-self-center d-none d-md-block">
                 <h4 class="page-title mb-0">{{@$title}}</h4>

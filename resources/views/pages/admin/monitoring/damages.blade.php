@@ -44,13 +44,11 @@
                                         <td>{{ dateTime($damage->created_at, 'd M Y') }}</td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="{{ route('admin.monitoring.edit', encode_id($damage->mangrove_location_id)) }}"
+                                                <a href="{{ route('admin.monitoring.detail', encode_id($damage->mangrove_location_id)) }}"
                                                    class="btn btn-sm btn-primary" title="Lihat Lokasi">
-                                                    <i class="mdi mdi-eye"></i>
+                                                   <i class="bx bx-show"></i> Detail
                                                 </a>
-                                                <button class="btn btn-sm btn-success" title="Update Status">
-                                                    <i class="mdi mdi-check"></i>
-                                                </button>
+
                                             </div>
                                         </td>
                                     </tr>

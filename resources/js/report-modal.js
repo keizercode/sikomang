@@ -559,7 +559,7 @@ function clearPhotoPreview() {
 }
 
 // ============================================
-// FORM SUBMISSION - ✅ PROFESSIONAL ERROR HANDLING
+// FORM SUBMISSION
 // ============================================
 
 async function submitReport() {
@@ -743,7 +743,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ✅ Add CSS for spinner animation
 const style = document.createElement("style");
 style.textContent = `
     @keyframes spin {
@@ -763,7 +762,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Make functions globally available
 window.openReportModal = openReportModal;
 window.closeReportModal = closeReportModal;
 window.closeSuccessModal = closeSuccessModal;
