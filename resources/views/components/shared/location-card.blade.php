@@ -36,7 +36,25 @@
                 <span class="value">{{ \Illuminate\Support\Str::title($location['density']) }}</span>
                 </div>
             </div>
-            <p class="description">{{ $location['description'] ?? 'Tidak ada deskripsi' }}</p>
+
+<p class="description">
+    <span style="font-size: 0.85rem; color: var(--text-light);">Species</span><br>
+    @php
+        $speciesRaw = $location['species'] ?? null;
+
+        if ($speciesRaw && $speciesRaw !== 'Belum diidentifikasi') {
+            $speciesList = array_map('trim', explode(',', $speciesRaw));
+            $show  = array_slice($speciesList, 0, 1);
+            $extra = count($speciesList) - count($show);
+
+            $formatted = array_map(fn($s) => "<span class='species-name'>$s</span>", $show);
+
+            echo implode(', ', $formatted) . ($extra > 0 ? ', ...' : '');
+        } else {
+            echo 'Spesies belum diidentifikasi';
+        }
+    @endphp
+</p>
 
             @if(isset($location['damage_count']) && $location['damage_count'] > 0)
             <div class="status damage-status">

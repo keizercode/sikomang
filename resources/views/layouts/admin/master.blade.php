@@ -473,8 +473,19 @@
     </script>
 
     <!-- Show flash messages -->
-    @if(session('message'))
-    <script>
+    // SESUDAH — tambahkan pengecekan bfcache agar tidak muncul ulang saat browser back
+@if(session('message'))
+<script>
+    // Hanya tampilkan notifikasi pada page load pertama, bukan saat restore dari bfcache
+    if (window.performance && window.performance.getEntriesByType) {
+        var navEntries = window.performance.getEntriesByType('navigation');
+        var isBfCache  = navEntries.length > 0 && navEntries[0].type === 'back_forward';
+    } else {
+        var isBfCache = window.performance && window.performance.navigation
+                        && window.performance.navigation.type === 2;
+    }
+
+    if (!isBfCache) {
         @if(session('type') == 'success')
             alertify.success('{{ session("message") }}');
         @elseif(session('type') == 'error')
@@ -482,8 +493,9 @@
         @else
             alertify.message('{{ session("message") }}');
         @endif
-    </script>
-    @endif
+    }
+</script>
+@endif
 
     @yield('js')
 </body>

@@ -17,7 +17,7 @@ class MonitoringController extends Controller
         try {
             $locations = MangroveLocation::where('is_active', true)
                 ->with(['details', 'images', 'damages.actions'])
-                ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'asc')
                 ->get();
 
             $total_sites = $locations->count();
@@ -58,7 +58,7 @@ class MonitoringController extends Controller
         try {
             $locations = MangroveLocation::where('is_active', true)
                 ->with(['details', 'images', 'damages.actions'])
-                ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'asc')
                 ->get();
 
             // ── Statistik Utama ────────────────────────────────────────

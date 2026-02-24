@@ -871,3 +871,9 @@
 .hasil-pemantauan-page .pengkayaan-rehabilitasi .cell-title {
     background: #9a3412;
 }
+
+.species-name {
+    font-family: "Segoe UI", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
