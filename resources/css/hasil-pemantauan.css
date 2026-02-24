@@ -1,5 +1,56 @@
 /* ===== Hasil Pemantauan Styles ===== */
 
+/* Sidebar hasil pemantuan  */
+.hasil-pemantauan-page .stat-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    background: var(--bg-white);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    transition:
+        box-shadow 0.2s,
+        border-color 0.2s;
+}
+
+.hasil-pemantauan-page .stat-box:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 3px 10px rgba(0, 166, 126, 0.12);
+}
+
+.hasil-pemantauan-page .stat-box-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 166, 126, 0.08);
+    border-radius: 8px;
+}
+
+.hasil-pemantauan-page .stat-box-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+/* Sesuaikan ukuran angka agar pas di dalam box */
+.hasil-pemantauan-page .stat-box .stat-number.primary,
+.hasil-pemantauan-page .stat-box .stat-number.secondary {
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.hasil-pemantauan-page .stat-box .stat-label {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
 /* CSS Variables */
 .hasil-pemantauan-page {
     --primary-color: #00a67e;
@@ -26,10 +77,10 @@
     line-height: 1.6;
 }
 
-/* Main Container */
+/* Sidebar */
 .hasil-pemantauan-page .mangrove-container {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 400px 1fr;
     min-height: 100vh;
     gap: 0;
 }
@@ -40,13 +91,17 @@
     padding: 1.5rem;
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
+    overflow-x: hidden;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: flex-start; /* penting agar sticky bekerja di dalam grid */
 }
 
 .hasil-pemantauan-page .sidebar-header h2 {
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: 1.5rem;
 }
 
 /* Stats Section */
@@ -120,17 +175,21 @@
 
 /* Recommendation Tags */
 .hasil-pemantauan-page .recommendation-tags {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
 }
 
 .hasil-pemantauan-page .tag {
-    display: inline-block;
+    display: block;
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
     font-size: 0.813rem;
     font-weight: 500;
+    text-align: center; /* teks di tengah */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .hasil-pemantauan-page .tag-green {
@@ -293,7 +352,7 @@
 /* Cards Grid */
 .hasil-pemantauan-page .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
 }
 

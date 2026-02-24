@@ -11,6 +11,14 @@
 ])
 
 <style>
+    /* Sidebar sticky dengan scroll sendiri */
+.hasil-pemantauan-page .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
     /* ============================================================
        NAVBAR INJECTED ACTIONS — search + toggle
        ============================================================ */
@@ -407,16 +415,24 @@
         {{-- ── Sidebar (unchanged, still dynamic) ─────────────── --}}
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>Pemanfaatan Mangrove</h2>
+                <h2>Pemantauan Mangrove</h2>
             </div>
 
             <div class="stats-section">
-                <h3>Total Pemanfaatan Kawasan Mangrove</h3>
-                <div class="stat-number primary">{{ $totalSites }}</div>
-                <div class="stat-label">Total Titik Monitoring</div>
-                <div class="stat-number secondary">{{ $totalArea }}</div>
-                <div class="stat-label">Total Luas (ha)</div>
-            </div>
+    {{-- <h3>Total Pemanfaatan Kawasan Mangrove</h3> --}}
+    <div class="stat-box">
+        <div class="stat-box-content">
+            <div class="stat-label">Titik Pemantauan Kawasan Mangrove</div>
+            <div class="stat-number primary">{{ $totalSites }}</div>
+        </div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-box-content">
+            <div class="stat-label">Total Luas Area (ha)</div>
+            <div class="stat-number secondary">{{ $totalArea }}</div>
+        </div>
+    </div>
+</div>
 
             <div class="info-section">
                 <div class="info-header">
@@ -467,6 +483,7 @@
                     </li>
                 </ul>
             </div>
+<h2>© 2025 Dinas Lingkungan Hidup DKI Jakarta</h2>
 
         </aside>
 
