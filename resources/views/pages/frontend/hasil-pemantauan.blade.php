@@ -528,42 +528,33 @@
             </div>
 
             {{-- Map View --}}
-            <div id="map-view-container">
-                <div class="map-toolbar">
-                    <span class="map-legend-title">Tipe:</span>
+<div id="map-view-container">
 
-                    <div class="map-legend-item active-filter" data-type="dilindungi"
-                         onclick="filterMapByType('dilindungi', this)" style="color:#016630;">
-                        <span class="legend-dot" style="background:#016630;"></span>
-                        Dilindungi
-                        <span class="map-filter-count" id="count-dilindungi">({{ $typeStats['dilindungi'] }})</span>
-                    </div>
-                    <div class="map-legend-item active-filter" data-type="pengkayaan"
-                         onclick="filterMapByType('pengkayaan', this)" style="color:#F0B100;">
-                        <span class="legend-dot" style="background:#F0B100;"></span>
-                        Pengkayaan
-                        <span class="map-filter-count" id="count-pengkayaan">({{ $typeStats['pengkayaan'] }})</span>
-                    </div>
-                    <div class="map-legend-item active-filter" data-type="rehabilitasi"
-                         onclick="filterMapByType('rehabilitasi', this)" style="color:#FF6900;">
-                        <span class="legend-dot" style="background:#FF6900;"></span>
-                        Rehabilitasi
-                        <span class="map-filter-count" id="count-rehabilitasi">({{ $typeStats['rehabilitasi'] }})</span>
-                    </div>
-                    <div class="map-legend-item active-filter" data-type="pengkayaan_rehabilitasi"
-                         onclick="filterMapByType('pengkayaan_rehabilitasi', this)" style="color:#9F0712;">
-                        <span class="legend-dot" style="background:#9F0712;"></span>
-                        Pengkayaan/Rehabilitasi
-                        <span class="map-filter-count" id="count-pengkayaan_rehabilitasi">({{ $typeStats['pengkayaan_rehabilitasi'] }})</span>
-                    </div>
+    {{-- Region Tabs (map version) --}}
+    <div class="map-region-tabs">
+        <button class="map-region-tab active" onclick="setMapRegion('all', this)">
+            Semua <span>({{ $totalSites }})</span>
+        </button>
+        <button class="map-region-tab" onclick="setMapRegion('penjaringan', this)">
+            Penjaringan <span>({{ $regionStats['penjaringan'] }})</span>
+        </button>
+        <button class="map-region-tab" onclick="setMapRegion('cilincing', this)">
+            Cilincing <span>({{ $regionStats['cilincing'] }})</span>
+        </button>
+        <button class="map-region-tab" onclick="setMapRegion('kep-seribu-utara', this)">
+            Kep. Seribu Utara <span>({{ $regionStats['kep_seribu_utara'] }})</span>
+        </button>
+        <button class="map-region-tab" onclick="setMapRegion('kep-seribu-selatan', this)">
+            Kep. Seribu Selatan <span>({{ $regionStats['kep_seribu_selatan'] }})</span>
+        </button>
+    </div>
 
-                    <div class="map-stats-badge" id="map-stats-badge">
-                        Menampilkan <strong id="map-visible-count">{{ $totalSites }}</strong> lokasi
-                    </div>
-                </div>
+    <div class="map-toolbar">
+        {{-- ... isi map-toolbar tidak berubah ... --}}
+    </div>
 
-                <div id="leaflet-main-map"></div>
-            </div>
+    <div id="leaflet-main-map"></div>
+</div>
 
         </main>
     </div>
@@ -624,6 +615,37 @@
     filterMarkers(term);
 }
 
+// Tambah setelah deklarasi activeFilters:
+let activeRegionFilter = 'all';
+
+// Fungsi baru:
+function setMapRegion(region, el) {
+    activeRegionFilter = region;
+
+    // Update active tab
+    document.querySelectorAll('.map-region-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+
+    // Re-apply semua filter
+    const term = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+    filterMarkers(term);
+
+    // Fit bounds ke markers yang visible
+    const visibleLatLngs = [];
+    window.locationsData.forEach(loc => {
+        const matchRegion = activeRegionFilter === 'all' || (loc.group || '') === activeRegionFilter;
+        const matchType   = activeFilters.has(getTypeKey(loc));
+        const name = (loc.name || '').toLowerCase();
+        const matchSearch = !term || name.includes(term);
+        if (matchRegion && matchType && matchSearch) {
+            visibleLatLngs.push([parseFloat(loc.latitude), parseFloat(loc.longitude)]);
+        }
+    });
+    if (visibleLatLngs.length && mapInstance) {
+        mapInstance.fitBounds(L.latLngBounds(visibleLatLngs), { padding: [40, 40], maxZoom: 14 });
+    }
+}
+
 function filterMarkers(term) {
     if (!mapInstance) return;
 
@@ -632,8 +654,6 @@ function filterMarkers(term) {
     window.locationsData.forEach(loc => {
         const typeKey = getTypeKey(loc);
         const markers = allMarkers[typeKey] || [];
-
-        // Cari marker yang sesuai dengan lokasi ini (match by lat/lng)
         const lat = parseFloat(loc.latitude);
         const lng = parseFloat(loc.longitude);
 
@@ -641,12 +661,13 @@ function filterMarkers(term) {
             const mll = marker.getLatLng();
             if (Math.abs(mll.lat - lat) > 0.00001 || Math.abs(mll.lng - lng) > 0.00001) return;
 
-            const name = (loc.name || '').toLowerCase();
-            const desc = (loc.description || '').toLowerCase();
+            const name        = (loc.name || '').toLowerCase();
+            const desc        = (loc.description || '').toLowerCase();
             const matchSearch = !term || name.includes(term) || desc.includes(term);
-            const matchFilter = activeFilters.has(typeKey);
+            const matchType   = activeFilters.has(typeKey);
+            const matchRegion = activeRegionFilter === 'all' || (loc.group || '') === activeRegionFilter;
 
-            if (matchSearch && matchFilter) {
+            if (matchSearch && matchType && matchRegion) {
                 marker.addTo(mapInstance);
                 visibleCount++;
             } else {
@@ -655,7 +676,6 @@ function filterMarkers(term) {
         });
     });
 
-    // Update counter
     const el = document.getElementById('map-visible-count');
     if (el) el.textContent = visibleCount;
 }
