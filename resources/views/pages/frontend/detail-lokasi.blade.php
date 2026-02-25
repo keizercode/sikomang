@@ -291,9 +291,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }).addTo(map);
 
     function capitalizeFirst(text) {
-        if (!text) return '';
-        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-    }
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
+const TYPE_LABELS = {
+    'dilindungi':              'Dilindungi',
+    'pengkayaan':              'Pengkayaan',
+    'rehabilitasi':            'Rehabilitasi',
+    'pengkayaan_rehabilitasi': 'Pengkayaan/Rehabilitasi',
+};
+
+function formatType(raw) {
+    const key = (raw || '').toLowerCase().trim();
+    return TYPE_LABELS[key] || capitalizeFirst(raw);
+}
 
     const popupContent = `
         <div class="popup-card">
@@ -308,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">🏷️ Tipe</span>
-                    <span class="popup-value">${locationData.type}</span>
+                    <span class="popup-value">${formatType(locationData.type)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">🏢 Pengelola</span>

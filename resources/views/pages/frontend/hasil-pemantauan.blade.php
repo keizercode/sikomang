@@ -448,16 +448,19 @@
                 </div>
                 <div class="recommendation-tags">
                     @if($typeStats['dilindungi'] > 0)
-                        <span class="tag tag-green">Dilindungi: {{ $typeStats['dilindungi'] }}</span>
+                        <span class="tag tag-dilindungi">Dilindungi: {{ $typeStats['dilindungi'] }}</span>
                     @endif
                     @if($typeStats['pengkayaan'] > 0)
-                        <span class="tag tag-yellow">Pengkayaan: {{ $typeStats['pengkayaan'] }}</span>
-                    @endif
-                    @if($typeStats['rehabilitasi'] > 0)
-                        <span class="tag tag-red">Rehabilitasi: {{ $typeStats['rehabilitasi'] }}</span>
+                        <span class="tag tag-pengkayaan">Pengkayaan: {{ $typeStats['pengkayaan'] }}</span>
                     @endif
                     @if($typeStats['pengkayaan_rehabilitasi'] > 0)
-                        <span class="tag tag-orange">Pengkayaan/Rehabilitasi: {{ $typeStats['pengkayaan_rehabilitasi'] }}</span>
+                    <span class="tag tag-pengkayaan_rehabilitasi" style="display:flex;gap:3px;align-items:center;min-width:0;">
+                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">Pengkayaan/Rehabil.</span>
+                    <span style="flex-shrink:0;font-weight:700;">{{ $typeStats['pengkayaan_rehabilitasi'] }}</span>
+                    </span>
+                    @endif
+                    @if($typeStats['rehabilitasi'] > 0)
+                        <span class="tag tag-rehabilitasi">Rehabilitasi: {{ $typeStats['rehabilitasi'] }}</span>
                     @endif
                 </div>
             </div>
@@ -682,9 +685,13 @@
     }
 
     function getTypeKey(loc) {
-        const raw = (loc.type || '').toLowerCase();
-        return Object.keys(TYPE_COLORS).find(k => raw.includes(k)) || 'pengkayaan';
-    }
+    const raw = (loc.type || '').toLowerCase().trim();
+    // 1. Exact match dulu (paling aman, handle 'pengkayaan_rehabilitasi' langsung)
+    if (TYPE_COLORS[raw]) return raw;
+    // 2. Fallback partial match, key terpanjang dulu
+    const sortedKeys = Object.keys(TYPE_COLORS).sort((a, b) => b.length - a.length);
+    return sortedKeys.find(k => raw.includes(k)) || 'pengkayaan';
+}
 
     function buildPopupContent(loc) {
         const typeKey    = getTypeKey(loc);

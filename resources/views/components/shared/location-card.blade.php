@@ -14,7 +14,17 @@
     <div class="card-content">
         <h3 class="card-title">{{ $location['name'] }}</h3>
         <div class="card-badges">
-            <span class="badge badge-{{ strtolower($location['type']) }}">{{ $location['type'] }}</span>
+            @php
+            $typeLabels = [
+            'dilindungi'              => 'Dilindungi',
+            'pengkayaan'              => 'Pengkayaan',
+            'rehabilitasi'            => 'Rehabilitasi',
+            'pengkayaan_rehabilitasi' => 'Pengkayaan/Rehabilitasi',
+            ];
+            $typeKey   = strtolower($location['type']);
+            $typeLabel = $typeLabels[$typeKey] ?? $location['type'];
+            @endphp
+            <span class="badge badge-{{ $typeKey }}">{{ $typeLabel }}</span>
             <span class="badge badge-year">{{ $location['year'] }}</span>
         </div>
         <div class="card-info">

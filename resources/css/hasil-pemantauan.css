@@ -192,24 +192,24 @@
     text-overflow: ellipsis;
 }
 
-.hasil-pemantauan-page .tag-green {
+.hasil-pemantauan-page .tag-dilindungi {
     background-color: #d1fae5;
     color: #065f46;
 }
 
-.hasil-pemantauan-page .tag-yellow {
-    background-color: #fef3c7;
-    color: #92400e;
+.hasil-pemantauan-page .tag-pengkayaan {
+    background-color: #fef9c3;
+    color: #854d0e;
 }
 
-.hasil-pemantauan-page .tag-orange {
-    background-color: #fed7aa;
+.hasil-pemantauan-page .tag-pengkayaan_rehabilitasi {
+    background-color: oklch(0.962 0.059 95.617);
+    color: oklch(0.473 0.137 46.201);
+}
+
+.hasil-pemantauan-page .tag-rehabilitasi {
+    background-color: #ffedd5;
     color: #9a3412;
-}
-
-.hasil-pemantauan-page .tag-red {
-    background-color: #fee2e2;
-    color: #991b1b;
 }
 
 /* Geography Section */
@@ -402,12 +402,16 @@
 }
 
 .hasil-pemantauan-page .badge-pengkayaan {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: #fef9c3;
+    color: #854d0e;
 }
 
+.hasil-pemantauan-page .badge-pengkayaan_rehabilitasi {
+    background-color: oklch(0.962 0.059 95.617);
+    color: oklch(0.473 0.137 46.201);
+}
 .hasil-pemantauan-page .badge-rehabilitasi {
-    background-color: #fed7aa;
+    background-color: #ffedd5;
     color: #9a3412;
 }
 
