@@ -77,8 +77,8 @@ class MonitoringController extends Controller
             $typeStats = [
                 'dilindungi'  => $locations->where('type', 'dilindungi')->count(),
                 'pengkayaan'  => $locations->where('type', 'pengkayaan')->count(),
+                'pengkayaan_rehabilitasi'   => $locations->where('type', 'pengkayaan_rehabilitasi')->count(),
                 'rehabilitasi' => $locations->where('type', 'rehabilitasi')->count(),
-                'restorasi'   => $locations->where('type', 'restorasi')->count(),
             ];
 
             // ── Format kartu ───────────────────────────────────────────
@@ -101,7 +101,7 @@ class MonitoringController extends Controller
                 'totalSites'  => 0,
                 'totalArea'   => '0.00',
                 'regionStats' => ['penjaringan' => 0, 'cilincing' => 0, 'kep_seribu_utara' => 0, 'kep_seribu_selatan' => 0],
-                'typeStats'   => ['dilindungi' => 0, 'pengkayaan' => 0, 'rehabilitasi' => 0, 'restorasi' => 0],
+                'typeStats'   => ['dilindungi' => 0, 'pengkayaan' => 0, 'rehabilitasi' => 0, 'pengkayaan_rehabilitasi' => 0],
             ]);
         }
     }
@@ -149,7 +149,7 @@ class MonitoringController extends Controller
             ];
         }
 
-        $hl = $locations->filter(fn($loc) => in_array($loc->type, ['dilindungi', 'restorasi']));
+        $hl = $locations->filter(fn($loc) => in_array($loc->type, ['dilindungi', 'pengkayaan_rehabilitasi']));
         if ($hl->count() > 0) {
             $data['dalam_kawasan'][] = [
                 'fungsi' => 'HL (Hutan Lindung)',

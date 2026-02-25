@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'dilindungi'  : '#00BC7D',
         'pengkayaan'  : '#F0B100',
         'rehabilitasi': '#FF6900',
-        'restorasi'   : '#9F0712',
+        'pengkayaan_rehabilitasi'   : '#9F0712',
     };
     const locationType = '{{ $report->location->type ?? "pengkayaan" }}';
     const markerColor  = typeColorMap[locationType] || '#009966';
@@ -732,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'dilindungi'  : 'Dilindungi',
         'pengkayaan'  : 'Pengkayaan',
         'rehabilitasi': 'Rehabilitasi',
-        'restorasi'   : 'Restorasi',
+        'pengkayaan_rehabilitasi'   : 'Pengkayaan/Rehabilitasi',
     };
     const densityLabelMap = {
         'jarang': 'Jarang',

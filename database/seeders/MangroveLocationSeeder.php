@@ -609,10 +609,10 @@ Rhizophora mucronata',
             'health_percentage' => 100,
             'health_score'     => 'NAK: 6.5',
             'description'      => 'Titik pengamatan berada di dalam kantor Pasmar TNI AL, sehingga aktivitas di sekitarnya terbatas oleh marinir TNI AL dan pemilik tambak.',
-            'species'          => 'Avicennia alba
-Bruguiera gymnorrhiza
-Nypa fruticans
-Rhizophora mucronata
+            'species'          => 'Avicennia alba,
+Bruguiera gymnorrhiza,
+Nypa fruticans,
+Rhizophora mucronata,
 Rhizophora stylosa',
         ], [
             'vegetasi' => [

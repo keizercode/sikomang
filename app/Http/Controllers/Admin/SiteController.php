@@ -99,7 +99,7 @@ class SiteController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
             'area' => 'nullable|numeric|min:0', // NULLABLE - tidak wajib
             'density' => 'required|in:jarang,sedang,lebat',
-            'type' => 'required|in:pengkayaan,rehabilitasi,dilindungi,restorasi',
+            'type' => 'required|in:pengkayaan,rehabilitasi,dilindungi,pengkayaan_rehabilitasi',
             'region' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'health_percentage' => 'nullable|numeric|between:0,100', // NULLABLE - tidak wajib

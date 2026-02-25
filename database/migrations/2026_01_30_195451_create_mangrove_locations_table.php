@@ -16,7 +16,7 @@ return new class extends Migration
             $table->decimal('longitude', 10, 7);
             $table->decimal('area', 8, 2)->nullable(); // in hectares
             $table->enum('density', ['jarang', 'sedang', 'lebat']);
-            $table->enum('type', ['pengkayaan', 'rehabilitasi', 'dilindungi', 'restorasi']);
+            $table->enum('type', ['pengkayaan', 'rehabilitasi', 'dilindungi', 'pengkayaan_rehabilitasi']);
             $table->integer('year_established')->nullable();
             $table->decimal('health_percentage', 5, 2)->nullable();
             $table->string('health_score')->nullable(); // NAK score

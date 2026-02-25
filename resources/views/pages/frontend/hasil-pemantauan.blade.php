@@ -456,8 +456,8 @@
                     @if($typeStats['rehabilitasi'] > 0)
                         <span class="tag tag-red">Rehabilitasi: {{ $typeStats['rehabilitasi'] }}</span>
                     @endif
-                    @if($typeStats['restorasi'] > 0)
-                        <span class="tag tag-orange">Restorasi: {{ $typeStats['restorasi'] }}</span>
+                    @if($typeStats['pengkayaan_rehabilitasi'] > 0)
+                        <span class="tag tag-orange">Pengkayaan/Rehabilitasi: {{ $typeStats['pengkayaan_rehabilitasi'] }}</span>
                     @endif
                 </div>
             </div>
@@ -547,11 +547,11 @@
                         Rehabilitasi
                         <span class="map-filter-count" id="count-rehabilitasi">({{ $typeStats['rehabilitasi'] }})</span>
                     </div>
-                    <div class="map-legend-item active-filter" data-type="restorasi"
-                         onclick="filterMapByType('restorasi', this)" style="color:#9F0712;">
+                    <div class="map-legend-item active-filter" data-type="pengkayaan_rehabilitasi"
+                         onclick="filterMapByType('pengkayaan_rehabilitasi', this)" style="color:#9F0712;">
                         <span class="legend-dot" style="background:#9F0712;"></span>
-                        Restorasi
-                        <span class="map-filter-count" id="count-restorasi">({{ $typeStats['restorasi'] }})</span>
+                        Pengkayaan/Rehabilitasi
+                        <span class="map-filter-count" id="count-pengkayaan_rehabilitasi">({{ $typeStats['pengkayaan_rehabilitasi'] }})</span>
                     </div>
 
                     <div class="map-stats-badge" id="map-stats-badge">
@@ -586,13 +586,13 @@
         'pengkayaan':   '#F0B100',
         'rehabilitasi': '#FF6900',
         'dilindungi':   '#016630',
-        'restorasi':    '#9F0712',
+        'pengkayaan_rehabilitasi':    '#9F0712',
     };
     const TYPE_LABELS = {
         'pengkayaan':   'Pengkayaan',
         'rehabilitasi': 'Rehabilitasi',
         'dilindungi':   'Dilindungi',
-        'restorasi':    'Restorasi',
+        'pengkayaan_rehabilitasi':    'Pengkayaan/Rehabilitasi',
     };
 
     // ================================================================
@@ -626,7 +626,7 @@
     let isMapView = false;
     let mapInstance = null;
     let allMarkers  = {};
-    let activeFilters = new Set(['dilindungi', 'pengkayaan', 'rehabilitasi', 'restorasi']);
+    let activeFilters = new Set(['dilindungi', 'pengkayaan', 'rehabilitasi', 'pengkayaan_rehabilitasi']);
 
     function toggleView() {
         isMapView = !isMapView;

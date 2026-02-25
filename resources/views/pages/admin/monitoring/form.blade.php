@@ -179,7 +179,7 @@
                                         <option value="pengkayaan" {{ old('type', @$item->type) == 'pengkayaan' ? 'selected' : '' }}>Pengkayaan</option>
                                         <option value="rehabilitasi" {{ old('type', @$item->type) == 'rehabilitasi' ? 'selected' : '' }}>Rehabilitasi</option>
                                         <option value="dilindungi" {{ old('type', @$item->type) == 'dilindungi' ? 'selected' : '' }}>Dilindungi</option>
-                                        <option value="restorasi" {{ old('type', @$item->type) == 'restorasi' ? 'selected' : '' }}>Restorasi</option>
+                                        <option value="pengkayaan_rehabilitasi" {{ old('type', @$item->type) == 'pengkayaan_rehabilitasi' ? 'selected' : '' }}>Pengkayaan/Rehabilitasi</option>
                                     </select>
                                     @error('type')
                                     <span class="invalid-feedback">{{ $message }}</span>

@@ -473,7 +473,6 @@
     </script>
 
     <!-- Show flash messages -->
-    // SESUDAH — tambahkan pengecekan bfcache agar tidak muncul ulang saat browser back
 @if(session('message'))
 <script>
     // Hanya tampilkan notifikasi pada page load pertama, bukan saat restore dari bfcache
