@@ -616,12 +616,49 @@
     });
 
     function filterCards(term) {
-        document.querySelectorAll('.location-card').forEach(card => {
-            const title = (card.querySelector('.card-title')?.textContent || '').toLowerCase();
-            const desc  = (card.querySelector('.description')?.textContent || '').toLowerCase();
-            card.style.display = (!term || title.includes(term) || desc.includes(term)) ? '' : 'none';
+    document.querySelectorAll('.location-card').forEach(card => {
+        const title = (card.querySelector('.card-title')?.textContent || '').toLowerCase();
+        const desc  = (card.querySelector('.description')?.textContent || '').toLowerCase();
+        card.style.display = (!term || title.includes(term) || desc.includes(term)) ? '' : 'none';
+    });
+    filterMarkers(term);
+}
+
+function filterMarkers(term) {
+    if (!mapInstance) return;
+
+    let visibleCount = 0;
+
+    window.locationsData.forEach(loc => {
+        const typeKey = getTypeKey(loc);
+        const markers = allMarkers[typeKey] || [];
+
+        // Cari marker yang sesuai dengan lokasi ini (match by lat/lng)
+        const lat = parseFloat(loc.latitude);
+        const lng = parseFloat(loc.longitude);
+
+        markers.forEach(marker => {
+            const mll = marker.getLatLng();
+            if (Math.abs(mll.lat - lat) > 0.00001 || Math.abs(mll.lng - lng) > 0.00001) return;
+
+            const name = (loc.name || '').toLowerCase();
+            const desc = (loc.description || '').toLowerCase();
+            const matchSearch = !term || name.includes(term) || desc.includes(term);
+            const matchFilter = activeFilters.has(typeKey);
+
+            if (matchSearch && matchFilter) {
+                marker.addTo(mapInstance);
+                visibleCount++;
+            } else {
+                mapInstance.removeLayer(marker);
+            }
         });
-    }
+    });
+
+    // Update counter
+    const el = document.getElementById('map-visible-count');
+    if (el) el.textContent = visibleCount;
+}
 
     // ================================================================
     // VIEW TOGGLE
@@ -785,19 +822,22 @@
         if (pts.length) mapInstance.fitBounds(L.latLngBounds(pts), { padding: [40,40], maxZoom: 13 });
     }
 
-    function filterMapByType(type, el) {
-        if (activeFilters.has(type)) {
-            if (activeFilters.size <= 1) return;
-            activeFilters.delete(type);
-            el.classList.remove('active-filter');
-            (allMarkers[type] || []).forEach(m => mapInstance.removeLayer(m));
-        } else {
-            activeFilters.add(type);
-            el.classList.add('active-filter');
-            (allMarkers[type] || []).forEach(m => m.addTo(mapInstance));
-        }
-        updateMapStatsDisplay();
+  function filterMapByType(type, el) {
+    if (activeFilters.has(type)) {
+        if (activeFilters.size <= 1) return;
+        activeFilters.delete(type);
+        el.classList.remove('active-filter');
+        (allMarkers[type] || []).forEach(m => mapInstance.removeLayer(m));
+    } else {
+        activeFilters.add(type);
+        el.classList.add('active-filter');
+        // Tambahkan hanya marker yang lolos search term juga
+        (allMarkers[type] || []).forEach(m => m.addTo(mapInstance));
     }
+    // Re-apply search filter supaya konsisten
+    const term = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+    filterMarkers(term);
+}
 
     function updateMapStatsDisplay() {
         let count = 0;
