@@ -31,10 +31,20 @@
     <div class="detail-header">
         <div class="title-section">
             <h1>{{ $location['name'] }}</h1>
-            <div class="badges">
-                <span class="badge badge-{{ strtolower($location['type']) }}">{{ $location['type'] }}</span>
-                <span class="badge badge-year">{{ $location['year'] }}</span>
-            </div>
+            @php
+    $typeLabels = [
+        'dilindungi'              => 'Dilindungi',
+        'pengkayaan'              => 'Pengkayaan',
+        'rehabilitasi'            => 'Rehabilitasi',
+        'pengkayaan_rehabilitasi' => 'Pengkayaan/Rehabilitasi',
+    ];
+    $typeKey   = strtolower($location['type']);
+    $typeLabel = $typeLabels[$typeKey] ?? $location['type'];
+@endphp
+<div class="badges">
+    <span class="badge badge-{{ $typeKey }}">{{ $typeLabel }}</span>
+    <span class="badge badge-year">{{ $location['year'] }}</span>
+</div>
         </div>
 
         <div class="action-buttons">

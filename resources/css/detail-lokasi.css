@@ -50,13 +50,22 @@
     font-weight: 600;
 }
 
+.badge-dilindungi {
+    background: #d1fae5;
+    color: #065f46;
+}
+
 .badge-pengkayaan {
-    background: #fef3c7;
-    color: #92400e;
+    background: #fef9c3;
+    color: #854d0e;
+}
+.badge-pengkayaan_rehabilitasi {
+    background: oklch(0.962 0.059 95.617);
+    color: oklch(0.473 0.137 46.201);
 }
 
 .badge-rehabilitasi {
-    background: #fed7aa;
+    background: #ffedd5;
     color: #9a3412;
 }
 
