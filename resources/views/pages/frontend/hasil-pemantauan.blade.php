@@ -352,7 +352,7 @@
      ────────────────────────────────────────────────────────── --}}
 @push('navbar-left')
  {{-- Divider --}}
-            <div class="h-22 w-px bg-gray-300 mx-2"></div>
+            <div class="h-24 w-px bg-gray-300 mx-7.5"></div>
 <div class="nav-search-form ml-3">
     <span class="nav-search-icon">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
