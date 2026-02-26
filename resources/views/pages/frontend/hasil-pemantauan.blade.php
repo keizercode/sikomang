@@ -434,7 +434,12 @@
 
             <div class="info-section">
                 <div class="info-header">
-                    <h3>Rekomendasi Pengelolaan</h3>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <div style="width: 18px; height: 18px; flex-shrink: 0;">
+                        <x-icons.rekomendasi_pengelolaan-hasi-pemantauan />
+                        </div>
+                        <h3>Rekomendasi Pengelolaan</h3>
+                    </div>
                     <div class="info-icon-wrapper">
                         <img
                             src="https://res.cloudinary.com/dmcvht1vr/image/upload/v1769407250/aec8dafa-beba-46ec-979c-fb12d5f5af5a.png"
@@ -464,7 +469,12 @@
             </div>
 
             <div class="geography-section">
-                <h3>Sebaran Geografis</h3>
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom: 1rem;">
+                    <div style="width: 18px; height: 18px; flex-shrink: 0;">
+                        <x-icons.sebaran_geografis-hasil-pemantauan />
+                    </div>
+                    <h3 style="margin-bottom: 0;">Sebaran Geografis</h3>
+                </div>
                 <ul class="location-list">
                     <li>
                         <span class="location-name">Kecamatan Penjaringan</span>

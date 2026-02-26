@@ -38,7 +38,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>Featured:</th>
+                                    <th>Favorite:</th>
                                     <td>
                                         @if($article->is_featured)
                                             <span class="badge bg-warning">Yes</span>
@@ -97,7 +97,7 @@
 
                     <hr>
 
-                    <!-- SEO Meta -->
+                    {{-- <!-- SEO Meta -->
                     <div class="mt-4">
                         <h5 class="mb-3">SEO Meta Information</h5>
                         <table class="table table-bordered">
@@ -120,7 +120,7 @@
                                 </td>
                             </tr>
                         </table>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>

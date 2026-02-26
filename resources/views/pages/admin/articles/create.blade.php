@@ -208,7 +208,7 @@
                                 </div>
                             </div>
 
-                            <!-- SEO Section -->
+                            {{-- <!-- SEO Section -->
                             <div class="col-12 mt-4 mb-3">
                                 <h5 class="text-primary">
                                     <i class="fas fa-search"></i> SEO Meta (Opsional)
@@ -252,7 +252,7 @@
                                 @error('meta_description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                            </div>
+                            </div> --}}
                         </div>
 
                         <!-- Preview Section -->
