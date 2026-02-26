@@ -715,9 +715,9 @@ Rhizophora mucronata',
         // 12. Pulau Kelapa Dua
         $this->createFullLocation([
             'name'             => 'Pulau Kelapa Dua',
-            'latitude'         => -6.0976,
-            'longitude'        => 106.9606,
-            'area'             => 5.5,
+            'latitude'         => -5.6491,
+            'longitude'        => 106.5669,
+            'area'             => 1.43,
             'density'          => 'jarang',
             'type'             => 'rehabilitasi',
             'region'           => 'kepulauan seribu utara',

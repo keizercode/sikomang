@@ -39,11 +39,11 @@
         background: #f6f8f7;
         border: 1.5px solid #e3ede9;
         border-radius: 10px;
-        height: 38px;
-        padding: 0 10px 0 36px;
-        transition: border-color .2s, box-shadow .2s;
-        max-width: 5120px;
-        width: 100%;
+        height: 50px;
+    padding: 0 12px 0 38px;
+    min-width: 425px;   /* ← lebar minimum */
+    max-width: 520px;   /* ← lebar maksimum */
+    width: 100%;
     }
 
     .nav-search-form:focus-within {
@@ -63,19 +63,19 @@
     }
 
     .nav-search-form input {
-        flex: 1;
-        border: none;
-        background: transparent;
-        font-size: 0.83rem;
-        color: #1f2937;
-        outline: none;
-        min-width: 0;
-    }
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: #1f2937;
+    outline: none;
+    min-width: 0;
+}
 
-    .nav-search-form input::placeholder {
-        color: #b0b9b5;
-        font-size: 0.81rem;
-    }
+.nav-search-form input::placeholder {
+    color: #b0b9b5;
+    font-size: 1rem;
+}
 
     .nav-search-clear {
         background: none;
@@ -120,7 +120,7 @@
     }
 
     .nav-toggle-label {
-        font-size: 0.75rem;
+        font-size: 0.875rem; /*custom toggle*/
         font-weight: 600;
         color: #9ca3af;
         letter-spacing: .03em;
@@ -143,8 +143,8 @@
 
     .nav-toggle-track {
         position: relative;
-        width: 52px;
-        height: 27px;
+        width: 62px;  /*custom toggle*/
+        height: 32px; /*custom toggle*/
         background: #e5e7eb;
         border-radius: 99px;
         cursor: pointer;
@@ -161,8 +161,8 @@
         position: absolute;
         top: 3px;
         left: 3px;
-        width: 21px;
-        height: 21px;
+        width: 26px; /*custom toggle*/
+        height: 26px; /*custom toggle*/
         background: #fff;
         border-radius: 50%;
         transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
@@ -173,7 +173,7 @@
     }
 
     .nav-toggle-track.map-active .nav-toggle-thumb {
-        transform: translateX(25px);
+        transform: translateX(30px); /* sesuaikan: track width - thumb width - (2 * top offset) = 62 - 26 - 6 */
     }
 
     /* ── Map modal button ── */
@@ -209,20 +209,18 @@
 
     /* Mobile: collapse search on small screens */
     @media (max-width: 639px) {
-        .nav-search-form {
-            max-width: 160px;
-        }
-
-        .nav-toggle-label {
-            display: none;
-        }
+    .nav-search-form {
+        min-width: 0;
+        max-width: 200px;
     }
+}
 
-    @media (max-width: 400px) {
-        .nav-search-form {
-            max-width: 120px;
-        }
+@media (max-width: 400px) {
+    .nav-search-form {
+        min-width: 0;
+        max-width: 150px;
     }
+}
 
     /* ============================================================
        VIEW CONTAINERS
@@ -340,7 +338,7 @@
     #leaflet-main-map .leaflet-popup-content { margin: 0; width: auto !important; }
 
     /* body class toggling */
-    body.map-view-active .filter-tabs { display: none; }
+    body.map-view-active #grid-filter-tabs { display: none; }
     body.map-view-active .cards-grid { display: none; }
     body.map-view-active #map-view-container { display: flex; }
     body:not(.map-view-active) #map-view-container { display: none; }
@@ -391,7 +389,7 @@
 
         <div class="nav-toggle-track" id="viewToggleTrack" onclick="toggleView()" title="Beralih tampilan">
             <div class="nav-toggle-thumb">
-                <svg width="9" height="9" viewBox="0 0 16 16" fill="#009966">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="#009966">
                     <path d="M8 0C5.2 0 2.9 2.3 2.9 5.1c0 3.8 5.1 10.9 5.1 10.9s5.1-7.1 5.1-10.9C13.1 2.3 10.8 0 8 0zm0 7c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
                 </svg>
             </div>
@@ -493,7 +491,7 @@
         {{-- ── Main Content ────────────────────────────────────── --}}
         <main class="main-content">
             {{-- Filter Tabs (grid view only) --}}
-            <div class="filter-tabs">
+           <div class="filter-tabs" id="grid-filter-tabs">
                 <button class="tab active" onclick="filterByGroup('all')">
                     Semua
                     <span class="tab-count">{{ $totalSites }}</span>
@@ -531,23 +529,23 @@
 <div id="map-view-container">
 
     {{-- Region Tabs (map version) --}}
-    <div class="map-region-tabs">
-        <button class="map-region-tab active" onclick="setMapRegion('all', this)">
-            Semua <span>({{ $totalSites }})</span>
-        </button>
-        <button class="map-region-tab" onclick="setMapRegion('penjaringan', this)">
-            Penjaringan <span>({{ $regionStats['penjaringan'] }})</span>
-        </button>
-        <button class="map-region-tab" onclick="setMapRegion('cilincing', this)">
-            Cilincing <span>({{ $regionStats['cilincing'] }})</span>
-        </button>
-        <button class="map-region-tab" onclick="setMapRegion('kep-seribu-utara', this)">
-            Kep. Seribu Utara <span>({{ $regionStats['kep_seribu_utara'] }})</span>
-        </button>
-        <button class="map-region-tab" onclick="setMapRegion('kep-seribu-selatan', this)">
-            Kep. Seribu Selatan <span>({{ $regionStats['kep_seribu_selatan'] }})</span>
-        </button>
-    </div>
+    <div class="filter-tabs" id="map-region-tabs">
+    <button class="tab active" onclick="setMapRegion('all', this)">
+        Semua <span class="tab-count">{{ $totalSites }}</span>
+    </button>
+    <button class="tab" onclick="setMapRegion('penjaringan', this)">
+        Penjaringan, Jakarta Utara <span class="tab-count">{{ $regionStats['penjaringan'] }}</span>
+    </button>
+    <button class="tab" onclick="setMapRegion('cilincing', this)">
+        Cilincing, Jakarta Utara <span class="tab-count">{{ $regionStats['cilincing'] }}</span>
+    </button>
+    <button class="tab" onclick="setMapRegion('kep-seribu-utara', this)">
+        Kep. Seribu Utara <span class="tab-count">{{ $regionStats['kep_seribu_utara'] }}</span>
+    </button>
+    <button class="tab" onclick="setMapRegion('kep-seribu-selatan', this)">
+        Kep. Seribu Selatan <span class="tab-count">{{ $regionStats['kep_seribu_selatan'] }}</span>
+    </button>
+</div>
 
     <div class="map-toolbar">
         {{-- ... isi map-toolbar tidak berubah ... --}}
@@ -622,20 +620,18 @@ let activeRegionFilter = 'all';
 function setMapRegion(region, el) {
     activeRegionFilter = region;
 
-    // Update active tab
-    document.querySelectorAll('.map-region-tab').forEach(t => t.classList.remove('active'));
+    // Update active tab — query ke dalam #map-region-tabs saja
+    document.querySelectorAll('#map-region-tabs .tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
 
-    // Re-apply semua filter
     const term = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
     filterMarkers(term);
 
-    // Fit bounds ke markers yang visible
     const visibleLatLngs = [];
     window.locationsData.forEach(loc => {
         const matchRegion = activeRegionFilter === 'all' || (loc.group || '') === activeRegionFilter;
         const matchType   = activeFilters.has(getTypeKey(loc));
-        const name = (loc.name || '').toLowerCase();
+        const name        = (loc.name || '').toLowerCase();
         const matchSearch = !term || name.includes(term);
         if (matchRegion && matchType && matchSearch) {
             visibleLatLngs.push([parseFloat(loc.latitude), parseFloat(loc.longitude)]);
