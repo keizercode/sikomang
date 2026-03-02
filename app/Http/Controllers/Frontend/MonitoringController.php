@@ -213,10 +213,14 @@ class MonitoringController extends Controller
     {
         $region = strtolower($location->region ?? '');
 
-        if (str_contains($region, 'penjaringan'))                                            return 'penjaringan';
-        if (str_contains($region, 'cilincing'))                                              return 'cilincing';
-        if (str_contains($region, 'seribu utara') || str_contains($region, 'kepulauan seribu utara'))   return 'kep-seribu-utara';
-        if (str_contains($region, 'seribu selatan') || str_contains($region, 'kepulauan seribu selatan')) return 'kep-seribu-selatan';
+        if (str_contains($region, 'penjaringan'))
+            return 'penjaringan';
+        if (str_contains($region, 'cilincing'))
+            return 'cilincing';
+        if (str_contains($region, 'seribu utara') || str_contains($region, 'kepulauan seribu utara'))
+            return 'kep-seribu-utara';
+        if (str_contains($region, 'seribu selatan') || str_contains($region, 'kepulauan seribu selatan'))
+            return 'kep-seribu-selatan';
 
         return 'all';
     }

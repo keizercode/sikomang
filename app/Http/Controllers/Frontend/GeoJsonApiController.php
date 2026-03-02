@@ -5,9 +5,47 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\MangroveLocation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class GeoJsonApiController extends Controller
 {
+    /**
+     * URL sumber GeoJSON dari Plovis (hanya diakses server-side)
+     */
+    protected array $plovisUrls = [
+        'jarang' => 'https://asset.plovis.id/plovis/public/67f25022-a757-4f90-a114-16e3f3ad671c.geojson',
+        'sedang' => 'https://asset.plovis.id/plovis/public/1c7b760f-7458-4353-bfd9-1ba6084cdce6.geojson',
+        'lebat'  => 'https://asset.plovis.id/plovis/public/cb7b89d7-2ac7-4fa4-a16c-02734432838e.geojson',
+    ];
+
+    /**
+     * Proxy GeoJSON dari Plovis — dipanggil dari monitoring.blade.php
+     * Cache 1 jam agar tidak tiap request ke Plovis
+     */
+    public function proxyPlovis(string $density)
+    {
+        abort_if(!isset($this->plovisUrls[$density]), 404, 'Density tidak valid');
+
+        $cacheKey = "geojson_plovis_{$density}";
+
+        $data = Cache::remember($cacheKey, 3600, function () use ($density) {
+            $response = Http::timeout(30)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get($this->plovisUrls[$density]);
+
+            abort_if(!$response->successful(), 502, 'Gagal mengambil data GeoJSON dari sumber');
+
+            $json = $response->json();
+
+            // Plovis membungkus data dalam key "geojson"
+            return isset($json['geojson']) ? $json['geojson'] : $json;
+        });
+
+        return response()->json($data)
+            ->header('Cache-Control', 'public, max-age=3600');
+    }
+
     /**
      * Get all locations as GeoJSON FeatureCollection
      */
@@ -15,27 +53,22 @@ class GeoJsonApiController extends Controller
     {
         $query = MangroveLocation::active()->with(['images', 'damages']);
 
-        // Filter by density if specified
         if ($request->has('density')) {
             $query->where('density', $request->density);
         }
 
-        // Filter by region if specified
         if ($request->has('region')) {
             $query->where('region', 'like', '%' . $request->region . '%');
         }
 
-        // Get locations with geometry
         $locations = $query->get();
-
-        // Build GeoJSON FeatureCollection
         $featureCollection = MangroveLocation::toGeoJsonFeatureCollection($locations);
 
         return response()->json($featureCollection);
     }
 
     /**
-     * Get GeoJSON for specific density
+     * Get GeoJSON for specific density (dari database)
      */
     public function getByDensity(string $density)
     {

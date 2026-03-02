@@ -162,6 +162,9 @@ Route::prefix('api/geojson')->name('api.geojson.')->group(function () {
     Route::get('/density/{density}', [GeoJsonApiController::class, 'getByDensity'])->name('by-density');
     Route::get('/bounds', [GeoJsonApiController::class, 'getWithinBounds'])->name('within-bounds');
     Route::get('/feature/{id}', [GeoJsonApiController::class, 'getSingleFeature'])->name('single-feature');
+
+    // proxy ke Plovis
+    Route::get('/plovis/{density}', [GeoJsonApiController::class, 'proxyPlovis'])->name('plovis');
 });
 
 // Fallback route untuk 404
