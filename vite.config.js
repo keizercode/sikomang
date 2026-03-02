@@ -14,6 +14,7 @@ export default defineConfig({
 
                 "resources/css/hasil-pemantauan.css",
                 "resources/css/hasil-pemantauan-popup.css",
+                "resources/js/hasil-pemantauan.js",
             ],
             refresh: true,
         }),
