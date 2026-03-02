@@ -4,7 +4,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-@vite('resources/css/monitoring.css')
+{{-- @vite('resources/css/monitoring.css') --}}
 
 <style>
 /* Polygon fill styles by density */
