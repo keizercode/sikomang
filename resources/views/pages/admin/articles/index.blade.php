@@ -305,7 +305,7 @@ $(document).ready(function() {
 
                     if (isChecked) {
                         if (existingBadge.length === 0) {
-                            titleCell.find('strong').after(' <span class="badge bg-warning text-dark ms-1"><i class="fas fa-star"></i> Featured</span>');
+                            titleCell.find('strong').after(' <span class="badge bg-warning text-dark ms-1"><i class="fas fa-star"></i> Favorite</span>');
                         }
                     } else {
                         existingBadge.remove();

@@ -162,10 +162,12 @@
                                 Nama Lengkap <span class="text-danger">*</span>
                             </label>
                             <input type="text"
-                                   name="reporter_name"
-                                   class="form-control"
-                                   placeholder="Masukkan nama lengkap Anda"
-                                   required>
+                            name="reporter_name"
+                            class="form-control"
+                            placeholder="Masukkan nama lengkap Anda"
+                            pattern="^[a-zA-ZÀ-ÿ\s]+$"
+                            title="Masukkan nama yang benar"
+                            required>
                         </div>
 
                         <div class="form-group">
@@ -176,6 +178,7 @@
                                    name="reporter_email"
                                    class="form-control"
                                    placeholder="contoh@email.com"
+                                   title="Masukkan email yang valid"
                                    required>
                         </div>
                     </div>
@@ -189,6 +192,8 @@
                                    name="reporter_phone"
                                    class="form-control"
                                    placeholder="08xxxxxxxxxx"
+                                   pattern="^08[0-9]{8,14}|021[0-9]{7,13}$"
+                                   title="Masukkan nomor telepon yang valid (8-14 digit)"
                                    required>
                         </div>
 
