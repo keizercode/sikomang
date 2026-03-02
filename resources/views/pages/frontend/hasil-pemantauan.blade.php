@@ -4,11 +4,11 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-@vite([
+{{-- @vite([
     'resources/css/hasil-pemantauan.css',
     'resources/css/hasil-pemantauan-popup.css',
     'resources/js/hasil-pemantauan.js'
-])
+]) --}}
 
 <style>
     /* Sidebar sticky dengan scroll sendiri */

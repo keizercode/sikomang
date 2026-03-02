@@ -1,6 +1,6 @@
 @extends('layouts.admin.master')
 @section('css')
-    @vite(['resources/css/admin/detail.css'])
+    {{-- @vite(['resources/css/admin/detail.css']) --}}
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>

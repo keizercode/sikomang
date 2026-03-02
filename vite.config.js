@@ -11,10 +11,6 @@ export default defineConfig({
 
                 "resources/css/admin.css",
                 "resources/js/admin.js",
-
-                "resources/css/hasil-pemantauan.css",
-                "resources/css/hasil-pemantauan-popup.css",
-                "resources/js/hasil-pemantauan.js",
             ],
             refresh: true,
         }),

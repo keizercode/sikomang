@@ -2,13 +2,14 @@
 
 /* Pages */
 
+@import "./accordion.css";
+@import "./article-frontend.css";
+@import "./report-modal.css";
+
+@import "./monitoring.css";
 @import "./hasil-pemantauan.css";
 @import "./hasil-pemantauan-popup.css";
-@import "./monitoring.css";
 @import "./detail-lokasi.css";
-@import "./accordion.css";
-@import "./report-modal.css";
-@import "./article-frontend.css";
 @import "./poupcontent-detail-lokasi.css";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
