@@ -380,7 +380,8 @@
         plovisUrls: {
     jarang: '/api/geojson/plovis/jarang',
     sedang: '/api/geojson/plovis/sedang',
-    lebat:  '/api/geojson/plovis/lebat'
+    lebat:  '/api/geojson/plovis/lebat',
+
 },
     };
 

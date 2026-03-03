@@ -17,6 +17,7 @@ class GeoJsonApiController extends Controller
         'jarang' => 'https://asset.plovis.id/plovis/public/67f25022-a757-4f90-a114-16e3f3ad671c.geojson',
         'sedang' => 'https://asset.plovis.id/plovis/public/1c7b760f-7458-4353-bfd9-1ba6084cdce6.geojson',
         'lebat'  => 'https://asset.plovis.id/plovis/public/cb7b89d7-2ac7-4fa4-a16c-02734432838e.geojson',
+        'mangrove_2025' => 'public/geojson/mangrove_2025.geojson',
     ];
 
     /**
