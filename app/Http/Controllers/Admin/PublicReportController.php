@@ -272,13 +272,13 @@ class PublicReportController extends Controller
 
         // Detail button
         $html .= '<a href="' . route('admin.public-reports.detail', $encodedId) . '"
-                    class="btn btn-sm btn-outline-primary" title="Detail">
+                    class="btn btn-sm btn-outline-secondary" title="Detail">
                     <i class="mdi mdi-eye"></i>
                   </a>';
 
         // Verify button (if pending)
         if ($report->status === 'pending') {
-            $html .= '<button class="btn btn-sm btn-outline-success verify-btn"
+            $html .= '<button class="btn btn-sm btn-outline-primary verify-btn"
                         data-id="' . $encodedId . '" title="Verifikasi">
                         <i class="mdi mdi-check-circle"></i>
                       </button>';

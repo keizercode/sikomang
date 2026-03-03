@@ -87,7 +87,7 @@ function loadGridData() {
                     '<td>' + item.density + '</td>' +
                     '<td>' + renderHealth(item.health) + '</td>' +
                     '<td>' +
-                    '<span class="badge badge-type border border-primary text-primary bg-transparent rounded-pill px-3 py-1 ms-2">' +
+                    '<span class="badge badge-type badge badge-outline-blue bg-transparent rounded-pill px-3 py-1 ms-2">' +
                     item.type +
                     '</span>' +
                     '</td>' +

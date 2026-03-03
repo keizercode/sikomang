@@ -21,7 +21,7 @@
         <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body d-flex align-items-center">
                 <div class="flex-shrink-0">
-                    <div class="icon-circle bg-primary bg-opacity-10 text-primary">
+                    <div class="icon-circle bg-secondary bg-opacity-10 text-primary">
                         <i class="mdi mdi-map-marker-outline fs-3"></i>
                     </div>
                 </div>

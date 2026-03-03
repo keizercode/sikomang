@@ -47,7 +47,7 @@ class SiteController extends Controller
                 'type' => ucfirst($location->type),
                 'action' => '<div class="d-flex gap-1">
                     <a href="' . route('admin.monitoring.detail', encode_id($location->id)) . '" class="btn btn-sm btn-outline-secondary" title="Detail"><i class="mdi mdi-eye"></i></a>
-                    <a href="' . route('admin.monitoring.edit', encode_id($location->id)) . '" class="btn btn-sm btn-outline-success" title="Edit"><i class="mdi mdi-pencil"></i></a>
+                    <a href="' . route('admin.monitoring.edit', encode_id($location->id)) . '" class="btn btn-sm btn-outline-primary" title="Edit"><i class="mdi mdi-pencil"></i></a>
                     <a href="#" data-href="' . route('admin.monitoring.delete', encode_id($location->id)) . '" class="btn btn-sm btn-outline-danger remove_data" title="Hapus"><i class="mdi mdi-delete"></i></a>
                 </div>'
             ];
