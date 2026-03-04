@@ -354,8 +354,8 @@
             </h5>
             <div class="reporter-grid">
                 <div class="reporter-item">
-                    <div class="reporter-icon bg-primary bg-opacity-10">
-                        <i class="mdi mdi-account text-primary"></i>
+                    <div class="reporter-icon bg-secondary bg-opacity-10">
+                        <i class="mdi mdi-account text-secondary"></i>
                     </div>
                     <div class="reporter-content">
                         <div class="reporter-label">Nama Lengkap</div>
