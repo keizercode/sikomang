@@ -269,52 +269,79 @@
             </a>
         </header>
 
-        {{-- Data Table Section --}}
-        <div class="data-table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Fungsi Kawasan</th>
-                        <th>Jarang</th>
-                        <th>Sedang</th>
-                        <th>Lebat</th>
-                        <th>Luas Total</th>
-                        <th>Status Konservasi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{-- Luar Kawasan Section --}}
-                    <tr class="section-header">
-                        <td colspan="6">Luar Kawasan</td>
-                    </tr>
-                    @foreach($monitoring_data['luar_kawasan'] as $row)
-                    <tr>
-                        <td>{{ $row['fungsi'] }}</td>
-                        <td>{{ $row['jarang'] }}</td>
-                        <td>{{ $row['sedang'] }}</td>
-                        <td>{{ $row['lebat'] }}</td>
-                        <td>{{ $row['total'] }}</td>
-                        <td>{{ $row['status'] }}</td>
-                    </tr>
-                    @endforeach
 
-                    {{-- Dalam Kawasan Section --}}
-                    <tr class="section-header">
-                        <td colspan="6">Dalam Kawasan</td>
-                    </tr>
-                    @foreach($monitoring_data['dalam_kawasan'] as $row)
-                    <tr>
-                        <td>{{ $row['fungsi'] }}</td>
-                        <td>{{ $row['jarang'] }}</td>
-                        <td>{{ $row['sedang'] }}</td>
-                        <td>{{ $row['lebat'] }}</td>
-                        <td>{{ $row['total'] }}</td>
-                        <td>{{ $row['status'] }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+{{-- Data Table Section --}}
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Fungsi Kawasan</th>
+                <th>Jarang (ha)</th>
+                <th>Sedang (ha)</th>
+                <th>Lebat (ha)</th>
+                <th>Luas Total (ha)</th>
+                <th>Status Konservasi</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {{-- ── Luar Kawasan ─────────────────────────────────── --}}
+            <tr class="section-header">
+                <td colspan="6">Luar Kawasan</td>
+            </tr>
+            @forelse($monitoring_data['luar_kawasan'] as $row)
+            <tr>
+                <td>{{ $row['fungsi'] }}</td>
+                <td>{{ $row['jarang'] }}</td>
+                <td>{{ $row['sedang'] }}</td>
+                <td>{{ $row['lebat'] }}</td>
+                <td>{{ $row['total'] }}</td>
+                <td>{{ $row['konservasi'] }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="6" style="color:#9ca3af;font-style:italic;text-align:center;padding:.75rem;">
+                    Data belum tersedia
+                </td>
+            </tr>
+            @endforelse
+
+            {{-- ── Dalam Kawasan ────────────────────────────────── --}}
+            <tr class="section-header">
+                <td colspan="6">Dalam Kawasan</td>
+            </tr>
+            @forelse($monitoring_data['dalam_kawasan'] as $row)
+            <tr>
+                <td>{{ $row['fungsi'] }}</td>
+                <td>{{ $row['jarang'] }}</td>
+                <td>{{ $row['sedang'] }}</td>
+                <td>{{ $row['lebat'] }}</td>
+                <td>{{ $row['total'] }}</td>
+                <td>{{ $row['konservasi'] }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="6" style="color:#9ca3af;font-style:italic;text-align:center;padding:.75rem;">
+                    Data belum tersedia
+                </td>
+            </tr>
+            @endforelse
+
+            {{-- ── Grand Total ──────────────────────────────────── --}}
+            @if(!empty($monitoring_data['totals']))
+            <tr style="background:#00724c!important;color:#ffffff;font-weight:700;">
+                <td>Luas Total</td>
+                <td>{{ $monitoring_data['totals']['jarang'] }}</td>
+                <td>{{ $monitoring_data['totals']['sedang'] }}</td>
+                <td>{{ $monitoring_data['totals']['lebat'] }}</td>
+                <td>{{ $monitoring_data['totals']['total'] }}</td>
+                <td></td>
+            </tr>
+            @endif
+
+        </tbody>
+    </table>
+</div>
     </aside>
 
     {{-- Map Container Section --}}

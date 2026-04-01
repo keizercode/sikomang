@@ -2,196 +2,270 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
+use Illuminate\Support\Facades\Http;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class ExcelExportController extends FrontendController
 {
     /**
-     * Export mangrove data to Excel based on density category
+     * URL sumber GeoJSON Plovis — sama persis dengan GeoJsonApiController
      */
-    public function exportMangroveData($category)
-    {
-        // Validate category
-        $validCategories = ['jarang', 'sedang', 'lebat'];
-        if (!in_array(strtolower($category), $validCategories)) {
-            abort(400, 'Invalid category');
-        }
+    private const PLOVIS_URLS = [
+        'jarang' => 'https://asset.plovis.id/plovis/public/67f25022-a757-4f90-a114-16e3f3ad671c.geojson',
+        'sedang' => 'https://asset.plovis.id/plovis/public/1c7b760f-7458-4353-bfd9-1ba6084cdce6.geojson',
+        'lebat'  => 'https://asset.plovis.id/plovis/public/cb7b89d7-2ac7-4fa4-a16c-02734432838e.geojson',
+    ];
 
-        // Get data based on category
-        $data = $this->getMangroveDataByCategory($category);
-
-        // Generate Excel file
-        $excelPath = $this->generateExcelFile($category, $data);
-
-        // Return file for download
-        return response()->download($excelPath, "Mangrove_Jakarta_{$category}_" . date('Y-m-d') . ".xlsx")->deleteFileAfterSend(true);
-    }
+    private const KTTJ_LABELS = [
+        'jarang' => 'MANGROVE JARANG',
+        'sedang' => 'MANGROVE SEDANG',
+        'lebat'  => 'MANGROVE LEBAT',
+    ];
 
     /**
-     * Get mangrove data based on category
+     * 21 kolom persis sesuai template GIS Plovis.
+     * Urutan & nama TIDAK boleh diubah.
      */
-    private function getMangroveDataByCategory($category)
+    private const COLUMNS = [
+        'A' => 'BPDAS',
+        'B' => 'KTTJ',
+        'C' => 'SMBDT',
+        'D' => 'THNBUAT',
+        'E' => 'INTS',
+        'F' => 'REMARK',
+        'G' => 'STRUKTUR_V',
+        'H' => 'LSMGR',
+        'I' => 'Shape_Leng',
+        'J' => 'Shape_Area',
+        'K' => 'KODE_PROV',
+        'L' => 'FUNGSIKWS',
+        'M' => 'NOSKKWS',
+        'N' => 'TGLSKKWS',
+        'O' => 'LSKKWS',
+        'P' => 'Kawasan',
+        'Q' => 'KONSERVASI',
+        'R' => 'WADMKK',
+        'S' => 'WADMPR',
+        'T' => 'icon',
+        'U' => 'colorIndex',
+    ];
+
+    /**
+     * Export data mangrove ke Excel.
+     * Data diambil LANGSUNG dari Plovis API — sama dengan sumber peta.
+     * Menggunakan PhpSpreadsheet (fitur bawaan Laravel ecosystem).
+     *
+     * Route: GET /monitoring/export/{category}
+     */
+    public function exportMangroveData(string $category)
     {
-        // Data mapping untuk setiap kategori
-        $allData = [
-            'jarang' => [
-                ['location' => 'Rawa Hutan Lindung', 'area' => 44.7, 'coords' => '-6.1023, 106.7655', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'HL', 'konservasi' => 'Kawasan Konservasi'],
-                ['location' => 'Pos 5 Hutan Lindung', 'area' => 4.7, 'coords' => '-6.0895, 106.7820', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'HL', 'konservasi' => 'Kawasan Konservasi'],
-                ['location' => 'Rusun TNI AL', 'area' => 6.0, 'coords' => '-6.0912, 106.9105', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'APL', 'konservasi' => 'Bukan Kawasan Konservasi'],
+        $category = strtolower(trim($category));
+
+        abort_if(
+            !array_key_exists($category, self::PLOVIS_URLS),
+            400,
+            'Kategori tidak valid. Gunakan: jarang, sedang, atau lebat.'
+        );
+
+        $features  = $this->fetchPlovisFeatures($category);
+        $spreadsheet = $this->buildSpreadsheet($features, $category);
+
+        $filename = sprintf(
+            'export-map-Mangrove_Jakarta_-%s-%s.xlsx',
+            ucfirst($category),
+            now()->format('Ymd')
+        );
+
+        return response()->streamDownload(
+            function () use ($spreadsheet) {
+                (new Xlsx($spreadsheet))->save('php://output');
+            },
+            $filename,
+            [
+                'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Cache-Control'       => 'max-age=0, no-cache, no-store',
+                'Pragma'              => 'no-cache',
+            ]
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  PRIVATE — Fetch dari Plovis API
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private function fetchPlovisFeatures(string $category): array
+    {
+        $response = Http::timeout(60)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->get(self::PLOVIS_URLS[$category]);
+
+        abort_if(
+            !$response->successful(),
+            502,
+            "Gagal mengambil data dari Plovis (HTTP {$response->status()})."
+        );
+
+        $json    = $response->json();
+        $geojson = $json['geojson'] ?? $json;   // Plovis membungkus di key "geojson"
+
+        abort_if(
+            !isset($geojson['features']) || !is_array($geojson['features']),
+            502,
+            'Format GeoJSON Plovis tidak valid.'
+        );
+
+        return collect($geojson['features'])
+            ->filter(fn($f) => !empty($f['properties']))
+            ->map(fn($f) => $f['properties'])
+            ->values()
+            ->toArray();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  PRIVATE — Bangun Spreadsheet
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private function buildSpreadsheet(array $features, string $category): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->getProperties()
+            ->setCreator('SIKOMANG')
+            ->setTitle('Export Map Mangrove Jakarta - ' . ucfirst($category))
+            ->setSubject('Data Sebaran Mangrove ' . self::KTTJ_LABELS[$category])
+            ->setDescription('Sumber: Plovis KLHK. Export: ' . now()->format('d/m/Y H:i'));
+
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Data');
+
+        $this->writeHeaderRow($sheet);
+
+        $row = 2;
+        foreach ($features as $props) {
+            $this->writeDataRow($sheet, $row, $props, $category);
+            $row++;
+        }
+
+        foreach (array_keys(self::COLUMNS) as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $sheet->freezePane('A2');
+        $sheet->setAutoFilter('A1:U1');
+
+        return $spreadsheet;
+    }
+
+    private function writeHeaderRow(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): void
+    {
+        $style = [
+            'font' => [
+                'bold'  => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size'  => 10,
+                'name'  => 'Arial',
             ],
-            'sedang' => [
-                ['location' => 'Tanah Timbul (Bird Feeding)', 'area' => 2.89, 'coords' => '-6.1012, 106.7645', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'APL', 'konservasi' => 'Bukan Kawasan Konservasi'],
-                ['location' => 'Pos 2 Hutan Lindung', 'area' => null, 'coords' => '-6.1025, 106.7680', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'HL', 'konservasi' => 'Kawasan Konservasi'],
-                ['location' => 'TWA Angke Kapuk', 'area' => 99.82, 'coords' => '-6.0921, 106.7590', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'TWA', 'konservasi' => 'Kawasan Konservasi'],
+            'fill' => [
+                'fillType'   => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4F7942'],   // Hijau GIS standar
             ],
-            'lebat' => [
-                ['location' => 'Titik 2 Elang Laut', 'area' => null, 'coords' => '-6.1015, 106.7670', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'HL', 'konservasi' => 'Kawasan Konservasi'],
-                ['location' => 'Mangrove STIP', 'area' => 4.6, 'coords' => '-6.1223, 106.9512', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'APL', 'konservasi' => 'Bukan Kawasan Konservasi'],
-                ['location' => 'Mangrove Si Pitung', 'area' => 5.5, 'coords' => '-6.1198, 106.8645', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'APL', 'konservasi' => 'Bukan Kawasan Konservasi'],
-                ['location' => 'Pasmar 1 TNI AL', 'area' => 5.5, 'coords' => '-6.1156, 106.8598', 'wadmkk' => 'Kota Adm. Jakarta Utara', 'kawasan' => 'APL', 'konservasi' => 'Bukan Kawasan Konservasi'],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color'       => ['rgb' => 'FFFFFF'],
+                ],
             ],
         ];
 
-        return $allData[strtolower($category)] ?? [];
-    }
-
-    /**
-     * Get Python command based on operating system
-     */
-    private function getPythonCommand()
-    {
-        // Check if running on Windows
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            return 'python'; // Windows uses 'python'
+        foreach (self::COLUMNS as $col => $label) {
+            $sheet->setCellValue("{$col}1", $label);
+            $sheet->getStyle("{$col}1")->applyFromArray($style);
         }
 
-        return 'python3'; // Linux/Unix uses 'python3'
+        $sheet->getRowDimension(1)->setRowHeight(20);
     }
 
     /**
-     * Generate Excel file using Python script
+     * Tulis satu baris data dari properties GeoJSON Plovis.
+     * Key mapping 1:1 dengan nama field asli Plovis — akurat tanpa transformasi.
      */
-    private function generateExcelFile($category, $data)
-    {
-        // Adjust template path based on OS
-        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    private function writeDataRow(
+        \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet,
+        int $row,
+        array $props,
+        string $category
+    ): void {
+        $sheet->setCellValue("A{$row}", $props['BPDAS']      ?? 'CITARUM CILIWUNG');
+        $sheet->setCellValue("B{$row}", $props['KTTJ']       ?? self::KTTJ_LABELS[$category]);
+        $sheet->setCellValue("C{$row}", $props['SMBDT']      ?? null);
+        $sheet->setCellValue("D{$row}", $props['THNBUAT']    ?? ($props['TAHUN'] ?? null));
+        $sheet->setCellValue("E{$row}", $props['INTS']       ?? 'KLHK');
+        $sheet->setCellValue("F{$row}", $props['REMARK']     ?? 'TIDAK ADA CATATAN');
+        $sheet->setCellValue("G{$row}", $props['STRUKTUR_V'] ?? null);
 
-        if ($isWindows) {
-            // On Windows, use Laravel storage path to access uploaded file
-            // You need to copy the template file to storage/app/templates directory
-            $templatePath = storage_path('app/templates/export-map-Mangrove_Jakarta_-_Jarang__2_.xlsx');
+        // LSMGR — luas mangrove (ha)
+        $lsmgr = $props['LSMGR'] ?? null;
+        if (is_numeric($lsmgr)) {
+            $sheet->setCellValue("H{$row}", (float) $lsmgr);
+            $sheet->getStyle("H{$row}")->getNumberFormat()->setFormatCode('#,##0.00000000');
         } else {
-            // On Linux (production), use the original path
-            $templatePath = '/mnt/user-data/uploads/export-map-Mangrove_Jakarta_-_Jarang__2_.xlsx';
+            $sheet->setCellValue("H{$row}", 0);
         }
 
-        $outputPath = storage_path("app/exports/Mangrove_Jakarta_{$category}_" . time() . ".xlsx");
-
-        // Create exports directory if not exists
-        if (!is_dir(storage_path('app/exports'))) {
-            mkdir(storage_path('app/exports'), 0755, true);
+        // Shape_Leng
+        $shapeLeng = $props['Shape_Leng'] ?? null;
+        if (is_numeric($shapeLeng)) {
+            $sheet->setCellValue("I{$row}", (float) $shapeLeng);
+            $sheet->getStyle("I{$row}")->getNumberFormat()->setFormatCode('0.00000000000');
         }
 
-        // Create templates directory if not exists (for Windows)
-        if ($isWindows && !is_dir(storage_path('app/templates'))) {
-            mkdir(storage_path('app/templates'), 0755, true);
+        // Shape_Area
+        $shapeArea = $props['Shape_Area'] ?? null;
+        if (is_numeric($shapeArea)) {
+            $sheet->setCellValue("J{$row}", (float) $shapeArea);
+            $sheet->getStyle("J{$row}")->getNumberFormat()->setFormatCode('0.00000E+00');
         }
 
-        // Create Python script content
-        $pythonScript = $this->generatePythonScript($templatePath, $outputPath, $category, $data);
+        $kodeProv = $props['KODE_PROV'] ?? 31;
+        $sheet->setCellValue("K{$row}", is_numeric($kodeProv) ? (int) $kodeProv : $kodeProv);
 
-        // Save Python script to temp file
-        $scriptPath = storage_path('app/exports/generate_excel_' . time() . '.py');
-        file_put_contents($scriptPath, $pythonScript);
+        $fungsikws = $props['FUNGSIKWS'] ?? null;
+        $sheet->setCellValue("L{$row}", is_numeric($fungsikws) ? (int) $fungsikws : $fungsikws);
 
-        // Get correct Python command
-        $pythonCommand = $this->getPythonCommand();
+        $sheet->setCellValue("M{$row}", $props['NOSKKWS']  ?? null);
+        $sheet->setCellValue("N{$row}", $props['TGLSKKWS'] ?? null);
 
-        // Execute Python script
-        $process = new Process([$pythonCommand, $scriptPath]);
-        $process->setTimeout(60);
-        $process->run();
-
-        // Clean up script file
-        @unlink($scriptPath);
-
-        // Check if process was successful
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+        $lskkws = $props['LSKKWS'] ?? null;
+        if (is_numeric($lskkws)) {
+            $sheet->setCellValue("O{$row}", (float) $lskkws);
+            $sheet->getStyle("O{$row}")->getNumberFormat()->setFormatCode('#,##0');
+        } else {
+            $sheet->setCellValue("O{$row}", $lskkws);
         }
 
-        return $outputPath;
-    }
+        $sheet->setCellValue("P{$row}", $props['Kawasan']    ?? null);
+        $sheet->setCellValue("Q{$row}", $props['KONSERVASI'] ?? null);
+        $sheet->setCellValue("R{$row}", $props['WADMKK']     ?? null);
+        $sheet->setCellValue("S{$row}", $props['WADMPR']     ?? null);
+        $sheet->setCellValue("T{$row}", $props['icon']       ?? null);
+        $sheet->setCellValue("U{$row}", $props['colorIndex'] ?? 0);
 
-    /**
-     * Generate Python script for creating Excel file
-     */
-    private function generatePythonScript($templatePath, $outputPath, $category, $data)
-    {
-        $dataJson = json_encode($data, JSON_PRETTY_PRINT);
-
-        // Escape backslashes for Windows paths
-        $templatePath = str_replace('\\', '\\\\', $templatePath);
-        $outputPath = str_replace('\\', '\\\\', $outputPath);
-
-        return <<<PYTHON
-import openpyxl
-from openpyxl import load_workbook
-import json
-from datetime import datetime
-
-# Load template
-wb = load_workbook('{$templatePath}')
-sheet = wb['Data']
-
-# Clear existing data (keep header)
-for row in range(sheet.max_row, 1, -1):
-    sheet.delete_rows(row)
-
-# Data to insert
-data = {$dataJson}
-
-# Category mapping
-category_map = {
-    'jarang': 'MANGROVE JARANG',
-    'sedang': 'MANGROVE SEDANG',
-    'lebat': 'MANGROVE LEBAT'
-}
-
-# Insert data
-for i, item in enumerate(data, start=2):
-    coords = item['coords'].split(',')
-    lat = float(coords[0].strip()) if len(coords) > 0 else 0
-    lon = float(coords[1].strip()) if len(coords) > 1 else 0
-
-    sheet[f'A{i}'] = 'CITARUM CILIWUNG'
-    sheet[f'B{i}'] = category_map['{$category}']
-    sheet[f'C{i}'] = 'CITRA PLANETSCOPE DAN SENTINEL 2 TAHUN 2024'
-    sheet[f'D{i}'] = '2024'
-    sheet[f'E{i}'] = 'KLHK'
-    sheet[f'F{i}'] = item['location']
-    sheet[f'G{i}'] = 'DOMINASI POHON'
-    sheet[f'H{i}'] = item['area'] if item['area'] is not None else 0
-    sheet[f'I{i}'] = abs(lat) * 0.001  # Shape_Leng (dummy calculation)
-    sheet[f'J{i}'] = abs(lat * lon) * 0.0001  # Shape_Area (dummy calculation)
-    sheet[f'K{i}'] = 31
-    sheet[f'L{i}'] = item.get('fungsikws', 100100)
-    sheet[f'M{i}'] = '220/Kpts-II/2000'
-    sheet[f'N{i}'] = '2000-08-02 00:00:00'
-    sheet[f'O{i}'] = 66401
-    sheet[f'P{i}'] = item['kawasan']
-    sheet[f'Q{i}'] = item['konservasi']
-    sheet[f'R{i}'] = item['wadmkk']
-    sheet[f'S{i}'] = 'DKI Jakarta'
-    sheet[f'T{i}'] = None
-    sheet[f'U{i}'] = 0
-
-# Save file
-wb.save('{$outputPath}')
-print("Excel file generated successfully")
-PYTHON;
+        // Zebra striping ringan
+        if ($row % 2 === 0) {
+            $sheet->getStyle("A{$row}:U{$row}")->applyFromArray([
+                'fill' => [
+                    'fillType'   => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'F5F5F5'],
+                ],
+            ]);
+        }
     }
 }
