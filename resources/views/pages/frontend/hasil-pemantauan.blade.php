@@ -4,11 +4,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-{{-- @vite([
-    'resources/css/hasil-pemantauan.css',
-    'resources/css/hasil-pemantauan-popup.css',
-    'resources/js/hasil-pemantauan.js'
-]) --}}
 
 <style>
     /* Sidebar sticky dengan scroll sendiri */
@@ -40,10 +35,10 @@
         border: 1.5px solid #e3ede9;
         border-radius: 10px;
         height: 50px;
-    padding: 0 12px 0 38px;
-    min-width: 425px;   /* ← lebar minimum */
-    max-width: 520px;   /* ← lebar maksimum */
-    width: 100%;
+        padding: 0 12px 0 38px;
+        min-width: 260px;
+        max-width: 520px;
+        width: 100%;
     }
 
     .nav-search-form:focus-within {
@@ -63,19 +58,19 @@
     }
 
     .nav-search-form input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-size: 1rem;
-    color: #1f2937;
-    outline: none;
-    min-width: 0;
-}
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 1rem;
+        color: #1f2937;
+        outline: none;
+        min-width: 0;
+    }
 
-.nav-search-form input::placeholder {
-    color: #b0b9b5;
-    font-size: 1rem;
-}
+    .nav-search-form input::placeholder {
+        color: #b0b9b5;
+        font-size: 1rem;
+    }
 
     .nav-search-clear {
         background: none;
@@ -120,7 +115,7 @@
     }
 
     .nav-toggle-label {
-        font-size: 0.875rem; /*custom toggle*/
+        font-size: 0.875rem;
         font-weight: 600;
         color: #9ca3af;
         letter-spacing: .03em;
@@ -143,8 +138,8 @@
 
     .nav-toggle-track {
         position: relative;
-        width: 62px;  /*custom toggle*/
-        height: 32px; /*custom toggle*/
+        width: 62px;
+        height: 32px;
         background: #e5e7eb;
         border-radius: 99px;
         cursor: pointer;
@@ -161,8 +156,8 @@
         position: absolute;
         top: 3px;
         left: 3px;
-        width: 26px; /*custom toggle*/
-        height: 26px; /*custom toggle*/
+        width: 26px;
+        height: 26px;
         background: #fff;
         border-radius: 50%;
         transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
@@ -173,7 +168,7 @@
     }
 
     .nav-toggle-track.map-active .nav-toggle-thumb {
-        transform: translateX(30px); /* sesuaikan: track width - thumb width - (2 * top offset) = 62 - 26 - 6 */
+        transform: translateX(30px);
     }
 
     /* ── Map modal button ── */
@@ -207,20 +202,32 @@
         color: #009966;
     }
 
-    /* Mobile: collapse search on small screens */
-    @media (max-width: 639px) {
-    .nav-search-form {
-        min-width: 0;
-        max-width: 200px;
+    /* ── Responsive: search bar shrinks on smaller screens ── */
+    @media (max-width: 1200px) {
+        .nav-search-form {
+            min-width: 200px;
+            max-width: 360px;
+        }
     }
-}
 
-@media (max-width: 400px) {
-    .nav-search-form {
-        min-width: 0;
-        max-width: 150px;
+    @media (max-width: 900px) {
+        .nav-search-form {
+            min-width: 160px;
+            max-width: 260px;
+        }
+        .nav-toggle-label {
+            display: none; /* hide text labels, keep toggle track */
+        }
     }
-}
+
+    @media (max-width: 767px) {
+        /* On mobile the desktop nav slots are hidden; mobile menu handles them */
+        .nav-search-form {
+            min-width: 0;
+            max-width: 100%;
+            width: 100%;
+        }
+    }
 
     /* ============================================================
        VIEW CONTAINERS
@@ -297,6 +304,19 @@
         background: #f0f4f0;
     }
 
+    @media (max-width: 767px) {
+        #leaflet-main-map {
+            height: 400px;
+            border-radius: 0 0 8px 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #leaflet-main-map {
+            height: 320px;
+        }
+    }
+
     /* Custom marker */
     .custom-marker-pin { display: flex; align-items: center; justify-content: center; }
 
@@ -350,7 +370,7 @@
      ────────────────────────────────────────────────────────── --}}
 @push('navbar-left')
  {{-- Divider --}}
-            <div class="h-24 w-px bg-gray-300 mx-7.5"></div>
+            <div class="h-24 w-px bg-gray-300 mx-7.5 hidden lg:block"></div>
 <div class="nav-search-form ml-3">
     <span class="nav-search-icon">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -374,7 +394,7 @@
 @endpush
 
 @push('navbar-right')
-    <div class="nav-actions-sep"></div>
+    <div class="nav-actions-sep hidden lg:block"></div>
     {{-- View Toggle: Grid ↔ Peta --}}
     <div class="nav-view-toggle">
         <span class="nav-toggle-label is-active" id="label-grid">
@@ -417,7 +437,6 @@
             </div>
 
             <div class="stats-section">
-    {{-- <h3>Total Pemanfaatan Kawasan Mangrove</h3> --}}
     <div class="stat-box">
         <div class="stat-box-content">
             <div class="stat-label">Titik Pemantauan Kawasan Mangrove</div>
@@ -500,6 +519,53 @@
 
         {{-- ── Main Content ────────────────────────────────────── --}}
         <main class="main-content">
+            {{-- Mobile search bar (visible only on mobile) --}}
+            <div class="md:hidden mb-4">
+                <div class="nav-search-form" style="max-width:100%;min-width:0;width:100%;margin-left:0;">
+                    <span class="nav-search-icon">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                    </span>
+                    <input type="text" id="searchInputMobileMain" placeholder="Cari lokasi mangrove…" autocomplete="off"
+                           oninput="if(window.filterCards) filterCards(this.value.toLowerCase().trim())">
+                    <button class="nav-search-clear" onclick="this.previousElementSibling.value=''; if(window.filterCards) filterCards('')">
+                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Mobile view toggle --}}
+            <div class="md:hidden flex items-center justify-between mb-3">
+                <span class="text-sm font-semibold text-gray-500">Tampilan:</span>
+                <div class="nav-view-toggle">
+                    <span class="nav-toggle-label is-active" id="label-grid-mobile">
+                        <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13">
+                            <rect x="1" y="1" width="6" height="6" rx="1.5"/>
+                            <rect x="9" y="1" width="6" height="6" rx="1.5"/>
+                            <rect x="1" y="9" width="6" height="6" rx="1.5"/>
+                            <rect x="9" y="9" width="6" height="6" rx="1.5"/>
+                        </svg>
+                        Grid
+                    </span>
+                    <div class="nav-toggle-track" id="viewToggleTrackMobile" onclick="toggleViewMobile()" title="Beralih tampilan">
+                        <div class="nav-toggle-thumb">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="#009966">
+                                <path d="M8 0C5.2 0 2.9 2.3 2.9 5.1c0 3.8 5.1 10.9 5.1 10.9s5.1-7.1 5.1-10.9C13.1 2.3 10.8 0 8 0zm0 7c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <span class="nav-toggle-label" id="label-peta-mobile">
+                        <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13">
+                            <path d="M8 0C5.2 0 2.9 2.3 2.9 5.1c0 3.8 5.1 10.9 5.1 10.9s5.1-7.1 5.1-10.9C13.1 2.3 10.8 0 8 0zm0 7c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                        </svg>
+                        Peta
+                    </span>
+                </div>
+            </div>
+
             {{-- Filter Tabs (grid view only) --}}
            <div class="filter-tabs" id="grid-filter-tabs">
                 <button class="tab active" onclick="filterByGroup('all')">
@@ -622,6 +688,7 @@
     });
     filterMarkers(term);
 }
+window.filterCards = filterCards;
 
 // Tambah setelah deklarasi activeFilters:
 let activeRegionFilter = 'all';
@@ -696,23 +763,31 @@ function filterMarkers(term) {
 
     function toggleView() {
         isMapView = !isMapView;
+        syncToggleUI();
+        if (isMapView) requestAnimationFrame(initMainMap);
+    }
 
-        const track     = document.getElementById('viewToggleTrack');
-        const labelGrid = document.getElementById('label-grid');
-        const labelPeta = document.getElementById('label-peta');
+    function toggleViewMobile() {
+        isMapView = !isMapView;
+        syncToggleUI();
+        if (isMapView) requestAnimationFrame(initMainMap);
+    }
 
-        if (isMapView) {
-            track.classList.add('map-active');
-            document.body.classList.add('map-view-active');
-            labelGrid?.classList.remove('is-active');
-            labelPeta?.classList.add('is-active');
-            requestAnimationFrame(initMainMap);
-        } else {
-            track.classList.remove('map-active');
-            document.body.classList.remove('map-view-active');
-            labelGrid?.classList.add('is-active');
-            labelPeta?.classList.remove('is-active');
-        }
+    function syncToggleUI() {
+        // Desktop
+        const trackD     = document.getElementById('viewToggleTrack');
+        const labelGridD = document.getElementById('label-grid');
+        const labelPetaD = document.getElementById('label-peta');
+        // Mobile
+        const trackM     = document.getElementById('viewToggleTrackMobile');
+        const labelGridM = document.getElementById('label-grid-mobile');
+        const labelPetaM = document.getElementById('label-peta-mobile');
+
+        [trackD, trackM].forEach(t => { if (t) t.classList.toggle('map-active', isMapView); });
+        [labelGridD, labelGridM].forEach(l => { if (l) l.classList.toggle('is-active', !isMapView); });
+        [labelPetaD, labelPetaM].forEach(l => { if (l) l.classList.toggle('is-active', isMapView); });
+
+        document.body.classList.toggle('map-view-active', isMapView);
     }
 
     // ================================================================
@@ -749,9 +824,7 @@ function filterMarkers(term) {
 
     function getTypeKey(loc) {
     const raw = (loc.type || '').toLowerCase().trim();
-    // 1. Exact match dulu (paling aman, handle 'pengkayaan_rehabilitasi' langsung)
     if (TYPE_COLORS[raw]) return raw;
-    // 2. Fallback partial match, key terpanjang dulu
     const sortedKeys = Object.keys(TYPE_COLORS).sort((a, b) => b.length - a.length);
     return sortedKeys.find(k => raw.includes(k)) || 'pengkayaan';
 }
@@ -857,10 +930,8 @@ function filterMarkers(term) {
     } else {
         activeFilters.add(type);
         el.classList.add('active-filter');
-        // Tambahkan hanya marker yang lolos search term juga
         (allMarkers[type] || []).forEach(m => m.addTo(mapInstance));
     }
-    // Re-apply search filter supaya konsisten
     const term = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
     filterMarkers(term);
 }

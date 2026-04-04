@@ -11,6 +11,7 @@
     margin-bottom: 2rem;
     font-size: 0.875rem;
     color: #6b7280;
+    flex-wrap: wrap;
 }
 
 .breadcrumb a {
@@ -59,6 +60,7 @@
     background: #fef9c3;
     color: #854d0e;
 }
+
 .badge-pengkayaan_rehabilitasi {
     background: oklch(0.962 0.059 95.617);
     color: oklch(0.473 0.137 46.201);
@@ -77,6 +79,7 @@
 .action-buttons {
     display: flex;
     gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -180,7 +183,7 @@
     aspect-ratio: 4/3;
     border-radius: 8px;
     overflow: hidden;
-    cursor: pointer; /* IMPORTANT: Make it clear it's clickable */
+    cursor: pointer;
     transition:
         transform 0.2s,
         box-shadow 0.2s;
@@ -375,7 +378,6 @@
 .modal-prev {
     left: 15px;
 }
-
 .modal-next {
     right: 15px;
 }
@@ -422,17 +424,14 @@
 .thumbnail-wrapper::-webkit-scrollbar {
     height: 4px;
 }
-
 .thumbnail-wrapper::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
 }
-
 .thumbnail-wrapper::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
 }
-
 .thumbnail-wrapper::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
 }
@@ -604,15 +603,18 @@
 .utilization-list li:before {
     content: "🌳";
 }
-
 .program-list li:before {
     content: "📋";
 }
-
 .stakeholder-list li:before {
     content: "🤝";
 }
 
+/* ===========================
+   RESPONSIVE DESIGN
+   =========================== */
+
+/* Tablet */
 @media (max-width: 1024px) {
     .content-grid {
         grid-template-columns: 1fr;
@@ -625,11 +627,32 @@
     .action-buttons {
         justify-content: flex-start;
     }
+
+    /* Sidebar moves below main content on tablet */
+    .sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        align-items: start;
+    }
+
+    .damage-alert {
+        grid-column: 1 / -1;
+    }
+
+    .sidebar > a {
+        grid-column: 1 / -1;
+    }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
     .detail-container {
         padding: 1rem;
+    }
+
+    .title-section h1 {
+        font-size: 1.5rem;
     }
 
     .info-grid {
@@ -674,7 +697,6 @@
     .modal-prev {
         left: 10px;
     }
-
     .modal-next {
         right: 10px;
     }
@@ -697,8 +719,19 @@
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 0.75rem;
     }
+
+    #detailMap {
+        height: 280px;
+    }
+
+    /* Sidebar: stack vertically on mobile */
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
+/* Small mobile */
 @media (max-width: 576px) {
     .modal-content {
         width: 100%;
@@ -722,5 +755,14 @@
     .gallery {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.813rem;
     }
 }

@@ -71,6 +71,7 @@
        =========================== */
 .data-table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
@@ -78,6 +79,7 @@
     border-collapse: collapse;
     font-size: 0.8rem;
     border: 1px solid #ffffff;
+    min-width: 500px;
 }
 
 .data-table thead th {
@@ -316,21 +318,33 @@
 /* ===========================
        RESPONSIVE DESIGN
        =========================== */
+
+/* Tablet landscape */
+@media (max-width: 1200px) {
+    .monitoring-wrapper {
+        grid-template-columns: 380px 1fr;
+    }
+}
+
+/* Tablet portrait */
 @media (max-width: 1024px) {
     .monitoring-wrapper {
         grid-template-columns: 1fr;
         height: auto;
+        overflow: visible;
     }
 
     .info-panel {
         height: auto;
+        max-height: 55vh;
+        overflow-y: auto;
         border-right: none;
         border-bottom: 1px solid #e5e7eb;
-        max-height: 50vh;
     }
 
     .map-wrapper {
-        height: 600px;
+        height: 60vh;
+        min-height: 400px;
     }
 
     .map-legend {
@@ -345,7 +359,7 @@
 
     .legend-card {
         flex: 1;
-        min-width: 200px;
+        min-width: 180px;
     }
 
     .panel-toggle {
@@ -353,13 +367,20 @@
     }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
+    .monitoring-wrapper {
+        grid-template-columns: 1fr;
+    }
+
     .info-panel {
         padding: 1rem;
+        max-height: none;
+        height: auto;
     }
 
     .page-title {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
     }
 
     .data-table {
@@ -372,7 +393,8 @@
     }
 
     .map-wrapper {
-        height: 500px;
+        height: 50vh;
+        min-height: 350px;
     }
 
     .map-legend {
@@ -382,15 +404,26 @@
     .legend-card {
         min-width: 100%;
     }
+
+    .cta-button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
-@media (max-width: 640px) {
+/* Small mobile */
+@media (max-width: 480px) {
     .map-wrapper {
-        height: 400px;
+        height: 45vh;
+        min-height: 300px;
     }
 
     .cta-button {
         font-size: 0.813rem;
         padding: 0.625rem 1.25rem;
+    }
+
+    .page-title {
+        font-size: 1rem;
     }
 }
