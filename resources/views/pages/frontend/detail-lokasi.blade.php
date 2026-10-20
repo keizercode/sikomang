@@ -4,16 +4,16 @@
 
 @section('content')
 {{-- FLOATING REPORT BUTTON --}}
-<button class="report-float-btn pulse" onclick="openReportModal()" aria-label="Laporkan Kondisi Mangrove">
+<button class="report-float-btn pulse" onclick="openReportModal()" aria-label="Laporkan Kondisi Mangrove" data-html2canvas-ignore="true">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
     </svg>
 </button>
 
-<div class="detail-container">
+<div class="detail-container" id="reportCapture">
 
     {{-- Breadcrumb --}}
-    <nav class="breadcrumb">
+    <nav class="breadcrumb" data-html2canvas-ignore="true">
         @foreach([
             ['route' => 'home', 'label' => 'Beranda'],
             ['route' => 'monitoring.index', 'label' => 'Monitoring'],
@@ -47,9 +47,9 @@
 </div>
         </div>
 
-        <div class="action-buttons">
+        <div class="action-buttons" data-html2canvas-ignore="true">
             @foreach([
-                ['onclick' => 'window.print()', 'icon' => 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4', 'label' => 'Data', 'class' => 'btn-primary'],
+                ['onclick' => 'openDataModal()', 'icon' => 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4', 'label' => 'Data', 'class' => 'btn-primary'],
                 ['onclick' => 'generateReport()', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'label' => 'Report', 'class' => 'btn-secondary']
             ] as $btn)
                 <button class="btn {{ $btn['class'] }}" onclick="{{ $btn['onclick'] }}">
@@ -255,6 +255,9 @@
 {{-- REPORT MODAL --}}
 @include('components.report-modal')
 
+{{-- DATA TABLE MODAL (menu "Data") --}}
+@include('components.data-table-modal', ['location' => $location])
+
 {{-- Location data untuk JavaScript --}}
 <script>
     window.currentLocationData = {
@@ -284,6 +287,9 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{{-- Libraries untuk menu "Report" (screenshot data yang ditampilkan -> PDF) --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 

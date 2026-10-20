@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Models\MangroveLocation;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -92,6 +94,175 @@ class ExcelExportController extends FrontendController
                 'Pragma'              => 'no-cache',
             ]
         );
+    }
+
+    /**
+     * Export tabel informasi SATU lokasi (menu "Data" pada halaman detail lokasi).
+     * Berbeda dengan exportMangroveData() yang bersumber dari Plovis (per kategori GIS),
+     * export ini bersumber dari database internal (mangrove_locations + relasinya)
+     * dan menghasilkan tabel informasi lokasi yang ditampilkan di halaman detail.
+     *
+     * Route: GET /monitoring/lokasi/{slug}/export-data
+     */
+    public function exportLocationData(string $slug)
+    {
+        $location = MangroveLocation::where('slug', $slug)
+            ->where('is_active', true)
+            ->with(['details', 'damages.actions'])
+            ->firstOrFail();
+
+        $spreadsheet = $this->buildLocationSpreadsheet($location);
+
+        $filename = sprintf(
+            'Data-Lokasi-%s-%s.xlsx',
+            Str::slug($location->name),
+            now()->format('Ymd-His')
+        );
+
+        return response()->streamDownload(
+            function () use ($spreadsheet) {
+                (new Xlsx($spreadsheet))->save('php://output');
+            },
+            $filename,
+            [
+                'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Cache-Control'       => 'max-age=0, no-cache, no-store',
+                'Pragma'              => 'no-cache',
+            ]
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  PRIVATE — Bangun Spreadsheet Data Lokasi (menu "Data")
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private function buildLocationSpreadsheet(MangroveLocation $location): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->getProperties()
+            ->setCreator('SIKOMANG')
+            ->setTitle('Data Lokasi - ' . $location->name)
+            ->setSubject('Informasi Detail Lokasi Mangrove')
+            ->setDescription('Export: ' . now()->format('d/m/Y H:i'));
+
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Data Lokasi');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 12, 'name' => 'Arial'],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4F7942']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+        ];
+
+        $labelStyle = [
+            'font' => ['bold' => true, 'name' => 'Arial', 'size' => 10],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'EFF6EF']],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D9D9D9']]],
+        ];
+
+        $valueStyle = [
+            'font' => ['name' => 'Arial', 'size' => 10],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D9D9D9']]],
+            'alignment' => ['wrapText' => true, 'vertical' => Alignment::VERTICAL_TOP],
+        ];
+
+        $row = 1;
+
+        // Judul
+        $sheet->setCellValue("A{$row}", 'DATA LOKASI: ' . strtoupper($location->name));
+        $sheet->mergeCells("A{$row}:B{$row}");
+        $sheet->getStyle("A{$row}")->applyFromArray($headerStyle);
+        $sheet->getRowDimension($row)->setRowHeight(24);
+        $row += 2;
+
+        // Informasi umum (Field | Value)
+        $fields = [
+            'Nama Lokasi'         => $location->name,
+            'Tipe'                => ucfirst(str_replace('_', '/', $location->type)),
+            'Tahun Ditetapkan'    => $location->year_established ?? '-',
+            'Luas Area'           => $location->area ? number_format($location->area, 2) . ' ha' : '-',
+            'Kerapatan'           => ucfirst($location->density ?? '-'),
+            'Kesehatan Mangrove'  => $location->health_percentage ? $location->health_percentage . '%' : '-',
+            'Skor Kesehatan'      => $location->health_score ?? '-',
+            'Koordinat'           => $location->latitude . ', ' . $location->longitude,
+            'Alamat/Lokasi'       => $location->location_address ?? $location->region ?? '-',
+            'Pengelola'           => $location->manager ?? '-',
+            'Species'             => $location->species ?? '-',
+            'Serapan Karbon'      => $location->carbon_data ?? '-',
+            'Jumlah Kerusakan'    => $location->damages->count(),
+            'Deskripsi'           => $location->description ?? '-',
+        ];
+
+        foreach ($fields as $label => $value) {
+            $sheet->setCellValue("A{$row}", $label);
+            $sheet->setCellValue("B{$row}", (string) $value);
+            $sheet->getStyle("A{$row}")->applyFromArray($labelStyle);
+            $sheet->getStyle("B{$row}")->applyFromArray($valueStyle);
+            $row++;
+        }
+
+        $row++;
+
+        // Detail vegetasi & fauna (jika ada)
+        $details = $location->details;
+        if ($details) {
+            $vegetasi = is_array($details->vegetasi) ? $details->vegetasi : (json_decode($details->vegetasi, true) ?? []);
+            $fauna    = is_array($details->fauna)    ? $details->fauna    : (json_decode($details->fauna, true)    ?? []);
+
+            if (!empty($vegetasi) || !empty($fauna)) {
+                $sheet->setCellValue("A{$row}", 'SPESIES (VEGETASI & FAUNA)');
+                $sheet->mergeCells("A{$row}:B{$row}");
+                $sheet->getStyle("A{$row}")->applyFromArray($headerStyle);
+                $row++;
+
+                if (!empty($vegetasi)) {
+                    $sheet->setCellValue("A{$row}", 'Vegetasi');
+                    $sheet->setCellValue("B{$row}", implode(', ', $vegetasi));
+                    $sheet->getStyle("A{$row}")->applyFromArray($labelStyle);
+                    $sheet->getStyle("B{$row}")->applyFromArray($valueStyle);
+                    $row++;
+                }
+
+                if (!empty($fauna)) {
+                    $sheet->setCellValue("A{$row}", 'Fauna');
+                    $sheet->setCellValue("B{$row}", implode(', ', $fauna));
+                    $sheet->getStyle("A{$row}")->applyFromArray($labelStyle);
+                    $sheet->getStyle("B{$row}")->applyFromArray($valueStyle);
+                    $row++;
+                }
+                $row++;
+            }
+        }
+
+        // Kerusakan & aksi penanganan (jika ada)
+        if ($location->damages->count() > 0) {
+            $sheet->setCellValue("A{$row}", 'KERUSAKAN & AKSI PENANGANAN');
+            $sheet->mergeCells("A{$row}:B{$row}");
+            $sheet->getStyle("A{$row}")->applyFromArray($headerStyle);
+            $row++;
+
+            foreach ($location->damages as $damage) {
+                $sheet->setCellValue("A{$row}", $damage->title . ' (' . $damage->priority . '/' . $damage->status . ')');
+                $sheet->setCellValue("B{$row}", $damage->description ?? '-');
+                $sheet->getStyle("A{$row}")->applyFromArray($labelStyle);
+                $sheet->getStyle("B{$row}")->applyFromArray($valueStyle);
+                $row++;
+
+                foreach ($damage->actions as $action) {
+                    $sheet->setCellValue("A{$row}", '↳ Aksi (' . optional($action->action_date)->format('d/m/Y') . ')');
+                    $sheet->setCellValue("B{$row}", $action->action_description ?? '-');
+                    $sheet->getStyle("A{$row}")->applyFromArray($valueStyle);
+                    $sheet->getStyle("B{$row}")->applyFromArray($valueStyle);
+                    $row++;
+                }
+            }
+        }
+
+        $sheet->getColumnDimension('A')->setWidth(30);
+        $sheet->getColumnDimension('B')->setWidth(70);
+
+        return $spreadsheet;
     }
 
     // ─────────────────────────────────────────────────────────────────────────

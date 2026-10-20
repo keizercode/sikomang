@@ -18,8 +18,16 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+    // sebelumnya:
+    // public function boot(): void
+    // {
+    //     URL::forceScheme('https');
+    // }
+
     public function boot(): void
-    {
+{
+    if (app()->isProduction()) {
         URL::forceScheme('https');
     }
+}
 }

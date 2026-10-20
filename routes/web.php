@@ -146,6 +146,7 @@ Route::prefix('monitoring')->name('monitoring.')->group(function () {
     Route::get('/', [MonitoringController::class, 'index'])->name('index');
     Route::get('/hasil-pemantauan', [MonitoringController::class, 'hasilPemantauan'])->name('hasil-pemantauan');
     Route::get('/lokasi/{slug}', [MonitoringController::class, 'detailLokasi'])->name('detail-lokasi');
+    Route::get('/lokasi/{slug}/export-data', [ExcelExportController::class, 'exportLocationData'])->name('detail-lokasi.export-data');
     Route::get('/export/{category}', [ExcelExportController::class, 'exportMangroveData'])->name('export');
 });
 

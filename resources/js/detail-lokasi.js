@@ -202,10 +202,171 @@ function handleModalClick(e) {
 }
 
 /**
- * Generate Report
+ * ===========================
+ * MENU "DATA" — Modal tabel informasi lokasi
+ * ===========================
  */
-function generateReport() {
-    alert("Fitur generate report akan segera tersedia");
+function openDataModal() {
+    const modal = document.getElementById("dataTableModal");
+    if (modal) {
+        // Pindahkan modal jadi anak langsung <body> (modal ini pakai position:fixed,
+        // jadi aman dipindah) agar CSS mode cetak bisa menargetkannya dengan benar.
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+}
+
+function closeDataModal() {
+    const modal = document.getElementById("dataTableModal");
+    if (modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+}
+
+/**
+ * Cetak hanya tabel data lokasi (bukan seluruh halaman)
+ */
+function printDataTable() {
+    document.body.classList.add("printing-data-table");
+
+    const cleanup = () => document.body.classList.remove("printing-data-table");
+    window.addEventListener("afterprint", cleanup, { once: true });
+
+    window.print();
+
+    // Fallback jika event afterprint tidak terpicu di beberapa browser
+    setTimeout(cleanup, 1000);
+}
+
+/**
+ * ===========================
+ * MENU "REPORT" — Screenshot data yang ditampilkan -> PDF
+ * ===========================
+ */
+function showReportLoading(message) {
+    let el = document.getElementById("reportGeneratingOverlay");
+    if (!el) {
+        el = document.createElement("div");
+        el.id = "reportGeneratingOverlay";
+        el.className = "report-generating";
+        document.body.appendChild(el);
+    }
+    el.innerHTML = `<div class="spinner"></div><span>${message}</span>`;
+}
+
+function hideReportLoading() {
+    const el = document.getElementById("reportGeneratingOverlay");
+    if (el) el.remove();
+}
+
+async function generateReport() {
+    const target = document.getElementById("reportCapture");
+
+    if (!target) {
+        alert("Konten lokasi tidak ditemukan untuk dibuat laporan.");
+        return;
+    }
+
+    if (typeof html2canvas === "undefined" || !window.jspdf) {
+        alert(
+            "Fitur laporan belum siap dimuat. Silakan periksa koneksi internet Anda dan coba lagi."
+        );
+        return;
+    }
+
+    showReportLoading("Mengambil tampilan data...");
+
+    try {
+        const canvas = await html2canvas(target, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#ffffff",
+            ignoreElements: (el) => el.hasAttribute("data-html2canvas-ignore"),
+        });
+
+        showReportLoading("Menyusun laporan PDF...");
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "pt",
+            format: "a4",
+        });
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 32;
+
+        // ---- Header laporan ----
+        const locationName = window.currentLocationData?.name || "Lokasi Mangrove";
+        const now = new Date();
+        const tanggal = now.toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+        });
+        const jam = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+        pdf.setFontSize(14);
+        pdf.setFont(undefined, "bold");
+        pdf.text("Laporan Data Lokasi Mangrove - SIKOMANG", margin, margin);
+
+        pdf.setFontSize(11);
+        pdf.setFont(undefined, "normal");
+        pdf.text(`Lokasi: ${locationName}`, margin, margin + 18);
+        pdf.text(`Diunduh pada: ${tanggal}, ${jam} WIB`, margin, margin + 34);
+
+        pdf.setDrawColor(0, 153, 102);
+        pdf.setLineWidth(1.2);
+        pdf.line(margin, margin + 44, pageWidth - margin, margin + 44);
+
+        // ---- Gambar hasil screenshot, dipotong per halaman (lebih ringan & cepat
+        //      daripada menempel ulang gambar utuh berkali-kali) ----
+        const usableWidth = pageWidth - margin * 2;
+        const pxPerPt = canvas.width / usableWidth; // rasio px sumber : pt PDF
+
+        const firstPageContentPt = pageHeight - (margin + 56) - margin; // halaman 1 ada header
+        const otherPageContentPt = pageHeight - margin * 2; // halaman berikutnya full
+
+        let sourceY = 0;
+        let page = 0;
+
+        while (sourceY < canvas.height) {
+            const contentPt = page === 0 ? firstPageContentPt : otherPageContentPt;
+            const sliceHeightPx = Math.min(contentPt * pxPerPt, canvas.height - sourceY);
+
+            const sliceCanvas = document.createElement("canvas");
+            sliceCanvas.width = canvas.width;
+            sliceCanvas.height = sliceHeightPx;
+            sliceCanvas
+                .getContext("2d")
+                .drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
+
+            const sliceImgData = sliceCanvas.toDataURL("image/png");
+            const sliceHeightPt = sliceHeightPx / pxPerPt;
+            const y = page === 0 ? margin + 56 : margin;
+
+            if (page > 0) pdf.addPage();
+            pdf.addImage(sliceImgData, "PNG", margin, y, usableWidth, sliceHeightPt);
+
+            sourceY += sliceHeightPx;
+            page++;
+        }
+
+        const slug = window.currentLocationData?.slug || "lokasi";
+        const filename = `Laporan-${slug}-${now.toISOString().slice(0, 10)}.pdf`;
+        pdf.save(filename);
+    } catch (error) {
+        console.error("Gagal membuat laporan:", error);
+        alert("Terjadi kesalahan saat membuat laporan. Silakan coba lagi.");
+    } finally {
+        hideReportLoading();
+    }
 }
 
 /**
@@ -260,6 +421,18 @@ function toggleAccordion(id) {
         }, 400);
     }
 }
+
+// ===========================
+// EXPOSE FUNCTIONS GLOBALLY (dipanggil via inline onclick di Blade)
+// ===========================
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.previousImage = previousImage;
+window.nextImage = nextImage;
+window.openDataModal = openDataModal;
+window.closeDataModal = closeDataModal;
+window.printDataTable = printDataTable;
+window.generateReport = generateReport;
 
 // ===========================
 // INITIALIZE ON DOM READY
